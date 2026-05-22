@@ -463,43 +463,50 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   .chart-header { display: none; }
 
   /* ════════════════════════════════════
-     주문 탭: 주문폼(좌) | 호가창(우)
-                    + 포지션패널(하단)
+     주문 탭: CSS Grid — 전체 페이지 스크롤
+     좌(주문폼) | 우(호가창 sticky)
+     하단 전폭: 포지션패널
      ════════════════════════════════════ */
-  .page[data-mob-tab="order"] .page-inner {
-    flex-direction: row;
-    align-items: flex-start;
-  }
 
-  /* 주문폼: 왼쪽 56%, 세로 스크롤 */
-  .page[data-mob-tab="order"] .right-panel {
-    display: flex !important;
-    flex-direction: column;
-    order: -1;
-    width: 56%;
-    height: calc(100% - 215px);
+  /* page-inner 자체가 스크롤 컨테이너 */
+  .page[data-mob-tab="order"] .page-inner {
+    display: grid;
+    grid-template-columns: 56% 44%;
+    grid-template-rows: auto 215px;
+    height: calc(100vh - 44px - 54px);
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    border-left: none;
-    border-right: 1px solid #21262d;
-    flex-shrink: 0;
   }
 
-  /* 호가창: 오른쪽 44%, 고정 */
+  /* page-left: ghost (자식이 grid에 직접 참여) */
   .page[data-mob-tab="order"] .page-left {
-    flex: 1;
-    display: flex;
+    display: contents;
+  }
+
+  /* 주문폼: 좌열, 자연 높이 (내부 스크롤 없음) */
+  .page[data-mob-tab="order"] .right-panel {
+    display: flex !important;
     flex-direction: column;
-    height: calc(100% - 215px);
-    overflow: hidden;
-    min-height: 0;
+    grid-column: 1;
+    grid-row: 1;
+    height: auto;
+    overflow: visible;
+    border-right: 1px solid #21262d;
   }
+
+  /* main-row: 우열, sticky — 스크롤해도 화면에 고정 */
   .page[data-mob-tab="order"] .main-row {
-    flex: 1;
-    min-height: 0;
+    grid-column: 2;
+    grid-row: 1;
     display: flex;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 44px - 54px - 215px);
+    overflow: hidden;
   }
+
+  /* 호가창 */
   .page[data-mob-tab="order"] .orderbook {
     display: flex !important;
     flex: 1;
@@ -507,24 +514,25 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     border-right: none;
     border-left: none;
   }
-  /* 호가창 컬럼 레이블·누적합계 숨김 (가격+수량만 표시) */
+
+  /* 포지션패널: 전폭, 두 번째 행 */
+  .page[data-mob-tab="order"] .bottom-panel {
+    display: flex !important;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    flex-direction: column;
+    height: 215px;
+    border-top: 2px solid #21262d;
+    overflow: hidden;
+    background: #0b0e11;
+  }
+
+  /* 호가창 컬럼 레이블·누적합계 숨김 */
   .page[data-mob-tab="order"] .ob-col-labels { display: none; }
   .page[data-mob-tab="order"] .ob-t          { display: none; }
 
-  /* 포지션패널: 하단 215px 고정 */
-  .page[data-mob-tab="order"] .bottom-panel {
-    display: flex !important;
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 215px;
-    background: #0b0e11;
-    border-top: 2px solid #21262d;
-    z-index: 5;
-    flex-direction: column;
-  }
-
-  /* 심볼 헤더 (주문폼 최상단) */
-  .page[data-mob-tab="order"] .mob-sym-bar { display: flex; }
+  /* 심볼 헤더 */
+  .page[data-mob-tab="order"] .mob-sym-bar   { display: flex; }
 
   /* ════════════════════════════════════
      차트 탭: 풀스크린 캔들차트
