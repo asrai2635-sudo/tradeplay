@@ -468,23 +468,24 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
      하단 전폭: 포지션패널
      ════════════════════════════════════ */
 
-  /* page-inner 자체가 스크롤 컨테이너 */
+  /* ─── 주문 탭: 주문폼(좌) + 호가창(우) 만 ─── */
+
   .page[data-mob-tab="order"] .page-inner {
     display: grid;
     grid-template-columns: 56% 44%;
-    grid-template-rows: auto 215px;
+    grid-template-rows: auto;
     height: calc(100vh - 44px - 54px);
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* page-left: ghost (자식이 grid에 직접 참여) */
+  /* page-left 투명 처리 (자식이 grid에 직접 참여) */
   .page[data-mob-tab="order"] .page-left {
     display: contents;
   }
 
-  /* 주문폼: 좌열, 자연 높이 (내부 스크롤 없음) */
+  /* 주문폼: 좌열 — 자연 높이, 내부 스크롤 없음 */
   .page[data-mob-tab="order"] .right-panel {
     display: flex !important;
     flex-direction: column;
@@ -495,14 +496,14 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     border-right: 1px solid #21262d;
   }
 
-  /* main-row: 우열, sticky — 스크롤해도 화면에 고정 */
+  /* 호가창 컨테이너: 우열 — sticky로 항상 우측 고정 */
   .page[data-mob-tab="order"] .main-row {
     grid-column: 2;
     grid-row: 1;
     display: flex;
     position: sticky;
     top: 0;
-    height: calc(100vh - 44px - 54px - 215px);
+    height: calc(100vh - 44px - 54px);
     overflow: hidden;
   }
 
@@ -510,24 +511,14 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   .page[data-mob-tab="order"] .orderbook {
     display: flex !important;
     flex: 1;
-    width: 100%;
     border-right: none;
     border-left: none;
   }
 
-  /* 포지션패널: 전폭, 두 번째 행 */
-  .page[data-mob-tab="order"] .bottom-panel {
-    display: flex !important;
-    grid-column: 1 / -1;
-    grid-row: 2;
-    flex-direction: column;
-    height: 215px;
-    border-top: 2px solid #21262d;
-    overflow: hidden;
-    background: #0b0e11;
-  }
+  /* 포지션패널은 주문 탭에서 완전 숨김 — 포지션 탭에서만 봄 */
+  .page[data-mob-tab="order"] .bottom-panel { display: none !important; }
 
-  /* 호가창 컬럼 레이블·누적합계 숨김 */
+  /* 호가창 레이블·누적합계 숨김 */
   .page[data-mob-tab="order"] .ob-col-labels { display: none; }
   .page[data-mob-tab="order"] .ob-t          { display: none; }
 
