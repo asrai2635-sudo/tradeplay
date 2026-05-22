@@ -345,6 +345,10 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 .lcp-pct-btn { padding:9px; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text2); font-family:inherit; font-size:14px; cursor:pointer; transition:all 0.1s; text-align:center; }
 .lcp-pct-btn:hover { background:var(--bg4); color:var(--text); }
 .lcp-pct-btn.active { background:rgba(59,130,246,0.15); border-color:var(--blue); color:var(--blue); }
+.lcp-type-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+.lcp-type-btn { padding:10px; border-radius:5px; border:1px solid var(--border); background:var(--bg3); color:var(--text2); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+.lcp-type-btn[data-type="tp"].active { background:rgba(14,203,129,0.15); border-color:var(--green); color:var(--green); }
+.lcp-type-btn[data-type="sl"].active { background:rgba(246,70,93,0.15); border-color:var(--red); color:var(--red); }
 .lcp-pnl-row { display:flex; justify-content:space-between; font-size:15px; padding:12px 0; border-top:1px solid var(--border); margin-top:8px; }
 .lcp-confirm-btn { width:100%; padding:16px; border:none; border-radius:5px; background:var(--yellow); color:#000; font-size:18px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:12px; transition:opacity 0.15s; }
 .lcp-confirm-btn:hover { opacity:0.85; }
@@ -843,6 +847,10 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
       <span id="lcp-sym" style="font-weight:700;color:var(--text)"></span>
       <span>진입 <span id="lcp-entry" style="color:var(--text)"></span></span>
       <span>보유 <span id="lcp-total-qty" style="color:var(--text)"></span></span>
+    </div>
+    <div class="lcp-type-row">
+      <button class="lcp-type-btn active" data-type="tp" onclick="setLcpType('tp',this)">✅ TP (익절)</button>
+      <button class="lcp-type-btn" data-type="sl" onclick="setLcpType('sl',this)">🛑 SL (손절)</button>
     </div>
     <div class="form-row">
       <label class="form-label">청산 수량</label>
@@ -2057,9 +2065,10 @@ function updatePriceLines(page) {
             title: `📌 ${o.dir==='long'?'▲ LONG':'▼ SHORT'} $${fmt(o.price)}` });
     });
     futLimitOrders.filter(o => o.sym === sym).forEach(o => {
-      add({ price: o.price, color: '#f59e0b',
+      const isSL = o.type === 'sl';
+      add({ price: o.price, color: isSL ? '#f6465d' : '#0ecb81',
             lineWidth: 1, lineStyle: 2, axisLabelVisible: true,
-            title: '📌 청산예약 $' + fmt(o.price) });
+            title: `${isSL ? '🛑 SL' : '✅ TP'} $${fmt(o.price)}` });
     });
   }
 }
@@ -2486,7 +2495,11 @@ function checkLiquidations() {
   futLimitOrders.forEach(o => {
     const pos = futPositions.find(p => p.id === o.posId);
     if (!pos) { triggered.push(o); return; }
-    if ((pos.dir==='long'&&price>=o.price)||(pos.dir==='short'&&price<=o.price)) {
+    const isSL = o.type === 'sl';
+    const hit = isSL
+      ? (pos.dir==='long'?price<=o.price:price>=o.price)
+      : (pos.dir==='long'?price>=o.price:price<=o.price);
+    if (hit) {
       triggered.push(o);
       closePositionPartial(pos.id, o.price, o.fraction || 1);
     }
@@ -2543,10 +2556,15 @@ function openLcpModal(posId) {
   $('lcp-total-qty').textContent = p.qty.toFixed(4) + ' ' + p.sym.replace('USDT','');
   $('lcp-qty').value = p.qty.toFixed(4);
   $('lcp-price').value = price.toFixed(2);
-  // 100% 버튼 기본 활성
   document.querySelectorAll('.lcp-pct-btn').forEach(b => b.classList.toggle('active', b.dataset.pct==='100'));
+  // 현재가 기준으로 TP/SL 자동 제안
+  const inProfit = (p.dir==='long' && price > p.entryPrice) || (p.dir==='short' && price < p.entryPrice);
+  document.querySelectorAll('.lcp-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type===(inProfit?'tp':'sl')));
   updateLcpPnl();
   $('lcpOverlay').style.display = 'flex';
+}
+function setLcpType(type, btn) {
+  document.querySelectorAll('.lcp-type-btn').forEach(b => b.classList.toggle('active', b === btn));
 }
 function closeLcpModal() { $('lcpOverlay').style.display = 'none'; }
 function setLcpPct(pct) {
@@ -2577,9 +2595,11 @@ function confirmLimitClose() {
   if (!limitPrice || limitPrice <= 0) { toast('지정가를 입력하세요', 'var(--yellow)'); return; }
   if (!qty || qty <= 0) { toast('수량을 확인하세요', 'var(--yellow)'); return; }
   const fraction = Math.min(qty / p.qty, 1);
+  const type = document.querySelector('.lcp-type-btn.active')?.dataset.type || 'tp';
   futLimitOrders = futLimitOrders.filter(o => o.posId !== lcpState.posId);
-  futLimitOrders.push({ id:Date.now(), posId:lcpState.posId, sym:p.sym, price:limitPrice, fraction });
-  toast(`📌 ${p.sym.replace('USDT','')} ${(fraction*100).toFixed(0)}% @ $${fmt(limitPrice)} 청산 예약`, 'var(--yellow)');
+  futLimitOrders.push({ id:Date.now(), posId:lcpState.posId, sym:p.sym, price:limitPrice, fraction, type });
+  const typeLabel = type === 'sl' ? '🛑 SL' : '✅ TP';
+  toast(`${typeLabel} ${p.sym.replace('USDT','')} ${(fraction*100).toFixed(0)}% @ $${fmt(limitPrice)} 예약`, type==='sl'?'var(--red)':'var(--green)');
   saveState(); updatePriceLines('futures'); renderFutPositions();
   closeLcpModal();
 }
