@@ -1914,18 +1914,18 @@ function _doRenderOB(page) {
 function obClick(page, price) {
   if (page === 'spot') {
     if (S.spot.ot !== 'limit') {
-      S.spot.ot = 'limit';
       document.querySelectorAll('#page-spot .ot-tab').forEach((t,i) => t.classList.toggle('active', i===1));
-      $('sLimitRow').style.display = 'block';
     }
+    S.spot.ot = 'limit';
+    $('sLimitRow').style.display = 'block';
     $('sLimitPrice').value = price;
     updateSpotInfo();
   } else {
     if (S.futures.ot !== 'limit') {
-      S.futures.ot = 'limit';
       document.querySelectorAll('#page-futures .ot-tab').forEach((t,i) => t.classList.toggle('active', i===1));
-      $('fLimitRow').style.display = 'block';
     }
+    S.futures.ot = 'limit';
+    $('fLimitRow').style.display = 'block';
     $('fLimitPrice').value = price;
     updateFutInfo();
   }
@@ -2079,7 +2079,7 @@ function setPct(page, pct) {
   const ratio = pct / 100;
   if (page === 'spot') {
     if (S.spot.dir === 'buy') {
-      $('sAmt').value = Math.floor(wallet * ratio).toString();
+      $('sAmt').value = Math.max(0, Math.floor(wallet * ratio)).toString();
     } else {
       const sym = S.spot.sym.replace('USDT', '');
       const qty = holdings[sym]?.qty || 0;
@@ -2087,7 +2087,7 @@ function setPct(page, pct) {
     }
     updateSpotInfo();
   } else {
-    $('fMargin').value = Math.floor(wallet * ratio).toString();
+    $('fMargin').value = Math.max(0, Math.floor(wallet * ratio)).toString();
     updateFutInfo();
   }
 }
@@ -2318,10 +2318,9 @@ function execFutures() {
   const lev=parseInt($('fLevSlider').value);
   const margin=parseFloat($('fMargin').value)||0;
   if(margin<1){toast('마진을 입력하세요','var(--red)');return;}
-  if(margin>wallet){toast('잔고 부족','var(--red)');return;}
-  const dir=S.futures.dir;
   const posVal=margin*lev;
   const fee=posVal*0.0006;
+  if(margin+fee>wallet){toast('잔고 부족','var(--red)');return;}
   const qty=posVal/ep;
   const liqP=dir==='long'?ep*(1-1/lev+0.005):ep*(1+1/lev-0.005);
   wallet-=(margin+fee);
