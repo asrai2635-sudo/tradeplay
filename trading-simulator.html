@@ -453,8 +453,9 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   .page-inner {
     height: calc(100vh - 44px - 54px);
     overflow: hidden;
-    position: relative;
   }
+  /* 푸터 모바일 숨김 */
+  #site-footer { display: none !important; }
   .center       { display: none !important; }
   .draw-toolbar { display: none !important; }
   .orderbook    { display: none !important; }
@@ -468,43 +469,41 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
      하단 전폭: 포지션패널
      ════════════════════════════════════ */
 
-  /* ─── 주문 탭: 주문폼(좌) + 호가창(우) 만 ─── */
+  /* ─── 주문 탭: 주문폼(좌 56%) + 호가창(우 44%) ─── */
 
   .page[data-mob-tab="order"] .page-inner {
-    display: grid;
-    grid-template-columns: 56% 44%;
-    grid-template-rows: auto;
+    flex-direction: row;
     height: calc(100vh - 44px - 54px);
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
   }
 
-  /* page-left 투명 처리 (자식이 grid에 직접 참여) */
-  .page[data-mob-tab="order"] .page-left {
-    display: contents;
-  }
-
-  /* 주문폼: 좌열 — 자연 높이, 내부 스크롤 없음 */
+  /* 주문폼: 왼쪽 56% — order:-1로 좌측 배치, 내부 스크롤 */
   .page[data-mob-tab="order"] .right-panel {
     display: flex !important;
     flex-direction: column;
-    grid-column: 1;
-    grid-row: 1;
-    height: auto;
-    overflow: visible;
+    order: -1;
+    width: 56%;
+    flex-shrink: 0;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
     border-right: 1px solid #21262d;
   }
 
-  /* 호가창 컨테이너: 우열 — sticky로 항상 우측 고정 */
-  .page[data-mob-tab="order"] .main-row {
-    grid-column: 2;
-    grid-row: 1;
+  /* 호가창 컨테이너: 오른쪽 44% */
+  .page[data-mob-tab="order"] .page-left {
+    flex: 1;
     display: flex;
-    position: sticky;
-    top: 0;
-    height: calc(100vh - 44px - 54px);
+    flex-direction: column;
+    height: 100%;
     overflow: hidden;
+    min-width: 0;
+  }
+  .page[data-mob-tab="order"] .main-row {
+    flex: 1;
+    display: flex;
+    min-height: 0;
   }
 
   /* 호가창 */
@@ -515,7 +514,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     border-left: none;
   }
 
-  /* 포지션패널은 주문 탭에서 완전 숨김 — 포지션 탭에서만 봄 */
+  /* 포지션패널: 주문 탭에서 숨김 */
   .page[data-mob-tab="order"] .bottom-panel { display: none !important; }
 
   /* 호가창 레이블·누적합계 숨김 */
@@ -523,7 +522,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   .page[data-mob-tab="order"] .ob-t          { display: none; }
 
   /* 심볼 헤더 */
-  .page[data-mob-tab="order"] .mob-sym-bar   { display: flex; }
+  .page[data-mob-tab="order"] .mob-sym-bar { display: flex; }
 
   /* ════════════════════════════════════
      차트 탭: 풀스크린 캔들차트
@@ -586,15 +585,16 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   .mob-sym-bar {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 9px 12px 8px;
+    gap: 6px;
+    padding: 8px 10px 7px;
     border-bottom: 1px solid #21262d;
     flex-shrink: 0;
     background: #131722;
+    overflow: hidden;
   }
-  .mob-sym-name  { font-size: 14px; font-weight: 700; color: #e2e8f0; letter-spacing: 0.3px; }
-  .mob-sym-price { font-size: 14px; font-weight: 700; }
-  .mob-sym-chg   { font-size: 11px; margin-left: auto; font-weight: 500; }
+  .mob-sym-name  { font-size: 13px; font-weight: 700; color: #e2e8f0; white-space: nowrap; }
+  .mob-sym-price { font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .mob-sym-chg   { font-size: 11px; margin-left: auto; font-weight: 500; white-space: nowrap; }
 
   /* ════════════════════════════════════
      호가창 스타일 (좁은 컬럼 대응)
@@ -3482,7 +3482,7 @@ init();
 </script>
 
 <!-- 푸터 -->
-<div style="background:#0b0e11;border-top:1px solid #21262d;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#4a5568;flex-shrink:0;gap:16px;flex-wrap:wrap">
+<div id="site-footer" style="background:#0b0e11;border-top:1px solid #21262d;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#4a5568;flex-shrink:0;gap:16px;flex-wrap:wrap">
   <span>© 2025 TradePlay · 본 서비스는 교육 목적의 모의투자 시뮬레이터입니다</span>
   <div style="display:flex;gap:16px">
     <a href="privacy.html" target="_blank" style="color:#4a5568;text-decoration:none" onmouseover="this.style.color='#8896ae'" onmouseout="this.style.color='#4a5568'">개인정보처리방침</a>
