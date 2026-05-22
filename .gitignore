@@ -1,0 +1,11 @@
+# 백업 파일
+*-backup.html
+v0.*.html
+v1.*.html
+
+# 기획서 및 개발용 파일
+*.md
+orderbook_module.js
+
+# 이미지 (참고용)
+*.png
