@@ -131,6 +131,11 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .pct-btn { padding:4px; background:var(--bg3); border:1px solid var(--border); border-radius:3px; color:var(--text2); font-family:inherit; font-size:10px; cursor:pointer; transition:all 0.1s; }
 .pct-btn:hover { background:var(--bg4); color:var(--text); }
 
+/* PCT SLIDER ROW */
+.pct-slider-row { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+.pct-slider-label { font-size:11px; color:var(--text3); white-space:nowrap; flex-shrink:0; }
+.pct-slider-val { font-size:12px; font-weight:700; color:var(--yellow); min-width:30px; text-align:right; flex-shrink:0; }
+
 /* ORDERBOOK */
 .orderbook { width: 210px; border-right: 1px solid var(--border); background: var(--bg2); display: flex; flex-direction: column; flex-shrink: 0; }
 .ob-header { padding: 7px 10px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--text2); display: flex; justify-content: space-between; }
@@ -524,20 +529,23 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
       </div>
       <div class="form-row" id="sLimitRow" style="display:none">
         <label class="form-label">지정가 (USDT)</label>
-        <input class="form-input" id="sLimitPrice" type="number" placeholder="가격 입력">
+        <input class="form-input" id="sLimitPrice" type="number" placeholder="가격 입력" oninput="updateSpotInfo()">
+      </div>
+      <div class="form-row" id="sAmtRow">
+        <label class="form-label" id="sAmtLabel">주문금액 (USDT)</label>
+        <input class="form-input" id="sAmt" type="number" value="1000" min="1" oninput="onSAmtChange()">
       </div>
       <div class="form-row">
-        <label class="form-label" id="sAmtLabel">주문금액 (USDT)</label>
-        <input class="form-input" id="sAmt" type="number" value="1000" min="1" oninput="updateSpotInfo()">
+        <label class="form-label" id="sCoinQtyLabel">수량 (코인)</label>
+        <input class="form-input" id="sCoinQty" type="number" min="0" step="any" placeholder="코인 수량" oninput="onSCoinQtyChange()">
       </div>
-      <div class="pct-row">
-        <button class="pct-btn" onclick="setPct('spot',25)">25%</button>
-        <button class="pct-btn" onclick="setPct('spot',50)">50%</button>
-        <button class="pct-btn" onclick="setPct('spot',75)">75%</button>
-        <button class="pct-btn" onclick="setPct('spot',100)">100%</button>
+      <div class="pct-slider-row">
+        <span class="pct-slider-label">잔고 비율</span>
+        <input type="range" id="sPctSlider" min="1" max="100" value="10" step="1" oninput="onSPctSlider()">
+        <span class="pct-slider-val" id="sPctVal">10%</span>
       </div>
       <div class="info-rows">
-        <div class="info-row"><span>예상 수량</span><span class="info-val" id="sQtyInfo">—</span></div>
+        <div class="info-row"><span id="sQtyLabel">예상 수량</span><span class="info-val" id="sQtyInfo">—</span></div>
         <div class="info-row"><span>수수료 (0.1%)</span><span class="info-val" id="sFeeInfo">—</span></div>
         <div class="info-row"><span>가용 잔고</span><span class="info-val" id="sBalInfo">—</span></div>
       </div>
@@ -694,7 +702,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
       </div>
       <div class="form-row" id="fLimitRow" style="display:none">
         <label class="form-label">지정가 (USDT)</label>
-        <input class="form-input" id="fLimitPrice" type="number" placeholder="가격 입력">
+        <input class="form-input" id="fLimitPrice" type="number" placeholder="가격 입력" oninput="updateFutInfo()">
       </div>
       <div class="lev-row">
         <span class="lev-label">레버리지</span>
@@ -703,13 +711,16 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
       </div>
       <div class="form-row">
         <label class="form-label">마진 (USDT)</label>
-        <input class="form-input" id="fMargin" type="number" value="1000" min="1" oninput="updateFutInfo()">
+        <input class="form-input" id="fMargin" type="number" value="1000" min="1" oninput="onFMarginChange()">
       </div>
-      <div class="pct-row">
-        <button class="pct-btn" onclick="setPct('futures',25)">25%</button>
-        <button class="pct-btn" onclick="setPct('futures',50)">50%</button>
-        <button class="pct-btn" onclick="setPct('futures',75)">75%</button>
-        <button class="pct-btn" onclick="setPct('futures',100)">100%</button>
+      <div class="form-row">
+        <label class="form-label">수량 (코인)</label>
+        <input class="form-input" id="fCoinQty" type="number" min="0" step="any" placeholder="코인 수량" oninput="onFCoinQtyChange()">
+      </div>
+      <div class="pct-slider-row">
+        <span class="pct-slider-label">잔고 비율</span>
+        <input type="range" id="fPctSlider" min="1" max="100" value="10" step="1" oninput="onFPctSlider()">
+        <span class="pct-slider-val" id="fPctVal">10%</span>
       </div>
       <div class="info-rows">
         <div class="info-row"><span>포지션 가치</span><span class="info-val" id="fPosVal">—</span></div>
@@ -2072,7 +2083,7 @@ function setPct(page, pct) {
     } else {
       const sym = S.spot.sym.replace('USDT', '');
       const qty = holdings[sym]?.qty || 0;
-      $('sAmt').value = (qty * ratio).toFixed(6);
+      $('sCoinQty').value = (qty * ratio).toFixed(6);
     }
     updateSpotInfo();
   } else {
@@ -2100,7 +2111,8 @@ function setSpotDir(dir) {
   const btn=$('sExecBtn');
   btn.className='exec-btn '+(dir==='buy'?'exec-buy':'exec-sell');
   btn.textContent=dir==='buy'?'매수 실행':'매도 실행';
-  $('sAmtLabel').textContent=dir==='buy'?'주문금액 (USDT)':'매도 수량 (코인)';
+  $('sAmtRow').style.display=dir==='buy'?'block':'none';
+  $('sCoinQtyLabel').textContent=dir==='buy'?'수량 (코인)':'매도 수량 (코인)';
   updateSpotInfo();
 }
 function setFutDir(dir) {
@@ -2118,22 +2130,74 @@ function onLev() {
 }
 
 // ══════════════════════════════════════════════════════
+// SPOT / FUTURES QUANTITY BIDIRECTIONAL SYNC + PCT SLIDERS
+// ══════════════════════════════════════════════════════
+function onSAmtChange() {
+  const price=S.spot.price; if(!price) return;
+  const ep=S.spot.ot==='limit'?(parseFloat($('sLimitPrice').value)||price):price;
+  const amt=parseFloat($('sAmt').value)||0;
+  const qtyEl=$('sCoinQty');
+  if(qtyEl) qtyEl.value=amt>0?(amt/ep).toFixed(6):'';
+  updateSpotInfo();
+}
+function onSCoinQtyChange() {
+  if(S.spot.dir==='sell'){ updateSpotInfo(); return; }
+  const price=S.spot.price; if(!price) return;
+  const ep=S.spot.ot==='limit'?(parseFloat($('sLimitPrice').value)||price):price;
+  const qty=parseFloat($('sCoinQty').value)||0;
+  const amtEl=$('sAmt');
+  if(amtEl) amtEl.value=qty>0?(qty*ep).toFixed(2):'';
+  updateSpotInfo();
+}
+function onSPctSlider() {
+  const pct=parseInt($('sPctSlider').value);
+  $('sPctVal').textContent=pct+'%';
+  setPct('spot',pct);
+}
+function onFMarginChange() {
+  const price=S.futures.price; if(!price) return;
+  const ep=S.futures.ot==='limit'?(parseFloat($('fLimitPrice').value)||price):price;
+  const lev=parseInt($('fLevSlider').value);
+  const margin=parseFloat($('fMargin').value)||0;
+  const qtyEl=$('fCoinQty');
+  if(qtyEl) qtyEl.value=margin>0&&ep>0?((margin*lev)/ep).toFixed(6):'';
+  updateFutInfo();
+}
+function onFCoinQtyChange() {
+  const price=S.futures.price; if(!price) return;
+  const ep=S.futures.ot==='limit'?(parseFloat($('fLimitPrice').value)||price):price;
+  const lev=parseInt($('fLevSlider').value);
+  const qty=parseFloat($('fCoinQty').value)||0;
+  const marginEl=$('fMargin');
+  if(marginEl) marginEl.value=qty>0&&ep>0?((qty*ep)/lev).toFixed(2):'';
+  updateFutInfo();
+}
+function onFPctSlider() {
+  const pct=parseInt($('fPctSlider').value);
+  $('fPctVal').textContent=pct+'%';
+  setPct('futures',pct);
+}
+
+// ══════════════════════════════════════════════════════
 // ORDER INFO
 // ══════════════════════════════════════════════════════
 function updateSpotInfo() {
   const price=S.spot.price; if(!price) return;
   const ep=S.spot.ot==='limit'?(parseFloat($('sLimitPrice').value)||price):price;
   const dir=S.spot.dir;
-  const dec=price>10000?2:price>100?3:price>1?4:6;
   if(dir==='buy'){
     const amt=parseFloat($('sAmt').value)||0;
     const qty=(amt/ep);
+    const qtyEl=$('sCoinQty');
+    if(qtyEl && document.activeElement!==qtyEl) qtyEl.value=qty>0?qty.toFixed(6):'';
+    if($('sQtyLabel')) $('sQtyLabel').textContent='예상 수량';
     $('sQtyInfo').textContent=qty.toFixed(6)+' '+S.spot.sym.replace('USDT','');
     $('sFeeInfo').textContent='$'+fmt(amt*0.001);
     $('sBalInfo').textContent='$'+fmt(wallet);
   } else {
-    const qty=parseFloat($('sAmt').value)||0;
+    const qty=parseFloat($('sCoinQty').value)||0;
     const sym=S.spot.sym.replace('USDT','');
+    if($('sQtyLabel')) $('sQtyLabel').textContent='예상 금액';
     $('sQtyInfo').textContent='$'+fmt(qty*ep);
     $('sFeeInfo').textContent='$'+fmt(qty*ep*0.001);
     $('sBalInfo').textContent=(holdings[sym]?.qty||0).toFixed(6)+' '+sym;
@@ -2150,6 +2214,8 @@ function updateFutInfo() {
   $('fPosVal').textContent='$'+fmt(posVal);
   $('fLiqPrice').textContent='$'+fmt(liqP);
   $('fFee').textContent='$'+fmt(posVal*0.0006);
+  const qtyEl=$('fCoinQty');
+  if(qtyEl && document.activeElement!==qtyEl && ep>0) qtyEl.value=margin>0?((margin*lev)/ep).toFixed(6):'';
 }
 
 // ══════════════════════════════════════════════════════
@@ -2175,7 +2241,8 @@ function execSpot() {
     spotHistory.unshift({sym:sym+'/USDT',dir:'buy',price:ep,qty,amount:amt,pnl:null,time:Date.now()});
     toast(`▲ ${sym} ${qty.toFixed(6)}개 매수 @ $${fmt(ep)}`,'var(--green)');
   } else {
-    const qty=parseFloat($('sAmt').value)||0;
+    const qty=parseFloat($('sCoinQty').value)||0;
+    if(qty<=0){toast('수량을 입력하세요','var(--red)');return;}
     const h=holdings[sym];
     if(!h||h.qty<qty){toast('보유 수량 부족','var(--red)');return;}
     const proceeds=qty*ep*(1-0.001);
