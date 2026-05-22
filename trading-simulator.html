@@ -400,10 +400,14 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   .draw-toolbar { display: none; }
 }
 
-/* 모바일 메인 (768px 이하) */
+/* 모바일 전용 요소: 데스크탑에서 숨김 */
+.mob-sym-bar { display: none; }
+.mob-nav     { display: none; }
+
+/* ══ 모바일 (768px 이하) ══════════════════════════════════ */
 @media (max-width: 768px) {
 
-  /* ── 탑바 ─────────────────────────── */
+  /* ── 탑바 ── */
   .topnav { padding: 0 10px; gap: 5px; height: 46px; }
   .logo { font-size: 16px; }
   .main-tab { padding: 0 14px; font-size: 14px; }
@@ -413,99 +417,151 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   .wallet-val { font-size: 13px; font-weight: 700; }
   .rank-btn { padding: 5px 9px; font-size: 12px; }
 
-  /* ── 메인 레이아웃: 좌(주문폼) | 우(호가창) ─── */
-  /* page-inner는 기본 flex-row 유지 */
-  .page-inner { flex-direction: row; }
-
-  /* 주문 폼 → 왼쪽 54% */
-  .right-panel {
-    order: -1;
-    width: 54%;
-    flex-shrink: 0;
-    border-left: none;
-    border-right: 1px solid var(--border);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+  /* ── 하단 탭 바 ── */
+  .mob-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 52px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    z-index: 200;
   }
+  .mob-nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    border-top: 2px solid transparent;
+    cursor: pointer;
+    color: var(--text3);
+    font-size: 11px;
+    padding: 0;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .mob-nav-btn.active { color: var(--blue); border-top-color: var(--blue); }
+  .mob-nav-icon { font-size: 19px; line-height: 1.1; }
 
-  /* page-left → 오른쪽 (나머지): 호가창 + 포지션 */
-  .page-left { flex: 1; min-width: 0; min-height: 0; }
-  .main-row  { flex: 1; min-height: 0; }
+  /* ── 메인 레이아웃: 세로 단일 컬럼 ── */
+  .page { padding-bottom: 52px; }
+  .page-inner {
+    flex-direction: column;
+    height: calc(100vh - 46px - 52px);
+    overflow: hidden;
+  }
+  .page-left { display: flex; flex-direction: column; min-height: 0; }
+  .main-row  { min-height: 0; }
 
-  /* 차트·드로잉 숨김 */
-  .center       { display: none; }
-  .draw-toolbar { display: none; }
+  /* 기본: 모든 콘텐츠 섹션 숨김 */
+  .center       { display: none !important; }
+  .draw-toolbar { display: none !important; }
+  .orderbook    { display: none !important; }
+  .bottom-panel { display: none !important; }
+  .right-panel  { display: none !important; }
+  .chart-header { display: none; }
 
-  /* 호가창 → 오른쪽 전체 차지 */
-  .orderbook {
+  /* ── 주문 탭 ── */
+  .page[data-mob-tab="order"] .orderbook {
     display: flex !important;
     width: 100%;
-    flex: 1;
+    height: 42vh;
+    flex-shrink: 0;
     border-right: none;
+    border-left: none;
   }
+  .page[data-mob-tab="order"] .right-panel {
+    display: flex !important;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-left: none;
+    order: unset;
+  }
+  .page[data-mob-tab="order"] .mob-sym-bar { display: flex; }
+
+  /* ── 차트 탭 ── */
+  .page[data-mob-tab="chart"] .page-left { flex: 1; }
+  .page[data-mob-tab="chart"] .main-row  { flex: 1; display: flex; }
+  .page[data-mob-tab="chart"] .center    { display: flex !important; flex: 1; flex-direction: column; }
+  .page[data-mob-tab="chart"] .chart-header { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; }
+  .page[data-mob-tab="chart"] .tf-row    { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+
+  /* ── 포지션 탭 ── */
+  .page[data-mob-tab="pos"] .page-left   { flex: 1; }
+  .page[data-mob-tab="pos"] .bottom-panel {
+    display: flex !important;
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* ── 심볼 헤더 (주문 탭 상단) ── */
+  .mob-sym-bar {
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px 9px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--bg2);
+    flex-wrap: wrap;
+  }
+  .mob-sym-name  { font-size: 16px; font-weight: 700; color: var(--text); }
+  .mob-sym-price { font-size: 15px; font-weight: 700; }
+  .mob-sym-chg   { font-size: 12px; }
+
+  /* ── 호가창 ── */
   .ob-header { padding: 5px 8px; font-size: 10px; }
   .ob-row    { padding: 2px 8px; font-size: 12px; }
   .ob-mid    { padding: 5px 8px; }
   .ob-mid-price { font-size: 14px; }
 
-  /* ── 주문 폼 내부 ─────────────────── */
-  .order-form { padding: 8px 10px; }
-
-  /* 심볼 헤더 (chart-header는 숨겨져있지만 안전하게) */
-  .chart-header { display: none; }
-
-  /* 탭 */
-  .ot-tab   { font-size: 13px; padding: 7px; }
+  /* ── 주문 폼 ── */
+  .order-form { padding: 8px 12px 16px; }
+  .ot-tab { font-size: 13px; padding: 7px; }
   .buy-tab, .sell-tab   { font-size: 13px; padding: 9px 4px; }
   .long-tab, .short-tab { font-size: 13px; padding: 9px 4px; }
-
-  /* 폼 인풋 */
   .form-label { font-size: 11px; margin-bottom: 3px; }
   .form-input { padding: 9px 10px; font-size: 13px; border-radius: 6px; }
-
-  /* 레버리지 슬라이더 */
   .lev-row { margin-bottom: 7px; }
   .lev-label { font-size: 11px; }
   .lev-val   { font-size: 13px; }
-
-  /* 잔고비율 슬라이더 */
   .pct-slider-label { font-size: 11px; }
   .pct-slider-val   { font-size: 12px; }
-
-  /* 정보 행 */
   .info-row { font-size: 12px; padding: 2px 0; }
   .info-val { font-size: 12px; }
 
-  /* 진입 버튼: 크고 둥글게 */
+  /* ── 체결 버튼: 크게 ── */
   .exec-btn {
-    padding: 15px;
-    font-size: 16px;
+    padding: 16px;
+    font-size: 17px;
     font-weight: 700;
-    border-radius: 10px;
-    letter-spacing: 0.2px;
-    margin-top: 8px;
+    border-radius: 12px;
+    letter-spacing: 0.3px;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    width: 100%;
   }
 
-  /* 청산 버튼 */
+  /* ── 포지션 패널 ── */
   .pos-mkt-btn { font-size: 11px; padding: 5px 8px; }
   .pos-lmt-btn { font-size: 11px; padding: 5px 8px; }
-
-  /* ── 하단 포지션 패널 ─────────────── */
-  .bottom-panel {
-    height: 195px;
-    border-top: 2px solid var(--border);
-  }
   .bp-tabs { padding: 0 4px; }
-  .bp-tab  { font-size: 12px; padding: 8px 8px; }
+  .bp-tab  { font-size: 13px; padding: 10px 10px; }
   .bt-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .bt-header { font-size: 11px; padding: 5px 10px; }
   .bt-row    { font-size: 11px; padding: 6px 10px; }
   .btc-sym   { font-size: 11px; }
   .btc-num   { font-size: 11px; }
   .btc-pnl   { font-size: 11px; }
-  .empty-msg { font-size: 12px; padding: 20px; }
+  .empty-msg { font-size: 13px; padding: 30px 20px; }
 
-  /* ── 모달 ─────────────────────────── */
+  /* ── 모달 ── */
   .lcp-modal     { width: 95vw; padding: 18px; }
   .lcp-title     { font-size: 17px; }
   .lcp-confirm-btn { font-size: 16px; padding: 14px; }
@@ -516,32 +572,12 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   .toast         { font-size: 12px; max-width: 220px; }
 }
 
-/* 모바일 심볼 헤더 (데스크탑에서는 숨김) */
-.mob-sym-bar { display: none; }
-@media (max-width: 768px) {
-  .mob-sym-bar {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    padding: 10px 12px 8px;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-    background: var(--bg2);
-    flex-wrap: wrap;
-  }
-  .mob-sym-name  { font-size: 16px; font-weight: 700; color: var(--text); }
-  .mob-sym-price { font-size: 15px; font-weight: 700; }
-  .mob-sym-chg   { font-size: 12px; }
-}
-
 /* 소형 폰 (420px 이하) */
 @media (max-width: 420px) {
   #balBadge { display: none; }
   .rank-btn { padding: 4px 7px; font-size: 11px; }
   .main-tab { padding: 0 10px; }
-  .right-panel { width: 56%; }
-  .exec-btn { padding: 13px; font-size: 15px; }
-  .bottom-panel { height: 175px; }
+  .exec-btn { padding: 14px; font-size: 16px; }
 }
 </style>
 <!-- Firebase compat SDK (v10) -->
@@ -567,7 +603,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 </div>
 
 <!-- ═══ SPOT PAGE ═══════════════════════════════════════════ -->
-<div class="page active" id="page-spot">
+<div class="page active" id="page-spot" data-mob-tab="order">
 <div class="page-inner">
 <div class="page-left">
 <div class="main-row">
@@ -759,10 +795,26 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   </div>
 </div><!-- /page-inner -->
 
+<!-- SPOT 모바일 탭바 -->
+<div class="mob-nav" id="spot-mob-nav">
+  <button class="mob-nav-btn" data-tab="chart" onclick="setMobTab('spot','chart',this)">
+    <span class="mob-nav-icon">📈</span>
+    <span>차트</span>
+  </button>
+  <button class="mob-nav-btn active" data-tab="order" onclick="setMobTab('spot','order',this)">
+    <span class="mob-nav-icon">📋</span>
+    <span>주문</span>
+  </button>
+  <button class="mob-nav-btn" data-tab="pos" onclick="setMobTab('spot','pos',this)">
+    <span class="mob-nav-icon">💼</span>
+    <span>보유</span>
+  </button>
+</div>
+
 </div>
 
 <!-- ═══ FUTURES PAGE ═══════════════════════════════════════ -->
-<div class="page" id="page-futures">
+<div class="page" id="page-futures" data-mob-tab="order">
 <div class="page-inner">
 <div class="page-left">
 <div class="main-row">
@@ -956,6 +1008,22 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     </div>
   </div>
 </div><!-- /page-inner -->
+
+<!-- FUTURES 모바일 탭바 -->
+<div class="mob-nav" id="futures-mob-nav">
+  <button class="mob-nav-btn" data-tab="chart" onclick="setMobTab('futures','chart',this)">
+    <span class="mob-nav-icon">📈</span>
+    <span>차트</span>
+  </button>
+  <button class="mob-nav-btn active" data-tab="order" onclick="setMobTab('futures','order',this)">
+    <span class="mob-nav-icon">📋</span>
+    <span>주문</span>
+  </button>
+  <button class="mob-nav-btn" data-tab="pos" onclick="setMobTab('futures','pos',this)">
+    <span class="mob-nav-icon">📊</span>
+    <span>포지션</span>
+  </button>
+</div>
 
 </div>
 
@@ -1347,6 +1415,21 @@ function switchPage(p) {
     const wrap = $(p === 'spot' ? 'spotLcWrap' : 'futLcWrap');
     if (S[p].lchart && wrap) S[p].lchart.resize(wrap.clientWidth, wrap.clientHeight);
   });
+}
+
+function setMobTab(page, tab, btn) {
+  const pageEl = $('page-' + page);
+  pageEl.dataset.mobTab = tab;
+  const nav = $(page + '-mob-nav');
+  if (nav) nav.querySelectorAll('.mob-nav-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.tab === tab)
+  );
+  if (tab === 'chart') {
+    requestAnimationFrame(() => {
+      const wrap = $(page === 'spot' ? 'spotLcWrap' : 'futLcWrap');
+      if (S[page].lchart && wrap) S[page].lchart.resize(wrap.clientWidth, wrap.clientHeight);
+    });
+  }
 }
 
 // ══════════════════════════════════════════════════════
