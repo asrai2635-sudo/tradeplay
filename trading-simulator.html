@@ -250,15 +250,15 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 
 /* BOTTOM TABLE (Bybit style) */
 .bt-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
-.bt-header { display: flex; align-items: center; padding: 4px 14px; border-bottom: 1px solid var(--border); font-size: 11px; color: var(--text2); flex-shrink: 0; background: var(--bg3); user-select: none; }
+.bt-header { display: flex; align-items: center; padding: 5px 14px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text2); flex-shrink: 0; background: var(--bg3); user-select: none; }
 .bt-body { flex: 1; overflow-y: auto; min-height: 0; }
-.bt-row { display: flex; align-items: center; padding: 6px 14px; border-bottom: 1px solid var(--border); font-size: 12px; transition: background 0.1s; }
+.bt-row { display: flex; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--border); font-size: 13px; transition: background 0.1s; }
 .bt-row:hover { background: var(--bg3); }
 .btc-sym { flex: 0 0 100px; font-weight: 600; color: var(--text); }
-.btc-num { flex: 0 0 100px; text-align: right; color: var(--text); }
-.btc-pnl { flex: 1; text-align: right; font-weight: 700; min-width: 100px; }
-.btc-liq { flex: 0 0 100px; text-align: right; color: var(--red); font-size: 12px; }
-.btc-time { flex: 0 0 65px; text-align: right; color: var(--text3); font-size: 11px; }
+.btc-num { flex: 0 0 100px; text-align: center; color: var(--text); }
+.btc-pnl { flex: 1; text-align: center; font-weight: 700; min-width: 100px; }
+.btc-liq { flex: 0 0 100px; text-align: center; color: var(--red); font-size: 13px; }
+.btc-time { flex: 0 0 65px; text-align: right; color: var(--text3); font-size: 12px; }
 .section-label { font-size: 10px; color: var(--text3); letter-spacing: 1px; padding: 6px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
 
 /* TOAST */
@@ -330,24 +330,26 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 .pos-c-lo { font-size:10px; color:var(--yellow); flex-shrink:0; white-space:nowrap; display:flex; align-items:center; gap:3px; }
 .pos-c-lo button { background:transparent; border:none; color:var(--text3); cursor:pointer; font-size:11px; padding:0 2px; line-height:1; }
 .pos-c-lo button:hover { color:var(--red); }
-.pos-mkt-btn { font-size:11px; padding:4px 10px; border-radius:3px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-family:inherit; transition:all 0.1s; white-space:nowrap; flex-shrink:0; }
+.pos-mkt-btn { font-size:13px; padding:6px 14px; border-radius:4px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-family:inherit; transition:all 0.1s; white-space:nowrap; flex-shrink:0; }
 .pos-mkt-btn:hover { background:rgba(246,70,93,0.12); border-color:var(--red); color:var(--red); }
-.pos-lmt-btn { font-size:11px; padding:4px 10px; border-radius:3px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-family:inherit; transition:all 0.1s; white-space:nowrap; flex-shrink:0; }
+.pos-lmt-btn { font-size:13px; padding:6px 14px; border-radius:4px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-family:inherit; transition:all 0.1s; white-space:nowrap; flex-shrink:0; }
 .pos-lmt-btn:hover { background:rgba(245,158,11,0.12); border-color:var(--yellow); color:var(--yellow); }
 /* LIMIT CLOSE POPUP */
 .lcp-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.8); z-index:3000; display:flex; align-items:center; justify-content:center; }
-.lcp-modal { background:var(--bg2); border:1px solid var(--border); border-radius:10px; width:340px; padding:22px; }
-.lcp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
-.lcp-title { font-size:14px; font-weight:700; }
-.lcp-close-btn { background:none; border:none; color:var(--text2); cursor:pointer; font-size:16px; font-family:inherit; }
-.lcp-info { font-size:11px; color:var(--text2); margin-bottom:14px; padding:8px 10px; background:var(--bg3); border-radius:5px; display:flex; gap:16px; }
-.lcp-pct-row { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-bottom:8px; }
-.lcp-pct-btn { padding:5px; background:var(--bg3); border:1px solid var(--border); border-radius:3px; color:var(--text2); font-family:inherit; font-size:10px; cursor:pointer; transition:all 0.1s; text-align:center; }
+.lcp-modal { background:var(--bg2); border:1px solid var(--border); border-radius:12px; width:500px; max-width:95vw; padding:30px; }
+.lcp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.lcp-title { font-size:20px; font-weight:700; }
+.lcp-close-btn { background:none; border:none; color:var(--text2); cursor:pointer; font-size:22px; font-family:inherit; }
+.lcp-info { font-size:14px; color:var(--text2); margin-bottom:18px; padding:12px 16px; background:var(--bg3); border-radius:6px; display:flex; gap:20px; flex-wrap:wrap; }
+.lcp-pct-row { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:12px; }
+.lcp-pct-btn { padding:9px; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text2); font-family:inherit; font-size:14px; cursor:pointer; transition:all 0.1s; text-align:center; }
 .lcp-pct-btn:hover { background:var(--bg4); color:var(--text); }
 .lcp-pct-btn.active { background:rgba(59,130,246,0.15); border-color:var(--blue); color:var(--blue); }
-.lcp-pnl-row { display:flex; justify-content:space-between; font-size:11px; padding:8px 0; border-top:1px solid var(--border); margin-top:6px; }
-.lcp-confirm-btn { width:100%; padding:11px; border:none; border-radius:4px; background:var(--yellow); color:#000; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:10px; transition:opacity 0.15s; }
+.lcp-pnl-row { display:flex; justify-content:space-between; font-size:15px; padding:12px 0; border-top:1px solid var(--border); margin-top:8px; }
+.lcp-confirm-btn { width:100%; padding:16px; border:none; border-radius:5px; background:var(--yellow); color:#000; font-size:18px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:12px; transition:opacity 0.15s; }
 .lcp-confirm-btn:hover { opacity:0.85; }
+.lcp-modal .form-label { font-size:14px; }
+.lcp-modal .form-input { font-size:16px; padding:9px 12px; }
 
 /* RANKING MODAL */
 .rank-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.85); z-index:2500; display:flex; align-items:center; justify-content:center; }
@@ -502,11 +504,11 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="spot-holdings-wrap">
     <div class="bt-header">
       <span style="flex:0 0 100px;font-weight:600">심볼</span>
-      <span style="flex:0 0 100px;text-align:right">수량</span>
-      <span style="flex:0 0 100px;text-align:right">평균단가</span>
-      <span style="flex:0 0 100px;text-align:right">현재가</span>
-      <span style="flex:0 0 100px;text-align:right">평가금액</span>
-      <span style="flex:1;text-align:right;min-width:100px">평가손익</span>
+      <span style="flex:0 0 100px;text-align:center">수량</span>
+      <span style="flex:0 0 100px;text-align:center">평균단가</span>
+      <span style="flex:0 0 100px;text-align:center">현재가</span>
+      <span style="flex:0 0 100px;text-align:center">평가금액</span>
+      <span style="flex:1;text-align:center;min-width:100px">평가손익</span>
       <span style="flex:0 0 76px"></span>
     </div>
     <div class="bt-body" id="spotHoldings"><div class="empty-msg">보유 자산 없음</div></div>
@@ -516,10 +518,10 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     <div class="bt-header">
       <span style="flex:0 0 60px">방향</span>
       <span style="flex:0 0 100px;font-weight:600">심볼</span>
-      <span style="flex:0 0 100px;text-align:right">가격</span>
-      <span style="flex:0 0 100px;text-align:right">수량</span>
-      <span style="flex:0 0 100px;text-align:right">금액</span>
-      <span style="flex:1;text-align:right;min-width:100px">손익</span>
+      <span style="flex:0 0 100px;text-align:center">가격</span>
+      <span style="flex:0 0 100px;text-align:center">수량</span>
+      <span style="flex:0 0 100px;text-align:center">금액</span>
+      <span style="flex:1;text-align:center;min-width:100px">손익</span>
       <span style="flex:0 0 65px;text-align:right">시간</span>
     </div>
     <div class="bt-body" id="spotHistoryEl"><div class="empty-msg">거래내역 없음</div></div>
@@ -679,10 +681,10 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     <div class="bt-header">
       <span style="flex:0 0 75px">방향</span>
       <span style="flex:0 0 100px;font-weight:600">심볼</span>
-      <span style="flex:0 0 100px;text-align:right">진입가</span>
-      <span style="flex:0 0 100px;text-align:right">현재가</span>
-      <span style="flex:1;text-align:right;min-width:100px">미실현손익</span>
-      <span style="flex:0 0 100px;text-align:right">청산가</span>
+      <span style="flex:0 0 100px;text-align:center">진입가</span>
+      <span style="flex:0 0 100px;text-align:center">현재가</span>
+      <span style="flex:1;text-align:center;min-width:100px">미실현손익</span>
+      <span style="flex:0 0 100px;text-align:center">청산가</span>
       <span style="flex:0 0 150px"></span>
     </div>
     <div class="bt-body" id="futPositions"><div class="empty-msg">포지션 없음</div></div>
@@ -692,10 +694,10 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     <div class="bt-header">
       <span style="flex:0 0 75px">방향</span>
       <span style="flex:0 0 100px;font-weight:600">심볼</span>
-      <span style="flex:0 0 100px;text-align:right">진입가</span>
-      <span style="flex:0 0 100px;text-align:right">청산가</span>
-      <span style="flex:1;text-align:right;min-width:100px">손익</span>
-      <span style="flex:0 0 65px;text-align:right">시간</span>
+      <span style="flex:0 0 100px;text-align:center">진입가</span>
+      <span style="flex:0 0 100px;text-align:center">청산가</span>
+      <span style="flex:1;text-align:center;min-width:100px">손익</span>
+      <span style="flex:0 0 65px;text-align:center">시간</span>
     </div>
     <div class="bt-body" id="futHistory"><div class="empty-msg">거래내역 없음</div></div>
   </div>
