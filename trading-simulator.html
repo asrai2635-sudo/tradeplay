@@ -499,6 +499,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bp-tabs">
     <div class="bp-tab active" onclick="setBottomTab('spot','holdings',this)">보유자산</div>
     <div class="bp-tab" onclick="setBottomTab('spot','history',this)">거래내역</div>
+    <div class="bp-tab" onclick="setBottomTab('spot','orders',this)">미체결</div>
   </div>
   <!-- 보유자산 테이블 -->
   <div class="bt-wrap" id="spot-holdings-wrap">
@@ -525,6 +526,18 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
       <span style="flex:0 0 65px;text-align:right">시간</span>
     </div>
     <div class="bt-body" id="spotHistoryEl"><div class="empty-msg">거래내역 없음</div></div>
+  </div>
+  <!-- 미체결 주문 테이블 -->
+  <div class="bt-wrap" id="spot-orders-wrap" style="display:none">
+    <div class="bt-header">
+      <span style="flex:0 0 60px">방향</span>
+      <span style="flex:0 0 100px;font-weight:600">심볼</span>
+      <span style="flex:0 0 100px;text-align:center">지정가</span>
+      <span style="flex:0 0 100px;text-align:center">수량</span>
+      <span style="flex:0 0 100px;text-align:center">금액</span>
+      <span style="flex:1;text-align:right">취소</span>
+    </div>
+    <div class="bt-body" id="spotOrders"><div class="empty-msg">미체결 주문 없음</div></div>
   </div>
 </div>
 </div><!-- /page-left -->
@@ -675,6 +688,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bp-tabs">
     <div class="bp-tab active" onclick="setBottomTab('futures','positions',this)">포지션</div>
     <div class="bp-tab" onclick="setBottomTab('futures','history',this)">거래내역</div>
+    <div class="bp-tab" onclick="setBottomTab('futures','orders',this)">미체결</div>
   </div>
   <!-- 포지션 테이블 -->
   <div class="bt-wrap" id="fut-positions-wrap">
@@ -700,6 +714,18 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
       <span style="flex:0 0 65px;text-align:center">시간</span>
     </div>
     <div class="bt-body" id="futHistory"><div class="empty-msg">거래내역 없음</div></div>
+  </div>
+  <!-- 미체결 주문 테이블 -->
+  <div class="bt-wrap" id="fut-orders-wrap" style="display:none">
+    <div class="bt-header">
+      <span style="flex:0 0 75px">방향</span>
+      <span style="flex:0 0 100px;font-weight:600">심볼</span>
+      <span style="flex:0 0 100px;text-align:center">지정가</span>
+      <span style="flex:0 0 100px;text-align:center">수량</span>
+      <span style="flex:0 0 100px;text-align:center">마진</span>
+      <span style="flex:0 0 80px;text-align:right">취소</span>
+    </div>
+    <div class="bt-body" id="futOrders"><div class="empty-msg">미체결 주문 없음</div></div>
   </div>
 </div>
 </div><!-- /page-left -->
@@ -914,7 +940,9 @@ let holdings = {};    // spot holdings
 let futPositions = []; // futures positions
 let futHistory = [];
 let spotHistory = []; // 현물 거래내역
-let futLimitOrders = []; // {id, posId, sym, price}
+let futLimitOrders  = []; // {id, posId, sym, price}  — 청산 예약
+let spotLimitOrders = []; // {id, sym, dir, price, qty, amount, fee, time} — 현물 진입 예약
+let futEntryOrders  = []; // {id, sym, dir, price, qty, margin, leverage, fee, liqPrice, time} — 선물 진입 예약
 let _sbWs = { spot: null, futures: null }; // sidebar ticker ws
 
 // 각 탭 독립 상태
@@ -1014,6 +1042,8 @@ function saveState() {
   localStorage.setItem('tp_realized',     JSON.stringify(realizedPnl));
   localStorage.setItem('tp_start',        JSON.stringify(startAmount));
   localStorage.setItem('tp_limitorders',  JSON.stringify(futLimitOrders));
+  localStorage.setItem('tp_spot_lo',      JSON.stringify(spotLimitOrders));
+  localStorage.setItem('tp_fut_eo',       JSON.stringify(futEntryOrders));
   localStorage.setItem('tp_spot_history', JSON.stringify(spotHistory.slice(0,50)));
   localStorage.setItem('tp_fut_history',  JSON.stringify(futHistory.slice(0,30)));
   _uploadRanking();
@@ -1026,8 +1056,10 @@ function loadState() {
   futPositions   = JSON.parse(localStorage.getItem('tp_positions')     || '[]');
   realizedPnl    = JSON.parse(localStorage.getItem('tp_realized')      || '0');
   startAmount    = JSON.parse(localStorage.getItem('tp_start')         || '1000');
-  futLimitOrders = JSON.parse(localStorage.getItem('tp_limitorders')   || '[]');
-  spotHistory    = JSON.parse(localStorage.getItem('tp_spot_history')  || '[]');
+  futLimitOrders  = JSON.parse(localStorage.getItem('tp_limitorders')  || '[]');
+  spotLimitOrders = JSON.parse(localStorage.getItem('tp_spot_lo')      || '[]');
+  futEntryOrders  = JSON.parse(localStorage.getItem('tp_fut_eo')       || '[]');
+  spotHistory     = JSON.parse(localStorage.getItem('tp_spot_history') || '[]');
   futHistory     = JSON.parse(localStorage.getItem('tp_fut_history')   || '[]');
   return true;
 }
@@ -1040,16 +1072,16 @@ function startGame() {
   const nn = saved || ($('nicknameInput')?.value.trim()) || ('Trader_' + Math.floor(Math.random()*9000+1000));
   if (!saved) localStorage.setItem('tp_nickname', nn); // 최초 1회만 저장
   wallet = 1000; startAmount = 1000;
-  realizedPnl = 0; holdings = {}; futPositions = []; futHistory = []; futLimitOrders = []; spotHistory = [];
+  realizedPnl = 0; holdings = {}; futPositions = []; futHistory = []; futLimitOrders = []; spotLimitOrders = []; futEntryOrders = []; spotHistory = [];
   saveState();
   $('startOverlay').style.display = 'none';
   updateTopBar();
   _uploadRanking(); // 닉네임 확정 즉시 Firebase에 등록
 }
 function resetGame() {
-  ['tp_wallet','tp_holdings','tp_positions','tp_realized','tp_start','tp_limitorders','tp_spot_history','tp_fut_history'].forEach(k=>localStorage.removeItem(k));
+  ['tp_wallet','tp_holdings','tp_positions','tp_realized','tp_start','tp_limitorders','tp_spot_lo','tp_fut_eo','tp_spot_history','tp_fut_history'].forEach(k=>localStorage.removeItem(k));
   wallet = 1000; startAmount = 1000; realizedPnl = 0;
-  holdings = {}; futPositions = []; futHistory = []; futLimitOrders = []; spotHistory = [];
+  holdings = {}; futPositions = []; futHistory = []; futLimitOrders = []; spotLimitOrders = []; futEntryOrders = []; spotHistory = [];
   $('adOverlay').style.display = 'none';
   _lockNicknameInput(); // 닉네임 잠금 상태 유지
   $('startOverlay').style.display = 'flex';
@@ -1977,10 +2009,12 @@ function updatePriceUI(page, price, prev, d) {
     updateFutInfo();
     if(_now - _uiThrottle.futures > 400){ _uiThrottle.futures=_now; renderFutPositions(); }
     checkLiquidations();
+    checkFutEntryOrders();
   }
   if(page==='spot'){
     updateSpotInfo();
     if(_now - _uiThrottle.spot > 400){ _uiThrottle.spot=_now; renderSpotHoldings(); }
+    checkSpotLimitOrders();
   }
   updateTopBar();
 }
@@ -2003,6 +2037,11 @@ function updatePriceLines(page) {
       add({ price: h.avgPrice, color: '#3b82f6', lineWidth: 1, lineStyle: 2,
             axisLabelVisible: true, title: '평단 $' + fmt(h.avgPrice) });
     }
+    spotLimitOrders.filter(o => o.sym === sym).forEach(o => {
+      add({ price: o.price, color: o.dir==='buy'?'#0ecb81':'#f6465d',
+            lineWidth: 1, lineStyle: 2, axisLabelVisible: true,
+            title: `📌 ${o.dir==='buy'?'매수':'매도'} $${fmt(o.price)}` });
+    });
   } else {
     futPositions.filter(p => p.sym === sym).forEach(p => {
       add({ price: p.entryPrice, color: p.dir==='long'?'#0ecb81':'#f6465d',
@@ -2012,10 +2051,15 @@ function updatePriceLines(page) {
             lineWidth: 1, lineStyle: 1, axisLabelVisible: true,
             title: '💀 강청 $' + fmt(p.liqPrice) });
     });
+    futEntryOrders.filter(o => o.sym === sym).forEach(o => {
+      add({ price: o.price, color: o.dir==='long'?'#0ecb81':'#f6465d',
+            lineWidth: 1, lineStyle: 2, axisLabelVisible: true,
+            title: `📌 ${o.dir==='long'?'▲ LONG':'▼ SHORT'} $${fmt(o.price)}` });
+    });
     futLimitOrders.filter(o => o.sym === sym).forEach(o => {
       add({ price: o.price, color: '#f59e0b',
             lineWidth: 1, lineStyle: 2, axisLabelVisible: true,
-            title: '📌 예약 $' + fmt(o.price) });
+            title: '📌 청산예약 $' + fmt(o.price) });
     });
   }
 }
@@ -2255,37 +2299,53 @@ function updateFutInfo() {
 // ══════════════════════════════════════════════════════
 function execSpot() {
   const price=S.spot.price; if(!price){toast('가격 로딩 중...','var(--yellow)');return;}
-  const ep=S.spot.ot==='limit'?(parseFloat($('sLimitPrice').value)||0):price;
-  if(S.spot.ot==='limit'&&!ep){toast('지정가를 입력하세요','var(--yellow)');return;}
   const sym=S.spot.sym.replace('USDT','');
   const dir=S.spot.dir;
+  const isLimit=S.spot.ot==='limit';
+  const ep=isLimit?(parseFloat($('sLimitPrice').value)||0):price;
+  if(isLimit&&!ep){toast('지정가를 입력하세요','var(--yellow)');return;}
+
   if(dir==='buy'){
     const amt=parseFloat($('sAmt').value)||0;
     if(amt<1){toast('금액을 입력하세요','var(--red)');return;}
     if(amt>wallet){toast('잔고 부족','var(--red)');return;}
     const fee=amt*0.001;
     const qty=(amt-fee)/ep;
-    wallet-=amt;
-    if(!holdings[sym]) holdings[sym]={qty:0,avgPrice:0};
-    const h=holdings[sym];
-    h.avgPrice=(h.qty*h.avgPrice+qty*ep)/(h.qty+qty);
-    h.qty+=qty;
-    spotHistory.unshift({sym:sym+'/USDT',dir:'buy',price:ep,qty,amount:amt,pnl:null,time:Date.now()});
-    toast(`▲ ${sym} ${qty.toFixed(6)}개 매수 @ $${fmt(ep)}`,'var(--green)');
+    if(isLimit){
+      wallet-=amt;
+      spotLimitOrders.push({id:Date.now(),sym:S.spot.sym,dir:'buy',price:ep,qty,amount:amt,fee,time:Date.now()});
+      toast(`📌 ${sym} 매수 예약 @ $${fmt(ep)}`,'var(--blue)');
+      saveState();updateTopBar();updatePriceLines('spot');renderSpotOrders();
+    } else {
+      wallet-=amt;
+      if(!holdings[sym]) holdings[sym]={qty:0,avgPrice:0};
+      const h=holdings[sym];
+      h.avgPrice=(h.qty*h.avgPrice+qty*ep)/(h.qty+qty);
+      h.qty+=qty;
+      spotHistory.unshift({sym:sym+'/USDT',dir:'buy',price:ep,qty,amount:amt,pnl:null,time:Date.now()});
+      toast(`▲ ${sym} ${qty.toFixed(6)}개 매수 @ $${fmt(ep)}`,'var(--green)');
+      updateTopBar();renderSpotHoldings();renderSpotHistory();updateSpotInfo();saveState();checkBroke();updatePriceLines('spot');
+    }
   } else {
     const qty=parseFloat($('sCoinQty').value)||0;
     if(qty<=0){toast('수량을 입력하세요','var(--red)');return;}
     const h=holdings[sym];
-    if(!h||h.qty<qty){toast('보유 수량 부족','var(--red)');return;}
-    const proceeds=qty*ep*(1-0.001);
-    const pnl=(ep-h.avgPrice)*qty;
-    wallet+=proceeds; realizedPnl+=pnl;
-    h.qty-=qty;
-    if(h.qty<0.000001) delete holdings[sym];
-    spotHistory.unshift({sym:sym+'/USDT',dir:'sell',price:ep,qty,amount:proceeds,pnl,time:Date.now()});
-    toast(`▼ ${sym} 매도 ${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))} 손익`,pnl>=0?'var(--green)':'var(--red)');
+    if(!h||h.qty<qty-1e-9){toast('보유 수량 부족','var(--red)');return;}
+    if(isLimit){
+      spotLimitOrders.push({id:Date.now(),sym:S.spot.sym,dir:'sell',price:ep,qty,amount:0,fee:0,time:Date.now()});
+      toast(`📌 ${sym} 매도 예약 @ $${fmt(ep)}`,'var(--yellow)');
+      saveState();updatePriceLines('spot');renderSpotOrders();
+    } else {
+      const proceeds=qty*ep*(1-0.001);
+      const pnl=(ep-h.avgPrice)*qty;
+      wallet+=proceeds;realizedPnl+=pnl;
+      h.qty-=qty;
+      if(h.qty<0.000001) delete holdings[sym];
+      spotHistory.unshift({sym:sym+'/USDT',dir:'sell',price:ep,qty,amount:proceeds,pnl,time:Date.now()});
+      toast(`▼ ${sym} 매도 ${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))} 손익`,pnl>=0?'var(--green)':'var(--red)');
+      updateTopBar();renderSpotHoldings();renderSpotHistory();updateSpotInfo();saveState();checkBroke();updatePriceLines('spot');
+    }
   }
-  updateTopBar(); renderSpotHoldings(); renderSpotHistory(); updateSpotInfo(); saveState(); checkBroke(); updatePriceLines('spot');
 }
 function sellAllHolding(sym) {
   const h=holdings[sym]; if(!h) return;
@@ -2345,8 +2405,10 @@ function renderSpotHistory() {
 // ══════════════════════════════════════════════════════
 function execFutures() {
   const price=S.futures.price; if(!price){toast('가격 로딩 중','var(--yellow)');return;}
-  const ep=S.futures.ot==='limit'?(parseFloat($('fLimitPrice').value)||0):price;
-  if(S.futures.ot==='limit'&&!ep){toast('지정가를 입력하세요','var(--yellow)');return;}
+  const dir=S.futures.dir;
+  const isLimit=S.futures.ot==='limit';
+  const ep=isLimit?(parseFloat($('fLimitPrice').value)||0):price;
+  if(isLimit&&!ep){toast('지정가를 입력하세요','var(--yellow)');return;}
   const lev=parseInt($('fLevSlider').value);
   const margin=parseFloat($('fMargin').value)||0;
   if(margin<1){toast('마진을 입력하세요','var(--red)');return;}
@@ -2357,22 +2419,28 @@ function execFutures() {
   const liqP=dir==='long'?ep*(1-1/lev+0.005):ep*(1+1/lev-0.005);
   wallet-=(margin+fee);
 
-  // 물타기: 동일 심볼+방향 포지션이 있으면 평균 진입가로 통합
-  const existing=futPositions.find(p=>p.sym===S.futures.sym&&p.dir===dir);
-  if(existing){
-    const newTotalQty=existing.qty+qty;
-    const avgEntry=(existing.entryPrice*existing.qty+ep*qty)/newTotalQty;
-    existing.qty=newTotalQty;
-    existing.margin+=margin;
-    existing.entryPrice=avgEntry;
-    existing.liqPrice=dir==='long'?avgEntry*(1-1/existing.leverage+0.005):avgEntry*(1+1/existing.leverage-0.005);
-    toast(`물타기 ${dir==='long'?'▲ LONG':'▼ SHORT'} ${S.futures.sym.replace('USDT','')} 평균 $${fmt(avgEntry)} (${existing.leverage}x)`,dir==='long'?'var(--green)':'var(--red)');
+  if(isLimit){
+    futEntryOrders.push({id:Date.now(),sym:S.futures.sym,dir,price:ep,qty,margin,leverage:lev,fee,liqPrice:liqP,time:Date.now()});
+    toast(`📌 ${dir==='long'?'▲ LONG':'▼ SHORT'} 예약 @ $${fmt(ep)} (${lev}x)`,dir==='long'?'var(--green)':'var(--red)');
+    saveState();updateTopBar();updatePriceLines('futures');renderFutOrders();
   } else {
-    const pos={id:Date.now(),sym:S.futures.sym,dir,entryPrice:ep,qty,leverage:lev,margin,liqPrice:liqP,fee};
-    futPositions.push(pos);
-    toast(`${dir==='long'?'▲ LONG':'▼ SHORT'} ${S.futures.sym.replace('USDT','')} @ $${fmt(ep)} (${lev}x)`,dir==='long'?'var(--green)':'var(--red)');
+    // 물타기: 동일 심볼+방향 포지션이 있으면 평균 진입가로 통합
+    const existing=futPositions.find(p=>p.sym===S.futures.sym&&p.dir===dir);
+    if(existing){
+      const newTotalQty=existing.qty+qty;
+      const avgEntry=(existing.entryPrice*existing.qty+ep*qty)/newTotalQty;
+      existing.qty=newTotalQty;
+      existing.margin+=margin;
+      existing.entryPrice=avgEntry;
+      existing.liqPrice=dir==='long'?avgEntry*(1-1/existing.leverage+0.005):avgEntry*(1+1/existing.leverage-0.005);
+      toast(`물타기 ${dir==='long'?'▲ LONG':'▼ SHORT'} ${S.futures.sym.replace('USDT','')} 평균 $${fmt(avgEntry)} (${existing.leverage}x)`,dir==='long'?'var(--green)':'var(--red)');
+    } else {
+      const pos={id:Date.now(),sym:S.futures.sym,dir,entryPrice:ep,qty,leverage:lev,margin,liqPrice:liqP,fee};
+      futPositions.push(pos);
+      toast(`${dir==='long'?'▲ LONG':'▼ SHORT'} ${S.futures.sym.replace('USDT','')} @ $${fmt(ep)} (${lev}x)`,dir==='long'?'var(--green)':'var(--red)');
+    }
+    updateTopBar();renderFutPositions();saveState();updatePriceLines('futures');
   }
-  updateTopBar(); renderFutPositions(); saveState(); updatePriceLines('futures');
 }
 
 // 부분/전체 청산 핵심 함수 (fraction: 0~1)
@@ -2515,6 +2583,120 @@ function confirmLimitClose() {
   saveState(); updatePriceLines('futures'); renderFutPositions();
   closeLcpModal();
 }
+// ══════════════════════════════════════════════════════
+// 지정가 진입 주문 체결 체크
+// ══════════════════════════════════════════════════════
+function checkSpotLimitOrders() {
+  if(!spotLimitOrders.length) return;
+  const triggered=[];
+  spotLimitOrders.forEach(o=>{
+    const price=PRICES[o.sym]||(S.spot.sym===o.sym?S.spot.price:0);
+    if(!price) return;
+    const hit=o.dir==='buy'?price<=o.price:price>=o.price;
+    if(!hit) return;
+    triggered.push(o);
+    const sym=o.sym.replace('USDT','');
+    if(o.dir==='buy'){
+      if(!holdings[sym]) holdings[sym]={qty:0,avgPrice:0};
+      const h=holdings[sym];
+      h.avgPrice=(h.qty*h.avgPrice+o.qty*o.price)/(h.qty+o.qty);
+      h.qty+=o.qty;
+      spotHistory.unshift({sym:sym+'/USDT',dir:'buy',price:o.price,qty:o.qty,amount:o.amount,pnl:null,time:Date.now()});
+      toast(`✅ ${sym} 매수 체결 @ $${fmt(o.price)}`,'var(--green)');
+    } else {
+      const h=holdings[sym];
+      if(h&&h.qty>=o.qty-1e-9){
+        const proceeds=o.qty*o.price*(1-0.001);
+        const pnl=(o.price-h.avgPrice)*o.qty;
+        wallet+=proceeds;realizedPnl+=pnl;
+        h.qty-=o.qty;
+        if(h.qty<0.000001) delete holdings[sym];
+        spotHistory.unshift({sym:sym+'/USDT',dir:'sell',price:o.price,qty:o.qty,amount:proceeds,pnl,time:Date.now()});
+        toast(`✅ ${sym} 매도 체결 ${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))}`,pnl>=0?'var(--green)':'var(--red)');
+      } else {
+        toast(`❌ ${sym} 매도 예약 취소 (수량 부족)`,'var(--red)');
+      }
+    }
+  });
+  if(triggered.length){
+    spotLimitOrders=spotLimitOrders.filter(o=>!triggered.includes(o));
+    updateTopBar();renderSpotHoldings();renderSpotHistory();saveState();checkBroke();updatePriceLines('spot');renderSpotOrders();
+  }
+}
+function checkFutEntryOrders() {
+  if(!futEntryOrders.length) return;
+  const triggered=[];
+  futEntryOrders.forEach(o=>{
+    const price=PRICES[o.sym]||(S.futures.sym===o.sym?S.futures.price:0);
+    if(!price) return;
+    const hit=o.dir==='long'?price<=o.price:price>=o.price;
+    if(!hit) return;
+    triggered.push(o);
+    const existing=futPositions.find(p=>p.sym===o.sym&&p.dir===o.dir);
+    if(existing){
+      const newTotalQty=existing.qty+o.qty;
+      const avgEntry=(existing.entryPrice*existing.qty+o.price*o.qty)/newTotalQty;
+      existing.qty=newTotalQty;
+      existing.margin+=o.margin;
+      existing.entryPrice=avgEntry;
+      existing.liqPrice=o.dir==='long'?avgEntry*(1-1/existing.leverage+0.005):avgEntry*(1+1/existing.leverage-0.005);
+      toast(`✅ 물타기 체결 ${o.sym.replace('USDT','')} @ $${fmt(o.price)}`,o.dir==='long'?'var(--green)':'var(--red)');
+    } else {
+      futPositions.push({id:Date.now(),sym:o.sym,dir:o.dir,entryPrice:o.price,qty:o.qty,leverage:o.leverage,margin:o.margin,liqPrice:o.liqPrice,fee:o.fee});
+      toast(`✅ ${o.dir==='long'?'▲ LONG':'▼ SHORT'} 체결 ${o.sym.replace('USDT','')} @ $${fmt(o.price)} (${o.leverage}x)`,o.dir==='long'?'var(--green)':'var(--red)');
+    }
+  });
+  if(triggered.length){
+    futEntryOrders=futEntryOrders.filter(o=>!triggered.includes(o));
+    updateTopBar();renderFutPositions();saveState();updatePriceLines('futures');renderFutOrders();
+  }
+}
+function cancelSpotOrder(id) {
+  const o=spotLimitOrders.find(x=>x.id===id); if(!o) return;
+  if(o.dir==='buy') wallet+=o.amount;
+  spotLimitOrders=spotLimitOrders.filter(x=>x.id!==id);
+  updateTopBar();saveState();updatePriceLines('spot');renderSpotOrders();
+  toast('주문 취소','var(--text2)');
+}
+function cancelFutEntryOrder(id) {
+  const o=futEntryOrders.find(x=>x.id===id); if(!o) return;
+  wallet+=(o.margin+o.fee);
+  futEntryOrders=futEntryOrders.filter(x=>x.id!==id);
+  updateTopBar();saveState();updatePriceLines('futures');renderFutOrders();
+  toast('진입 예약 취소','var(--text2)');
+}
+function renderSpotOrders() {
+  const el=$('spotOrders'); if(!el) return;
+  if(!spotLimitOrders.length){el.innerHTML='<div class="empty-msg">미체결 주문 없음</div>';return;}
+  el.innerHTML=spotLimitOrders.map(o=>{
+    const isBuy=o.dir==='buy';
+    const sym=o.sym.replace('USDT','');
+    return `<div class="bt-row">
+      <span style="flex:0 0 60px"><span class="pos-badge ${isBuy?'badge-long':'badge-short'}">${isBuy?'매수':'매도'}</span></span>
+      <span class="btc-sym">${sym}/USDT</span>
+      <span class="btc-num">$${fmt(o.price)}</span>
+      <span class="btc-num">${o.qty.toFixed(4)}</span>
+      <span class="btc-num">${isBuy?'$'+fmt(o.amount):'—'}</span>
+      <span style="flex:1;text-align:right"><button class="pos-mkt-btn" style="font-size:10px;padding:3px 8px" onclick="cancelSpotOrder(${o.id})">취소</button></span>
+    </div>`;
+  }).join('');
+}
+function renderFutOrders() {
+  const el=$('futOrders'); if(!el) return;
+  if(!futEntryOrders.length){el.innerHTML='<div class="empty-msg">미체결 주문 없음</div>';return;}
+  el.innerHTML=futEntryOrders.map(o=>{
+    const isLong=o.dir==='long';
+    return `<div class="bt-row">
+      <span style="flex:0 0 75px"><span class="pos-badge ${isLong?'badge-long':'badge-short'}">${isLong?'▲ LONG':'▼ SHORT'}</span></span>
+      <span class="btc-sym">${o.sym.replace('USDT','')} <span style="color:var(--yellow);font-size:10px">${o.leverage}x</span></span>
+      <span class="btc-num">$${fmt(o.price)}</span>
+      <span class="btc-num">${o.qty.toFixed(4)}</span>
+      <span class="btc-num">$${fmt(o.margin)}</span>
+      <span style="flex:0 0 80px;text-align:right"><button class="pos-mkt-btn" style="font-size:10px;padding:3px 8px" onclick="cancelFutEntryOrder(${o.id})">취소</button></span>
+    </div>`;
+  }).join('');
+}
+
 function renderFutHistory() {
   const el=$('futHistory');
   if(!futHistory.length){el.innerHTML='<div class="empty-msg">거래내역 없음</div>';return;}
@@ -2537,11 +2719,15 @@ function setBottomTab(page, tab, btn) {
   if (page === 'spot') {
     $('spot-holdings-wrap').style.display = tab === 'holdings' ? 'flex' : 'none';
     $('spot-history-wrap').style.display  = tab === 'history'  ? 'flex' : 'none';
+    $('spot-orders-wrap').style.display   = tab === 'orders'   ? 'flex' : 'none';
     if (tab === 'history') renderSpotHistory();
+    if (tab === 'orders')  renderSpotOrders();
   } else {
     $('fut-positions-wrap').style.display = tab === 'positions' ? 'flex' : 'none';
     $('fut-history-wrap').style.display   = tab === 'history'   ? 'flex' : 'none';
+    $('fut-orders-wrap').style.display    = tab === 'orders'    ? 'flex' : 'none';
     if (tab === 'history') renderFutHistory();
+    if (tab === 'orders')  renderFutOrders();
   }
 }
 // ══════════════════════════════════════════════════════
