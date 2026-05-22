@@ -392,75 +392,156 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 .rank-btn:hover { border-color:var(--yellow); }
 
 /* ══════════════════════════════════════════════════════
-   MOBILE RESPONSIVE
+   MOBILE RESPONSIVE  (Bybit 스타일)
 ══════════════════════════════════════════════════════ */
-@media (max-width: 900px) {
-  /* 태블릿: 호가창만 숨김 */
-  .orderbook { display: none; }
+
+/* 태블릿: 드로잉 툴바만 숨김 */
+@media (max-width: 1024px) {
+  .draw-toolbar { display: none; }
 }
 
+/* 모바일 메인 (768px 이하) */
 @media (max-width: 768px) {
-  /* 탑바 압축 */
-  .topnav { padding: 0 8px; gap: 4px; }
-  .logo { font-size: 16px; letter-spacing: -0.5px; }
-  .main-tab { padding: 0 12px; font-size: 13px; }
-  #unrealBadge { display: none; }
-  #pnlBadge { display: none; }
+
+  /* ── 탑바 ─────────────────────────── */
+  .topnav { padding: 0 10px; gap: 5px; height: 46px; }
+  .logo { font-size: 16px; }
+  .main-tab { padding: 0 14px; font-size: 14px; }
+  #unrealBadge, #pnlBadge { display: none; }
   #balBadge .wallet-label { display: none; }
-  .wallet-val { font-size: 12px; }
-  .wallet-badge { padding: 4px 8px; }
-  .rank-btn { padding: 4px 7px; font-size: 11px; }
+  #balBadge { padding: 5px 10px; }
+  .wallet-val { font-size: 13px; font-weight: 700; }
+  .rank-btn { padding: 5px 9px; font-size: 12px; }
 
-  /* 메인 레이아웃: 가로→세로 */
-  .page-inner { flex-direction: column; }
-  .page-left  { flex: 1; min-height: 0; }
+  /* ── 메인 레이아웃: 좌(주문폼) | 우(호가창) ─── */
+  /* page-inner는 기본 flex-row 유지 */
+  .page-inner { flex-direction: row; }
 
-  /* 호가창·드로잉 툴바 숨김 */
-  .orderbook    { display: none; }
-  .draw-toolbar { display: none; }
-
-  /* 주문 패널: 차트 아래 전체 너비 */
+  /* 주문 폼 → 왼쪽 54% */
   .right-panel {
-    width: 100%;
-    height: 220px;
+    order: -1;
+    width: 54%;
     flex-shrink: 0;
     border-left: none;
-    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* 차트 헤더 줄바꿈 허용 */
-  .chart-header { flex-wrap: wrap; gap: 4px; padding: 5px 8px; }
-  .ch-stats { gap: 6px; flex-wrap: wrap; }
-  .ch-stat { display: none; }           /* 거래량·고가·저가 숨김 */
-  .ch-stat:nth-child(-n+2) { display: flex; } /* 24h 변동률만 표시 */
-  .tf-row { gap: 1px; }
-  .tf-btn  { padding: 3px 7px; font-size: 10px; }
-  .ind-row { gap: 4px; flex-wrap: wrap; }
-  .ind-btn { padding: 3px 7px; font-size: 10px; }
+  /* page-left → 오른쪽 (나머지): 호가창 + 포지션 */
+  .page-left { flex: 1; min-width: 0; min-height: 0; }
+  .main-row  { flex: 1; min-height: 0; }
 
-  /* 하단 패널 높이 줄임 */
-  .bottom-panel { height: 180px; }
-  .bp-tab { font-size: 11px; padding: 7px 8px; }
-  .bt-wrap { overflow-x: auto; }
-  .bt-header, .bt-row { min-width: 560px; }
+  /* 차트·드로잉 숨김 */
+  .center       { display: none; }
+  .draw-toolbar { display: none; }
 
-  /* 모달 전체 너비 */
+  /* 호가창 → 오른쪽 전체 차지 */
+  .orderbook {
+    display: flex !important;
+    width: 100%;
+    flex: 1;
+    border-right: none;
+  }
+  .ob-header { padding: 5px 8px; font-size: 10px; }
+  .ob-row    { padding: 2px 8px; font-size: 12px; }
+  .ob-mid    { padding: 5px 8px; }
+  .ob-mid-price { font-size: 14px; }
+
+  /* ── 주문 폼 내부 ─────────────────── */
+  .order-form { padding: 8px 10px; }
+
+  /* 심볼 헤더 (chart-header는 숨겨져있지만 안전하게) */
+  .chart-header { display: none; }
+
+  /* 탭 */
+  .ot-tab   { font-size: 13px; padding: 7px; }
+  .buy-tab, .sell-tab   { font-size: 13px; padding: 9px 4px; }
+  .long-tab, .short-tab { font-size: 13px; padding: 9px 4px; }
+
+  /* 폼 인풋 */
+  .form-label { font-size: 11px; margin-bottom: 3px; }
+  .form-input { padding: 9px 10px; font-size: 13px; border-radius: 6px; }
+
+  /* 레버리지 슬라이더 */
+  .lev-row { margin-bottom: 7px; }
+  .lev-label { font-size: 11px; }
+  .lev-val   { font-size: 13px; }
+
+  /* 잔고비율 슬라이더 */
+  .pct-slider-label { font-size: 11px; }
+  .pct-slider-val   { font-size: 12px; }
+
+  /* 정보 행 */
+  .info-row { font-size: 12px; padding: 2px 0; }
+  .info-val { font-size: 12px; }
+
+  /* 진입 버튼: 크고 둥글게 */
+  .exec-btn {
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 10px;
+    letter-spacing: 0.2px;
+    margin-top: 8px;
+  }
+
+  /* 청산 버튼 */
+  .pos-mkt-btn { font-size: 11px; padding: 5px 8px; }
+  .pos-lmt-btn { font-size: 11px; padding: 5px 8px; }
+
+  /* ── 하단 포지션 패널 ─────────────── */
+  .bottom-panel {
+    height: 195px;
+    border-top: 2px solid var(--border);
+  }
+  .bp-tabs { padding: 0 4px; }
+  .bp-tab  { font-size: 12px; padding: 8px 8px; }
+  .bt-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .bt-header { font-size: 11px; padding: 5px 10px; }
+  .bt-row    { font-size: 11px; padding: 6px 10px; }
+  .btc-sym   { font-size: 11px; }
+  .btc-num   { font-size: 11px; }
+  .btc-pnl   { font-size: 11px; }
+  .empty-msg { font-size: 12px; padding: 20px; }
+
+  /* ── 모달 ─────────────────────────── */
   .lcp-modal     { width: 95vw; padding: 18px; }
-  .stats-modal   { width: 95vw; max-height: 92vh; }
+  .lcp-title     { font-size: 17px; }
+  .lcp-confirm-btn { font-size: 16px; padding: 14px; }
+  .stats-modal   { width: 96vw; max-height: 93vh; }
   .rank-modal    { width: 95vw; }
-  .funding-modal { width: 90vw; }
-  .ad-modal      { width: 90vw; }
+  .funding-modal { width: 92vw; }
+  .ad-modal      { width: 92vw; }
+  .toast         { font-size: 12px; max-width: 220px; }
 }
 
-@media (max-width: 480px) {
-  /* 소형 폰: 총자산 배지도 숨기고 버튼만 */
+/* 모바일 심볼 헤더 (데스크탑에서는 숨김) */
+.mob-sym-bar { display: none; }
+@media (max-width: 768px) {
+  .mob-sym-bar {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 10px 12px 8px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--bg2);
+    flex-wrap: wrap;
+  }
+  .mob-sym-name  { font-size: 16px; font-weight: 700; color: var(--text); }
+  .mob-sym-price { font-size: 15px; font-weight: 700; }
+  .mob-sym-chg   { font-size: 12px; }
+}
+
+/* 소형 폰 (420px 이하) */
+@media (max-width: 420px) {
   #balBadge { display: none; }
-  .rank-btn span { display: none; }  /* 이모지만 남기기 */
-  .rank-btn { padding: 5px 8px; }
-  .main-tab { padding: 0 10px; font-size: 12px; }
-  .right-panel { height: 200px; }
-  .bottom-panel { height: 160px; }
+  .rank-btn { padding: 4px 7px; font-size: 11px; }
+  .main-tab { padding: 0 10px; }
+  .right-panel { width: 56%; }
+  .exec-btn { padding: 13px; font-size: 15px; }
+  .bottom-panel { height: 175px; }
 }
 </style>
 <!-- Firebase compat SDK (v10) -->
@@ -635,6 +716,11 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 
   <!-- order panel -->
   <div class="right-panel">
+    <div class="mob-sym-bar">
+      <span class="mob-sym-name" id="s-mob-sym">BTC/USDT</span>
+      <span class="mob-sym-price" id="s-mob-price">—</span>
+      <span class="mob-sym-chg" id="s-mob-chg"></span>
+    </div>
     <div class="order-form">
       <div class="ot-tabs">
         <button class="ot-tab active" onclick="setOT('spot','market',this)">시장가</button>
@@ -823,6 +909,11 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 
   <!-- order panel -->
   <div class="right-panel">
+    <div class="mob-sym-bar">
+      <span class="mob-sym-name" id="f-mob-sym">BTC/USDT</span>
+      <span class="mob-sym-price" id="f-mob-price">—</span>
+      <span class="mob-sym-chg" id="f-mob-chg"></span>
+    </div>
     <div class="order-form">
       <div class="ot-tabs">
         <button class="ot-tab active" onclick="setOT('futures','market',this)">시장가</button>
@@ -2115,6 +2206,19 @@ function updatePriceUI(page, price, prev, d) {
     if(d.openInterest) $('f-oi').textContent=fmtK(parseFloat(d.openInterest));
   }
   $(px?'s-mid-price':'f-mid-price').textContent='$'+fmt(price);
+
+  // 모바일 심볼 헤더 업데이트
+  const mobSym  = $(px?'s-mob-sym':'f-mob-sym');
+  const mobPrice = $(px?'s-mob-price':'f-mob-price');
+  const mobChg  = $(px?'s-mob-chg':'f-mob-chg');
+  if(mobSym)  mobSym.textContent  = S[page].sym.replace('USDT','/USDT');
+  if(mobPrice){ mobPrice.textContent='$'+fmt(price); mobPrice.className='mob-sym-price '+(price>=(prev||price)?'up':'dn'); }
+  if(mobChg && d.price24hPcnt!==undefined){
+    const pct2=(parseFloat(d.price24hPcnt)*100).toFixed(2);
+    mobChg.textContent=(pct2>=0?'+':'')+pct2+'%';
+    mobChg.className='mob-sym-chg '+(pct2>=0?'up':'dn');
+  }
+
   const _now = Date.now();
   if(page==='futures'){
     updateFutInfo();
