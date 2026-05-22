@@ -355,6 +355,20 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 .lcp-modal .form-label { font-size:14px; }
 .lcp-modal .form-input { font-size:16px; padding:9px 12px; }
 
+/* STATS MODAL */
+.stats-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.85); z-index:2500; display:flex; align-items:center; justify-content:center; }
+.stats-modal { background:var(--bg2); border:1px solid var(--border); border-radius:10px; width:540px; max-width:95vw; max-height:88vh; overflow-y:auto; display:flex; flex-direction:column; }
+.stats-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:var(--bg2); z-index:1; }
+.stats-title { font-size:16px; font-weight:700; }
+.stats-body { padding:18px; }
+.stats-graph-wrap { background:var(--bg3); border-radius:8px; padding:12px 14px; margin-bottom:16px; }
+.stats-graph-label { font-size:11px; color:var(--text3); margin-bottom:8px; }
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+.stats-card { background:var(--bg3); border-radius:8px; padding:12px 14px; }
+.stats-card-label { font-size:11px; color:var(--text3); margin-bottom:4px; }
+.stats-card-val { font-size:18px; font-weight:700; }
+.stats-section-title { font-size:12px; font-weight:700; color:var(--text3); letter-spacing:0.5px; text-transform:uppercase; margin:16px 0 8px; }
+
 /* RANKING MODAL */
 .rank-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.85); z-index:2500; display:flex; align-items:center; justify-content:center; }
 .rank-modal { background:var(--bg2); border:1px solid var(--border); border-radius:10px; width:420px; max-width:95vw; max-height:80vh; overflow:hidden; display:flex; flex-direction:column; }
@@ -394,6 +408,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     <div class="wallet-badge"><span class="wallet-label">총자산</span><span class="wallet-val" id="topBal">$1,000.00</span></div>
     <div class="unreal-badge"><span style="color:var(--text2);margin-right:5px">미실현</span><span id="topUnreal" style="color:var(--text2)">$0.00</span></div>
     <div class="wallet-badge"><span class="wallet-label">실현손익</span><span class="wallet-val" id="topPnl" style="color:var(--text2)">$0.00</span></div>
+    <button class="rank-btn" onclick="openStats()">📊 통계</button>
     <button class="rank-btn" onclick="openRanking()">🏆 랭킹</button>
   </div>
 </div>
@@ -874,6 +889,17 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   </div>
 </div>
 
+<!-- STATS MODAL -->
+<div class="stats-overlay" id="statsOverlay" style="display:none" onclick="if(event.target===this)closeStats()">
+  <div class="stats-modal">
+    <div class="stats-header">
+      <span class="stats-title">📊 나의 통계</span>
+      <button onclick="closeStats()" class="rank-close">✕</button>
+    </div>
+    <div class="stats-body" id="statsBody"></div>
+  </div>
+</div>
+
 <!-- RANKING MODAL -->
 <div class="rank-overlay" id="rankOverlay" style="display:none" onclick="if(event.target===this)closeRanking()">
   <div class="rank-modal">
@@ -951,6 +977,7 @@ let spotHistory = []; // 현물 거래내역
 let futLimitOrders  = []; // {id, posId, sym, price}  — 청산 예약
 let spotLimitOrders = []; // {id, sym, dir, price, qty, amount, fee, time} — 현물 진입 예약
 let futEntryOrders  = []; // {id, sym, dir, price, qty, margin, leverage, fee, liqPrice, time} — 선물 진입 예약
+let equityHistory   = []; // {t: ms, v: 총자산} — 자산 변화 기록
 let _sbWs = { spot: null, futures: null }; // sidebar ticker ws
 
 // 각 탭 독립 상태
@@ -1052,6 +1079,9 @@ function saveState() {
   localStorage.setItem('tp_limitorders',  JSON.stringify(futLimitOrders));
   localStorage.setItem('tp_spot_lo',      JSON.stringify(spotLimitOrders));
   localStorage.setItem('tp_fut_eo',       JSON.stringify(futEntryOrders));
+  equityHistory.push({ t: Date.now(), v: calcTotalEquity() });
+  if (equityHistory.length > 300) equityHistory = equityHistory.slice(-300);
+  localStorage.setItem('tp_equity',       JSON.stringify(equityHistory));
   localStorage.setItem('tp_spot_history', JSON.stringify(spotHistory.slice(0,50)));
   localStorage.setItem('tp_fut_history',  JSON.stringify(futHistory.slice(0,30)));
   _uploadRanking();
@@ -1067,6 +1097,7 @@ function loadState() {
   futLimitOrders  = JSON.parse(localStorage.getItem('tp_limitorders')  || '[]');
   spotLimitOrders = JSON.parse(localStorage.getItem('tp_spot_lo')      || '[]');
   futEntryOrders  = JSON.parse(localStorage.getItem('tp_fut_eo')       || '[]');
+  equityHistory   = JSON.parse(localStorage.getItem('tp_equity')       || '[]');
   spotHistory     = JSON.parse(localStorage.getItem('tp_spot_history') || '[]');
   futHistory     = JSON.parse(localStorage.getItem('tp_fut_history')   || '[]');
   return true;
@@ -1080,16 +1111,16 @@ function startGame() {
   const nn = saved || ($('nicknameInput')?.value.trim()) || ('Trader_' + Math.floor(Math.random()*9000+1000));
   if (!saved) localStorage.setItem('tp_nickname', nn); // 최초 1회만 저장
   wallet = 1000; startAmount = 1000;
-  realizedPnl = 0; holdings = {}; futPositions = []; futHistory = []; futLimitOrders = []; spotLimitOrders = []; futEntryOrders = []; spotHistory = [];
+  realizedPnl = 0; holdings = {}; futPositions = []; futHistory = []; futLimitOrders = []; spotLimitOrders = []; futEntryOrders = []; equityHistory = []; spotHistory = [];
   saveState();
   $('startOverlay').style.display = 'none';
   updateTopBar();
   _uploadRanking(); // 닉네임 확정 즉시 Firebase에 등록
 }
 function resetGame() {
-  ['tp_wallet','tp_holdings','tp_positions','tp_realized','tp_start','tp_limitorders','tp_spot_lo','tp_fut_eo','tp_spot_history','tp_fut_history'].forEach(k=>localStorage.removeItem(k));
+  ['tp_wallet','tp_holdings','tp_positions','tp_realized','tp_start','tp_limitorders','tp_spot_lo','tp_fut_eo','tp_equity','tp_spot_history','tp_fut_history'].forEach(k=>localStorage.removeItem(k));
   wallet = 1000; startAmount = 1000; realizedPnl = 0;
-  holdings = {}; futPositions = []; futHistory = []; futLimitOrders = []; spotLimitOrders = []; futEntryOrders = []; spotHistory = [];
+  holdings = {}; futPositions = []; futHistory = []; futLimitOrders = []; spotLimitOrders = []; futEntryOrders = []; equityHistory = []; spotHistory = [];
   $('adOverlay').style.display = 'none';
   _lockNicknameInput(); // 닉네임 잠금 상태 유지
   $('startOverlay').style.display = 'flex';
@@ -2822,6 +2853,135 @@ function updateAiPlayers() {
     const change = (Math.random() - 0.47) * p.equity * 0.035;
     p.equity = Math.max(10, p.equity + change);
   });
+}
+
+// ══════════════════════════════════════════════════════
+// STATS MODAL
+// ══════════════════════════════════════════════════════
+function calcTotalEquity() {
+  let eq = wallet;
+  for (const sym of Object.keys(holdings)) {
+    const price = PRICES[sym+'USDT'] || 0;
+    eq += holdings[sym].qty * price;
+  }
+  futPositions.forEach(p => {
+    const price = PRICES[p.sym] || (S.futures.sym===p.sym ? S.futures.price : p.entryPrice);
+    const pnl = p.dir==='long'
+      ? (price-p.entryPrice)/p.entryPrice*p.margin*p.leverage
+      : (p.entryPrice-price)/p.entryPrice*p.margin*p.leverage;
+    eq += p.margin + pnl;
+  });
+  return Math.max(0, eq);
+}
+function drawEquitySVG(history) {
+  if (history.length < 2) return '<p style="color:var(--text3);text-align:center;padding:20px 0;font-size:13px">거래 후 자산 그래프가 표시됩니다</p>';
+  const vals = history.map(h => h.v);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 1;
+  const W = 480, H = 110, pad = 4;
+  const pts = vals.map((v, i) => {
+    const x = pad + (i / (vals.length - 1)) * (W - pad*2);
+    const y = pad + (1 - (v - min) / range) * (H - pad*2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const last = vals[vals.length - 1], first = vals[0];
+  const color = last >= first ? '#0ecb81' : '#f6465d';
+  const fillPts = `${pad},${H} ` + pts + ` ${W-pad},${H}`;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block">
+    <defs><linearGradient id="eg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
+    </linearGradient></defs>
+    <polygon points="${fillPts}" fill="url(#eg)"/>
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round"/>
+  </svg>`;
+}
+function openStats() {
+  $('statsOverlay').style.display = 'flex';
+  renderStats();
+}
+function closeStats() { $('statsOverlay').style.display = 'none'; }
+function renderStats() {
+  const allTrades = [...spotHistory, ...futHistory];
+  const total = allTrades.length;
+  const wins = allTrades.filter(t => t.pnl > 0).length;
+  const winRate = total ? (wins / total * 100).toFixed(1) : '—';
+  const pnls = allTrades.map(t => t.pnl).filter(p => p !== null && p !== undefined);
+  const bestPnl = pnls.length ? Math.max(...pnls) : null;
+  const worstPnl = pnls.length ? Math.min(...pnls) : null;
+  const avgPnl = pnls.length ? pnls.reduce((a,b)=>a+b,0)/pnls.length : null;
+  // Max drawdown from equityHistory
+  let maxDD = 0, peak = 0;
+  equityHistory.forEach(h => {
+    if (h.v > peak) peak = h.v;
+    const dd = peak > 0 ? (peak - h.v) / peak * 100 : 0;
+    if (dd > maxDD) maxDD = dd;
+  });
+  const cur = calcTotalEquity();
+  const totalReturn = ((cur - startAmount) / startAmount * 100);
+
+  const pnlColor = v => v === null ? 'var(--text2)' : v >= 0 ? 'var(--green)' : 'var(--red)';
+  const fmtPnl = v => v === null ? '—' : (v>=0?'+$':'-$') + fmt(Math.abs(v));
+
+  $('statsBody').innerHTML = `
+    <div class="stats-graph-wrap">
+      <div class="stats-graph-label">포트폴리오 자산 변화</div>
+      ${drawEquitySVG(equityHistory)}
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:6px">
+        <span>시작 $${fmt(startAmount)}</span>
+        <span style="color:${totalReturn>=0?'var(--green)':'var(--red)'};font-weight:700">
+          현재 $${fmt(cur)} (${totalReturn>=0?'+':''}${totalReturn.toFixed(2)}%)
+        </span>
+      </div>
+    </div>
+    <div class="stats-section-title">수익 요약</div>
+    <div class="stats-grid">
+      <div class="stats-card">
+        <div class="stats-card-label">총 실현손익</div>
+        <div class="stats-card-val" style="color:${pnlColor(realizedPnl)}">${fmtPnl(realizedPnl)}</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-label">총 수익률</div>
+        <div class="stats-card-val" style="color:${totalReturn>=0?'var(--green)':'var(--red)'}">
+          ${totalReturn>=0?'+':''}${totalReturn.toFixed(2)}%
+        </div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-label">최대 낙폭 (Drawdown)</div>
+        <div class="stats-card-val" style="color:var(--red)">-${maxDD.toFixed(2)}%</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-label">현재 총 자산</div>
+        <div class="stats-card-val">$${fmt(cur)}</div>
+      </div>
+    </div>
+    <div class="stats-section-title">트레이딩 기록</div>
+    <div class="stats-grid">
+      <div class="stats-card">
+        <div class="stats-card-label">총 트레이드</div>
+        <div class="stats-card-val">${total}회</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-label">승률</div>
+        <div class="stats-card-val" style="color:${parseFloat(winRate)>=50?'var(--green)':'var(--red)'}">${winRate}${total?'%':''}</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-label">최고 단일 트레이드</div>
+        <div class="stats-card-val" style="color:var(--green)">${fmtPnl(bestPnl)}</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-label">최악 단일 트레이드</div>
+        <div class="stats-card-val" style="color:var(--red)">${fmtPnl(worstPnl)}</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-label">평균 트레이드 손익</div>
+        <div class="stats-card-val" style="color:${pnlColor(avgPnl)}">${fmtPnl(avgPnl)}</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-label">현물 / 선물 트레이드</div>
+        <div class="stats-card-val" style="font-size:15px">${spotHistory.length} / ${futHistory.length}</div>
+      </div>
+    </div>`;
 }
 
 function openRanking() {
