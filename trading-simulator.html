@@ -2507,7 +2507,7 @@ function confirmLimitClose() {
   const limitPrice = parseFloat($('lcp-price').value) || 0;
   const qty        = parseFloat($('lcp-qty').value)   || 0;
   if (!limitPrice || limitPrice <= 0) { toast('지정가를 입력하세요', 'var(--yellow)'); return; }
-  if (!qty || qty <= 0 || qty > p.qty + 1e-9) { toast('수량을 확인하세요', 'var(--yellow)'); return; }
+  if (!qty || qty <= 0) { toast('수량을 확인하세요', 'var(--yellow)'); return; }
   const fraction = Math.min(qty / p.qty, 1);
   futLimitOrders = futLimitOrders.filter(o => o.posId !== lcpState.posId);
   futLimitOrders.push({ id:Date.now(), posId:lcpState.posId, sym:p.sym, price:limitPrice, fraction });
