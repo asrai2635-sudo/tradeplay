@@ -132,9 +132,20 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .pct-btn:hover { background:var(--bg4); color:var(--text); }
 
 /* PCT SLIDER ROW */
-.pct-slider-row { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+.pct-slider-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
 .pct-slider-label { font-size:11px; color:var(--text3); white-space:nowrap; flex-shrink:0; }
 .pct-slider-val { font-size:12px; font-weight:700; color:var(--yellow); min-width:30px; text-align:right; flex-shrink:0; }
+
+/* TWO-COL FIELD GRID (마진+수량 나란히) */
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:7px; }
+.two-col .form-label { font-size:10px; }
+.two-col .form-input { padding:5px 7px; font-size:12px; }
+
+/* SPOT 매수/매도 필드 행 */
+.s-fields-wrap { display:flex; gap:6px; margin-bottom:7px; }
+.s-fields-wrap > div { flex:1; }
+.s-fields-wrap .form-label { font-size:10px; }
+.s-fields-wrap .form-input { padding:5px 7px; font-size:12px; }
 
 /* ORDERBOOK */
 .orderbook { width: 210px; border-right: 1px solid var(--border); background: var(--bg2); display: flex; flex-direction: column; flex-shrink: 0; }
@@ -531,13 +542,15 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
         <label class="form-label">지정가 (USDT)</label>
         <input class="form-input" id="sLimitPrice" type="number" placeholder="가격 입력" oninput="updateSpotInfo()">
       </div>
-      <div class="form-row" id="sAmtRow">
-        <label class="form-label" id="sAmtLabel">주문금액 (USDT)</label>
-        <input class="form-input" id="sAmt" type="number" value="1000" min="1" oninput="onSAmtChange()">
-      </div>
-      <div class="form-row">
-        <label class="form-label" id="sCoinQtyLabel">수량 (코인)</label>
-        <input class="form-input" id="sCoinQty" type="number" min="0" step="any" placeholder="코인 수량" oninput="onSCoinQtyChange()">
+      <div class="s-fields-wrap">
+        <div id="sAmtRow">
+          <label class="form-label" id="sAmtLabel">금액 (USDT)</label>
+          <input class="form-input" id="sAmt" type="number" value="1000" min="1" oninput="onSAmtChange()">
+        </div>
+        <div>
+          <label class="form-label" id="sCoinQtyLabel">수량 (코인)</label>
+          <input class="form-input" id="sCoinQty" type="number" min="0" step="any" placeholder="수량" oninput="onSCoinQtyChange()">
+        </div>
       </div>
       <div class="pct-slider-row">
         <span class="pct-slider-label">잔고 비율</span>
@@ -709,13 +722,15 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
         <input type="range" id="fLevSlider" min="1" max="125" value="10" step="1" oninput="onLev()">
         <span class="lev-val" id="fLevVal">10x</span>
       </div>
-      <div class="form-row">
-        <label class="form-label">마진 (USDT)</label>
-        <input class="form-input" id="fMargin" type="number" value="1000" min="1" oninput="onFMarginChange()">
-      </div>
-      <div class="form-row">
-        <label class="form-label">수량 (코인)</label>
-        <input class="form-input" id="fCoinQty" type="number" min="0" step="any" placeholder="코인 수량" oninput="onFCoinQtyChange()">
+      <div class="two-col">
+        <div>
+          <label class="form-label">마진 (USDT)</label>
+          <input class="form-input" id="fMargin" type="number" value="1000" min="1" oninput="onFMarginChange()">
+        </div>
+        <div>
+          <label class="form-label">수량 (코인)</label>
+          <input class="form-input" id="fCoinQty" type="number" min="0" step="any" placeholder="수량" oninput="onFCoinQtyChange()">
+        </div>
       </div>
       <div class="pct-slider-row">
         <span class="pct-slider-label">잔고 비율</span>
@@ -1860,7 +1875,7 @@ function _doRenderOB(page) {
       const barW = (t / maxTot * 100).toFixed(1);
       const qStr = q > 0 ? (q >= 1 ? q.toFixed(2) : q.toFixed(4)) : '—';
       const tStr = t > 0 ? t.toFixed(2) : '—';
-      return `<div class="ob-row ob-ask-row" onclick="obClick('${page}',${p.toFixed(dec)})">` +
+      return `<div class="ob-row ob-ask-row" data-price="${p.toFixed(dec)}">` +
         `<div class="ob-bar ob-ask-bar" style="width:${barW}%"></div>` +
         `<span class="ob-p dn">${p.toFixed(dispDec)}</span>` +
         `<span class="ob-q">${qStr}</span>` +
@@ -1887,7 +1902,7 @@ function _doRenderOB(page) {
       const barW = (t / maxTot * 100).toFixed(1);
       const qStr = q > 0 ? (q >= 1 ? q.toFixed(2) : q.toFixed(4)) : '—';
       const tStr = t > 0 ? t.toFixed(2) : '—';
-      return `<div class="ob-row ob-bid-row" onclick="obClick('${page}',${p.toFixed(dec)})">` +
+      return `<div class="ob-row ob-bid-row" data-price="${p.toFixed(dec)}">` +
         `<div class="ob-bar ob-bid-bar" style="width:${barW}%"></div>` +
         `<span class="ob-p up">${p.toFixed(dispDec)}</span>` +
         `<span class="ob-q">${qStr}</span>` +
@@ -2111,7 +2126,7 @@ function setSpotDir(dir) {
   const btn=$('sExecBtn');
   btn.className='exec-btn '+(dir==='buy'?'exec-buy':'exec-sell');
   btn.textContent=dir==='buy'?'매수 실행':'매도 실행';
-  $('sAmtRow').style.display=dir==='buy'?'block':'none';
+  $('sAmtRow').style.display=dir==='buy'?'':'none';
   $('sCoinQtyLabel').textContent=dir==='buy'?'수량 (코인)':'매도 수량 (코인)';
   updateSpotInfo();
 }
@@ -2179,10 +2194,25 @@ function onFPctSlider() {
 }
 
 // ══════════════════════════════════════════════════════
+// ORDERBOOK CLICK — 이벤트 위임 (WebSocket 재렌더 경쟁 조건 해결)
+// ══════════════════════════════════════════════════════
+function initObDelegation() {
+  [['s-asks','spot'],['s-bids','spot'],['f-asks','futures'],['f-bids','futures']].forEach(([id,page]) => {
+    const el=$(id);
+    if(!el) return;
+    el.addEventListener('mousedown', function(e) {
+      const row=e.target.closest('[data-price]');
+      if(!row) return;
+      obClick(page, parseFloat(row.dataset.price));
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════
 // ORDER INFO
 // ══════════════════════════════════════════════════════
 function updateSpotInfo() {
-  const price=S.spot.price; if(!price) return;
+  const price=S.spot.price||PRICES[S.spot.sym]||0; if(!price) return;
   const ep=S.spot.ot==='limit'?(parseFloat($('sLimitPrice').value)||price):price;
   const dir=S.spot.dir;
   if(dir==='buy'){
@@ -2204,7 +2234,7 @@ function updateSpotInfo() {
   }
 }
 function updateFutInfo() {
-  const price=S.futures.price; if(!price) return;
+  const price=S.futures.price||PRICES[S.futures.sym]||0; if(!price) return;
   const lev=parseInt($('fLevSlider').value);
   const margin=parseFloat($('fMargin').value)||0;
   const posVal=margin*lev;
@@ -2694,6 +2724,8 @@ async function init() {
   $('fLevSlider').addEventListener('input', onLev);
   $('fMargin').addEventListener('input', updateFutInfo);
   $('sAmt').addEventListener('input', updateSpotInfo);
+  // 호가창 이벤트 위임 (WebSocket 재렌더 경쟁 조건 해결)
+  initObDelegation();
   // close ob-group dropdowns when clicking outside
   // 드로잉 키보드 단축키
   document.addEventListener('keydown', e => {
