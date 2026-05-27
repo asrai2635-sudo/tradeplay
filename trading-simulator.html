@@ -110,13 +110,25 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .lc-wrap { flex: 1; position: relative; min-height: 0; overflow: hidden; }
 
 /* DRAWING TOOLBAR */
-.draw-toolbar { width: 34px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 4px 0; gap: 1px; flex-shrink: 0; }
-.draw-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; color: var(--text3); font-size: 14px; transition: all 0.1s; border: 1px solid transparent; user-select: none; }
+.draw-toolbar { width: 38px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 6px 0 4px; gap: 1px; flex-shrink: 0; overflow-y: auto; scrollbar-width: none; }
+.draw-toolbar::-webkit-scrollbar { display: none; }
+.draw-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; color: var(--text3); transition: all 0.1s; border: 1px solid transparent; user-select: none; flex-shrink: 0; }
 .draw-btn:hover { background: var(--bg3); color: var(--text2); }
 .draw-btn.dt-on { background: rgba(59,130,246,0.18); color: var(--blue); border-color: rgba(59,130,246,0.5); }
 .draw-btn.dt-del:hover { color: var(--red); background: rgba(246,70,93,0.1); }
-.draw-sep { width: 22px; height: 1px; background: var(--border); margin: 2px 0; flex-shrink: 0; }
+.draw-sep { width: 24px; height: 1px; background: var(--border); margin: 3px 0; flex-shrink: 0; }
 .draw-canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 5; }
+/* SPOT LIMIT SELL MODAL */
+.sls-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.8); z-index:3000; display:flex; align-items:center; justify-content:center; }
+.sls-modal { background:var(--bg2); border:1px solid var(--border); border-radius:12px; width:420px; max-width:95vw; padding:24px; }
+.sls-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.sls-title { font-size:17px; font-weight:700; }
+.sls-close { background:none; border:none; color:var(--text2); cursor:pointer; font-size:20px; font-family:inherit; }
+.sls-info { font-size:13px; color:var(--text2); margin-bottom:14px; padding:10px 14px; background:var(--bg3); border-radius:6px; display:flex; gap:18px; flex-wrap:wrap; }
+.sls-pct-row { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:12px; }
+.sls-pct-btn { padding:8px; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text2); font-family:inherit; font-size:13px; cursor:pointer; transition:all 0.1s; text-align:center; }
+.sls-pct-btn:hover { background:var(--bg4); color:var(--text); }
+.sls-pct-btn.active { background:rgba(246,70,93,0.15); border-color:var(--red); color:var(--red); }
 
 /* INDICATOR BUTTONS */
 .ind-row { display:flex; gap:4px; align-items:center; margin-left:8px; }
@@ -753,17 +765,32 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     </div>
     <div class="chart-container">
       <div class="draw-toolbar" id="s-draw-toolbar">
-        <div class="draw-btn dt-on" id="s-dt-cursor" onclick="setDrawTool('spot','cursor',this)" title="커서 (Esc)">↖</div>
+        <!-- 커서 그룹 -->
+        <div class="draw-btn dt-on" id="s-dt-cursor" onclick="setDrawTool('spot','cursor',this)" title="커서 (Esc)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M2 1.5L2 11.5L5 8.8L7 13L8.8 12.2L6.8 7.8L11 7.5L2 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
+        <div class="draw-btn" id="s-dt-crosshair" onclick="setDrawTool('spot','crosshair',this)" title="십자선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="5" stroke="currentColor" stroke-width="1.3"/><line x1="7" y1="9" x2="7" y2="13" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="7" x2="5" y2="7" stroke="currentColor" stroke-width="1.3"/><line x1="9" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.3"/><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/></svg></div>
         <div class="draw-sep"></div>
-        <div class="draw-btn" id="s-dt-trendline" onclick="setDrawTool('spot','trendline',this)" title="추세선">╱</div>
-        <div class="draw-btn" id="s-dt-hline" onclick="setDrawTool('spot','hline',this)" title="수평선">━</div>
-        <div class="draw-btn" id="s-dt-vline" onclick="setDrawTool('spot','vline',this)" title="수직선">│</div>
+        <!-- 선 그룹 -->
+        <div class="draw-btn" id="s-dt-trendline" onclick="setDrawTool('spot','trendline',this)" title="추세선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="12" x2="12" y2="2" stroke="currentColor" stroke-width="1.3"/><circle cx="2" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></div>
+        <div class="draw-btn" id="s-dt-ray" onclick="setDrawTool('spot','ray',this)" title="레이 (반무한선)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="11.5" x2="12" y2="3" stroke="currentColor" stroke-width="1.3"/><circle cx="2" cy="11.5" r="1.5" fill="currentColor"/><polyline points="9.5,1.5 12.5,3 10,5.5" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linejoin="round"/></svg></div>
+        <div class="draw-btn" id="s-dt-extline" onclick="setDrawTool('spot','extline',this)" title="연장선 (양방향)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="0.5" y1="13" x2="13.5" y2="1" stroke="currentColor" stroke-width="1.3"/><circle cx="4.5" cy="10.5" r="1.5" fill="currentColor"/><circle cx="9.5" cy="4.5" r="1.5" fill="currentColor"/></svg></div>
+        <div class="draw-btn" id="s-dt-hline" onclick="setDrawTool('spot','hline',this)" title="수평선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="draw-btn" id="s-dt-hray" onclick="setDrawTool('spot','hray',this)" title="수평 레이"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.3"/><circle cx="2" cy="7" r="1.5" fill="currentColor"/><polyline points="10,5 13,7 10,9" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linejoin="round"/></svg></div>
+        <div class="draw-btn" id="s-dt-vline" onclick="setDrawTool('spot','vline',this)" title="수직선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="draw-btn" id="s-dt-channel" onclick="setDrawTool('spot','channel',this)" title="평행 채널 (3클릭)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="1" y1="10" x2="13" y2="3" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="13" x2="13" y2="6" stroke="currentColor" stroke-width="1.1" stroke-dasharray="2.5,1.5"/></svg></div>
         <div class="draw-sep"></div>
-        <div class="draw-btn" id="s-dt-fib" onclick="setDrawTool('spot','fibonacci',this)" title="피보나치" style="font-size:9px;font-weight:800;letter-spacing:-0.5px">Fib</div>
-        <div class="draw-btn" id="s-dt-rect" onclick="setDrawTool('spot','rect',this)" title="박스">▭</div>
+        <!-- 피보나치 -->
+        <div class="draw-btn" id="s-dt-fib" onclick="setDrawTool('spot','fibonacci',this)" title="피보나치 되돌림"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="2.5" x2="12" y2="2.5" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="5.5" x2="12" y2="5.5" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.6"/><line x1="2" y1="7.5" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.1"/><line x1="2" y1="9.5" x2="12" y2="9.5" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.6"/><line x1="2" y1="12.5" x2="12" y2="12.5" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="2.5" x2="3" y2="12.5" stroke="currentColor" stroke-width="0.7" stroke-opacity="0.4"/></svg></div>
         <div class="draw-sep"></div>
-        <div class="draw-btn dt-del" onclick="undoLastDrawing('spot')" title="실행취소 (Ctrl+Z)">↩</div>
-        <div class="draw-btn dt-del" onclick="clearDrawings('spot')" title="전체삭제">⊗</div>
+        <!-- 도형 그룹 -->
+        <div class="draw-btn" id="s-dt-rect" onclick="setDrawTool('spot','rect',this)" title="박스"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="2" y="3.5" width="10" height="7" stroke="currentColor" stroke-width="1.3"/></svg></div>
+        <div class="draw-btn" id="s-dt-ellipse" onclick="setDrawTool('spot','ellipse',this)" title="타원"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><ellipse cx="7" cy="7" rx="5.5" ry="4" stroke="currentColor" stroke-width="1.3"/></svg></div>
+        <div class="draw-sep"></div>
+        <!-- 텍스트 -->
+        <div class="draw-btn" id="s-dt-text" onclick="setDrawTool('spot','text',this)" title="텍스트 주석"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><text x="2.5" y="12.5" font-size="12" font-weight="700" fill="currentColor" font-family="serif">T</text></svg></div>
+        <div class="draw-sep"></div>
+        <!-- 실행취소 / 전체삭제 -->
+        <div class="draw-btn dt-del" onclick="undoLastDrawing('spot')" title="실행취소 (Ctrl+Z)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M2.5 7C2.5 4.5 4.5 2.5 7 2.5s4.5 2 4.5 4.5S9.5 11.5 7 11.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="2,4.5 2.5,7.5 5.5,6.5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg></div>
+        <div class="draw-btn dt-del" onclick="clearDrawings('spot')" title="전체삭제"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><polyline points="2,3.5 12,3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 3.5V2.5h4v1M3.5 3.5l.8 8h5.4l.8-8" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><line x1="5.5" y1="6" x2="5.5" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="8.5" y1="6" x2="8.5" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div>
       </div>
       <div class="lc-wrap" id="spotLcWrap"></div>
     </div>
@@ -814,7 +841,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
       <span style="flex:0 0 100px;text-align:center">현재가</span>
       <span style="flex:0 0 100px;text-align:center">평가금액</span>
       <span style="flex:1;text-align:center;min-width:100px">평가손익</span>
-      <span style="flex:0 0 76px"></span>
+      <span style="flex:0 0 160px"></span>
     </div>
     <div class="bt-body" id="spotHoldings"><div class="empty-msg">보유 자산 없음</div></div>
   </div>
@@ -963,17 +990,32 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     </div>
     <div class="chart-container">
       <div class="draw-toolbar" id="f-draw-toolbar">
-        <div class="draw-btn dt-on" id="f-dt-cursor" onclick="setDrawTool('futures','cursor',this)" title="커서 (Esc)">↖</div>
+        <!-- 커서 그룹 -->
+        <div class="draw-btn dt-on" id="f-dt-cursor" onclick="setDrawTool('futures','cursor',this)" title="커서 (Esc)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M2 1.5L2 11.5L5 8.8L7 13L8.8 12.2L6.8 7.8L11 7.5L2 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
+        <div class="draw-btn" id="f-dt-crosshair" onclick="setDrawTool('futures','crosshair',this)" title="십자선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="5" stroke="currentColor" stroke-width="1.3"/><line x1="7" y1="9" x2="7" y2="13" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="7" x2="5" y2="7" stroke="currentColor" stroke-width="1.3"/><line x1="9" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.3"/><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/></svg></div>
         <div class="draw-sep"></div>
-        <div class="draw-btn" id="f-dt-trendline" onclick="setDrawTool('futures','trendline',this)" title="추세선">╱</div>
-        <div class="draw-btn" id="f-dt-hline" onclick="setDrawTool('futures','hline',this)" title="수평선">━</div>
-        <div class="draw-btn" id="f-dt-vline" onclick="setDrawTool('futures','vline',this)" title="수직선">│</div>
+        <!-- 선 그룹 -->
+        <div class="draw-btn" id="f-dt-trendline" onclick="setDrawTool('futures','trendline',this)" title="추세선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="12" x2="12" y2="2" stroke="currentColor" stroke-width="1.3"/><circle cx="2" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></div>
+        <div class="draw-btn" id="f-dt-ray" onclick="setDrawTool('futures','ray',this)" title="레이 (반무한선)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="11.5" x2="12" y2="3" stroke="currentColor" stroke-width="1.3"/><circle cx="2" cy="11.5" r="1.5" fill="currentColor"/><polyline points="9.5,1.5 12.5,3 10,5.5" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linejoin="round"/></svg></div>
+        <div class="draw-btn" id="f-dt-extline" onclick="setDrawTool('futures','extline',this)" title="연장선 (양방향)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="0.5" y1="13" x2="13.5" y2="1" stroke="currentColor" stroke-width="1.3"/><circle cx="4.5" cy="10.5" r="1.5" fill="currentColor"/><circle cx="9.5" cy="4.5" r="1.5" fill="currentColor"/></svg></div>
+        <div class="draw-btn" id="f-dt-hline" onclick="setDrawTool('futures','hline',this)" title="수평선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="draw-btn" id="f-dt-hray" onclick="setDrawTool('futures','hray',this)" title="수평 레이"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.3"/><circle cx="2" cy="7" r="1.5" fill="currentColor"/><polyline points="10,5 13,7 10,9" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linejoin="round"/></svg></div>
+        <div class="draw-btn" id="f-dt-vline" onclick="setDrawTool('futures','vline',this)" title="수직선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="draw-btn" id="f-dt-channel" onclick="setDrawTool('futures','channel',this)" title="평행 채널 (3클릭)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="1" y1="10" x2="13" y2="3" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="13" x2="13" y2="6" stroke="currentColor" stroke-width="1.1" stroke-dasharray="2.5,1.5"/></svg></div>
         <div class="draw-sep"></div>
-        <div class="draw-btn" id="f-dt-fib" onclick="setDrawTool('futures','fibonacci',this)" title="피보나치" style="font-size:9px;font-weight:800;letter-spacing:-0.5px">Fib</div>
-        <div class="draw-btn" id="f-dt-rect" onclick="setDrawTool('futures','rect',this)" title="박스">▭</div>
+        <!-- 피보나치 -->
+        <div class="draw-btn" id="f-dt-fib" onclick="setDrawTool('futures','fibonacci',this)" title="피보나치 되돌림"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="2.5" x2="12" y2="2.5" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="5.5" x2="12" y2="5.5" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.6"/><line x1="2" y1="7.5" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.1"/><line x1="2" y1="9.5" x2="12" y2="9.5" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.6"/><line x1="2" y1="12.5" x2="12" y2="12.5" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="2.5" x2="3" y2="12.5" stroke="currentColor" stroke-width="0.7" stroke-opacity="0.4"/></svg></div>
         <div class="draw-sep"></div>
-        <div class="draw-btn dt-del" onclick="undoLastDrawing('futures')" title="실행취소 (Ctrl+Z)">↩</div>
-        <div class="draw-btn dt-del" onclick="clearDrawings('futures')" title="전체삭제">⊗</div>
+        <!-- 도형 그룹 -->
+        <div class="draw-btn" id="f-dt-rect" onclick="setDrawTool('futures','rect',this)" title="박스"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="2" y="3.5" width="10" height="7" stroke="currentColor" stroke-width="1.3"/></svg></div>
+        <div class="draw-btn" id="f-dt-ellipse" onclick="setDrawTool('futures','ellipse',this)" title="타원"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><ellipse cx="7" cy="7" rx="5.5" ry="4" stroke="currentColor" stroke-width="1.3"/></svg></div>
+        <div class="draw-sep"></div>
+        <!-- 텍스트 -->
+        <div class="draw-btn" id="f-dt-text" onclick="setDrawTool('futures','text',this)" title="텍스트 주석"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><text x="2.5" y="12.5" font-size="12" font-weight="700" fill="currentColor" font-family="serif">T</text></svg></div>
+        <div class="draw-sep"></div>
+        <!-- 실행취소 / 전체삭제 -->
+        <div class="draw-btn dt-del" onclick="undoLastDrawing('futures')" title="실행취소 (Ctrl+Z)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M2.5 7C2.5 4.5 4.5 2.5 7 2.5s4.5 2 4.5 4.5S9.5 11.5 7 11.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="2,4.5 2.5,7.5 5.5,6.5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg></div>
+        <div class="draw-btn dt-del" onclick="clearDrawings('futures')" title="전체삭제"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><polyline points="2,3.5 12,3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 3.5V2.5h4v1M3.5 3.5l.8 8h5.4l.8-8" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><line x1="5.5" y1="6" x2="5.5" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="8.5" y1="6" x2="8.5" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div>
       </div>
       <div class="lc-wrap" id="futLcWrap"></div>
     </div>
@@ -1175,6 +1217,41 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
       <button class="funding-close-btn" onclick="closeFundingInfo()">✕</button>
     </div>
     <div id="fundingContent"></div>
+  </div>
+</div>
+
+<!-- SPOT LIMIT SELL MODAL -->
+<div class="sls-overlay" id="slsOverlay" style="display:none" onclick="if(event.target===this)closeSpotLimitSell()">
+  <div class="sls-modal">
+    <div class="sls-header">
+      <span class="sls-title">📌 지정가 매도</span>
+      <button class="sls-close" onclick="closeSpotLimitSell()">✕</button>
+    </div>
+    <div class="sls-info">
+      <span>심볼: <b id="sls-sym" style="color:var(--text)"></b></span>
+      <span>보유: <b id="sls-qty" style="color:var(--text)"></b></span>
+      <span>평균단가: <b id="sls-avg" style="color:var(--text)"></b></span>
+      <span>현재가: <b id="sls-cur" style="color:var(--text)"></b></span>
+    </div>
+    <div class="sls-pct-row">
+      <button class="sls-pct-btn" onclick="slsSetPct(25)">25%</button>
+      <button class="sls-pct-btn" onclick="slsSetPct(50)">50%</button>
+      <button class="sls-pct-btn" onclick="slsSetPct(75)">75%</button>
+      <button class="sls-pct-btn active" onclick="slsSetPct(100)">100%</button>
+    </div>
+    <div class="form-row" style="margin-bottom:10px">
+      <label class="form-label">매도 가격 (USDT)</label>
+      <input class="form-input" id="sls-price-input" type="number" placeholder="지정가 입력" oninput="slsUpdatePreview()">
+    </div>
+    <div class="form-row" style="margin-bottom:10px">
+      <label class="form-label">매도 수량</label>
+      <input class="form-input" id="sls-qty-input" type="number" placeholder="수량 입력" oninput="slsUpdatePreview()">
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:10px 0;border-top:1px solid var(--border);margin-top:4px">
+      <span style="color:var(--text2)">예상 수령액</span>
+      <span id="sls-preview" style="color:var(--text2)">—</span>
+    </div>
+    <button class="lcp-confirm-btn" onclick="confirmSpotLimitSell()" style="background:var(--red);color:#fff;margin-top:10px">매도 예약 확인</button>
   </div>
 </div>
 
@@ -1781,36 +1858,41 @@ function initCharts(page) {
 // DRAWING TOOLS ENGINE
 // ══════════════════════════════════════════════════════
 const DT = {
-  spot:    { tool:'cursor', drawing:false, p1:null, mouse:null, drawings:[] },
-  futures: { tool:'cursor', drawing:false, p1:null, mouse:null, drawings:[] }
+  spot:    { tool:'cursor', stage:0, p1:null, p2:null, mouse:null, drawings:[] },
+  futures: { tool:'cursor', stage:0, p1:null, p2:null, mouse:null, drawings:[] }
 };
 
 function setDrawTool(page, tool, btn) {
   const dt = DT[page];
   const pfx = page==='spot' ? 's' : 'f';
-  dt.drawing = false; dt.p1 = null;
+  dt.stage = 0; dt.p1 = null; dt.p2 = null;
   // 같은 도구 재클릭 → 커서로 복귀
   dt.tool = (dt.tool === tool && tool !== 'cursor') ? 'cursor' : tool;
 
   const toolbar = document.getElementById(pfx+'-draw-toolbar');
   if (toolbar) toolbar.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('dt-on'));
-  const activeId = dt.tool === 'cursor' ? pfx+'-dt-cursor' : pfx+'-dt-'+dt.tool;
+  const activeId = dt.tool === 'cursor' ? pfx+'-dt-cursor'
+                 : dt.tool === 'crosshair' ? pfx+'-dt-crosshair'
+                 : pfx+'-dt-'+dt.tool;
   const activeEl = document.getElementById(activeId);
   if (activeEl) activeEl.classList.add('dt-on');
 
   const canvas = document.getElementById(pfx+'-draw-canvas');
   if (canvas) {
-    canvas.style.pointerEvents = dt.tool==='cursor' ? 'none' : 'all';
-    canvas.style.cursor        = dt.tool==='cursor' ? 'default' : 'crosshair';
+    const isCursor = dt.tool === 'cursor';
+    canvas.style.pointerEvents = isCursor ? 'none' : 'all';
+    canvas.style.cursor = isCursor ? 'default' : 'crosshair';
   }
   renderDrawings(page);
 }
 
 function undoLastDrawing(page) {
-  if (DT[page].drawings.length) { DT[page].drawings.pop(); renderDrawings(page); }
+  const dt = DT[page];
+  if (dt.stage > 0) { dt.stage=0; dt.p1=null; dt.p2=null; renderDrawings(page); }
+  else if (dt.drawings.length) { dt.drawings.pop(); renderDrawings(page); }
 }
 function clearDrawings(page) {
-  Object.assign(DT[page], { drawings:[], drawing:false, p1:null });
+  Object.assign(DT[page], { drawings:[], stage:0, p1:null, p2:null });
   renderDrawings(page);
 }
 
@@ -1823,11 +1905,12 @@ function initDrawCanvas(page) {
   canvas.height = wrap.clientHeight;
 
   canvas.addEventListener('click', e => {
-    const dt = DT[page]; if (dt.tool==='cursor') return;
+    const dt = DT[page]; if (dt.tool==='cursor' || dt.tool==='crosshair') return;
     const r = canvas.getBoundingClientRect();
     const pt = _dtScreenToChart(page, e.clientX-r.left, e.clientY-r.top);
     if (!pt) return;
 
+    // 1-click tools
     if (dt.tool==='hline') {
       dt.drawings.push({ type:'hline', price:pt.price, color:'#f59e0b' });
       renderDrawings(page); return;
@@ -1836,27 +1919,44 @@ function initDrawCanvas(page) {
       dt.drawings.push({ type:'vline', time:pt.time, color:'#3b82f6' });
       renderDrawings(page); return;
     }
-    if (!dt.drawing) {
-      dt.drawing = true; dt.p1 = pt;
-    } else {
-      const colorMap = { trendline:'#f59e0b', fibonacci:'#f59e0b', rect:'#3b82f6' };
-      dt.drawings.push({ type:dt.tool, p1:{...dt.p1}, p2:{...pt}, color:colorMap[dt.tool]||'#f59e0b' });
-      dt.drawing = false; dt.p1 = null;
-      renderDrawings(page);
+    if (dt.tool==='hray') {
+      dt.drawings.push({ type:'hray', time:pt.time, price:pt.price, color:'#f59e0b' });
+      renderDrawings(page); return;
     }
+    if (dt.tool==='text') {
+      const txt = prompt('텍스트 입력:');
+      if (txt && txt.trim()) {
+        dt.drawings.push({ type:'text', time:pt.time, price:pt.price, text:txt.trim(), color:'#f59e0b' });
+        renderDrawings(page);
+      }
+      return;
+    }
+
+    // 3-click tool: channel
+    if (dt.tool==='channel') {
+      if (dt.stage===0) { dt.stage=1; dt.p1=pt; }
+      else if (dt.stage===1) { dt.stage=2; dt.p2=pt; }
+      else { dt.drawings.push({ type:'channel', p1:{...dt.p1}, p2:{...dt.p2}, p3:{...pt}, color:'#3b82f6' }); dt.stage=0; dt.p1=null; dt.p2=null; renderDrawings(page); }
+      return;
+    }
+
+    // 2-click tools
+    const colorMap = { trendline:'#f59e0b', ray:'#f59e0b', extline:'#f59e0b', fibonacci:'#f59e0b', rect:'#3b82f6', ellipse:'rgba(59,130,246,0.8)' };
+    if (dt.stage===0) { dt.stage=1; dt.p1=pt; }
+    else { dt.drawings.push({ type:dt.tool, p1:{...dt.p1}, p2:{...pt}, color:colorMap[dt.tool]||'#f59e0b' }); dt.stage=0; dt.p1=null; dt.p2=null; renderDrawings(page); }
   });
 
   canvas.addEventListener('mousemove', e => {
     const dt = DT[page]; if (dt.tool==='cursor') return;
     const r = canvas.getBoundingClientRect();
     dt.mouse = _dtScreenToChart(page, e.clientX-r.left, e.clientY-r.top);
-    if (dt.drawing) renderDrawings(page);
+    if (dt.stage > 0) renderDrawings(page);
   });
 
   canvas.addEventListener('contextmenu', e => {
     e.preventDefault();
     const dt = DT[page];
-    if (dt.drawing) { dt.drawing=false; dt.p1=null; renderDrawings(page); }
+    if (dt.stage > 0) { dt.stage=0; dt.p1=null; dt.p2=null; renderDrawings(page); }
     else if (dt.drawings.length) { dt.drawings.pop(); renderDrawings(page); }
   });
 }
@@ -1900,9 +2000,15 @@ function _dtRender(page) {
   const dt = DT[page];
   dt.drawings.forEach(d => _dtDrawOne(ctx, page, d, W, H, false));
 
-  if (dt.drawing && dt.p1 && dt.mouse && !['hline','vline'].includes(dt.tool)) {
-    const colorMap = { trendline:'#f59e0b', fibonacci:'#f59e0b', rect:'#3b82f6' };
-    _dtDrawOne(ctx, page, { type:dt.tool, p1:dt.p1, p2:dt.mouse, color:colorMap[dt.tool]||'#f59e0b' }, W, H, true);
+  const noPreviewTools = ['hline','vline','hray','text','crosshair'];
+  const colorMap2 = { trendline:'#f59e0b', ray:'#f59e0b', extline:'#f59e0b', fibonacci:'#f59e0b', rect:'#3b82f6', ellipse:'rgba(59,130,246,0.8)', channel:'#3b82f6' };
+
+  if (dt.stage===1 && dt.p1 && dt.mouse && !noPreviewTools.includes(dt.tool)) {
+    const previewType = dt.tool==='channel' ? 'trendline' : dt.tool;
+    _dtDrawOne(ctx, page, { type:previewType, p1:dt.p1, p2:dt.mouse, color:colorMap2[dt.tool]||'#f59e0b' }, W, H, true);
+  }
+  if (dt.stage===2 && dt.p1 && dt.p2 && dt.mouse && dt.tool==='channel') {
+    _dtDrawOne(ctx, page, { type:'channel', p1:dt.p1, p2:dt.p2, p3:dt.mouse, color:'#3b82f6' }, W, H, true);
   }
 }
 
@@ -1940,18 +2046,115 @@ function _dtDrawOne(ctx, page, d, W, H, isPreview) {
     case 'trendline': {
       const c1=_dtC(page,d.p1.time,d.p1.price), c2=_dtC(page,d.p2.time,d.p2.price);
       if (!c1||!c2) break;
-      // p1 → p2 방향으로 화면 끝까지 연장
       const dx=c2.x-c1.x, dy=c2.y-c1.y;
       let ex,ey;
       if (Math.abs(dx)<0.001) { ex=c1.x; ey=dy>=0?H:0; }
-      else {
-        const t = dx>=0 ? (W-c1.x)/dx : (-c1.x)/dx;
-        ex=c1.x+t*dx; ey=c1.y+t*dy;
-      }
+      else { const t=dx>=0?(W-c1.x)/dx:(-c1.x)/dx; ex=c1.x+t*dx; ey=c1.y+t*dy; }
       ctx.beginPath(); ctx.moveTo(c1.x,c1.y); ctx.lineTo(ex,ey); ctx.stroke();
       ctx.setLineDash([]);
       ctx.fillStyle=d.color;
-      [c1,c2].forEach(c => { ctx.beginPath(); ctx.arc(c.x,c.y,3,0,Math.PI*2); ctx.fill(); });
+      [c1,c2].forEach(c=>{ ctx.beginPath(); ctx.arc(c.x,c.y,3,0,Math.PI*2); ctx.fill(); });
+      break;
+    }
+    case 'ray': {
+      const c1=_dtC(page,d.p1.time,d.p1.price), c2=_dtC(page,d.p2.time,d.p2.price);
+      if (!c1||!c2) break;
+      const dx=c2.x-c1.x, dy=c2.y-c1.y;
+      let ex,ey;
+      if (Math.abs(dx)<0.001) { ex=c1.x; ey=dy>=0?H:0; }
+      else { const t=dx>=0?(W-c1.x)/dx:(-c1.x)/dx; ex=c1.x+t*dx; ey=c1.y+t*dy; }
+      ctx.beginPath(); ctx.moveTo(c1.x,c1.y); ctx.lineTo(ex,ey); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle=d.color;
+      ctx.beginPath(); ctx.arc(c1.x,c1.y,3,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(c2.x,c2.y,3,0,Math.PI*2); ctx.fill();
+      break;
+    }
+    case 'extline': {
+      const c1=_dtC(page,d.p1.time,d.p1.price), c2=_dtC(page,d.p2.time,d.p2.price);
+      if (!c1||!c2) break;
+      const dx=c2.x-c1.x, dy=c2.y-c1.y;
+      let sx,sy,ex,ey;
+      if (Math.abs(dx)<0.001) { sx=c1.x; sy=0; ex=c1.x; ey=H; }
+      else {
+        const tR=dx>=0?(W-c1.x)/dx:(-c1.x)/dx;
+        const tL=dx>=0?(-c1.x)/dx:(W-c1.x)/dx;
+        ex=c1.x+tR*dx; ey=c1.y+tR*dy;
+        sx=c1.x+tL*dx; sy=c1.y+tL*dy;
+      }
+      ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex,ey); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle=d.color;
+      [c1,c2].forEach(c=>{ ctx.beginPath(); ctx.arc(c.x,c.y,3,0,Math.PI*2); ctx.fill(); });
+      break;
+    }
+    case 'hray': {
+      const y=S[page].candleSeries?.priceToCoordinate(d.price);
+      const xs=S[page].lchart?.timeScale().timeToCoordinate(d.time);
+      if (y==null||xs==null) break;
+      ctx.beginPath(); ctx.moveTo(xs,y); ctx.lineTo(W,y); ctx.stroke();
+      ctx.setLineDash([]);
+      const lbl='$'+fmt(d.price);
+      const tw=ctx.measureText(lbl).width;
+      ctx.fillStyle='rgba(11,14,17,0.85)';
+      ctx.fillRect(W-tw-10,y-14,tw+8,16);
+      ctx.strokeStyle=d.color; ctx.lineWidth=1;
+      ctx.strokeRect(W-tw-10,y-14,tw+8,16);
+      ctx.fillStyle=d.color; ctx.textAlign='right';
+      ctx.fillText(lbl,W-5,y-2); ctx.textAlign='left';
+      ctx.beginPath(); ctx.arc(xs,y,3,0,Math.PI*2); ctx.fill();
+      break;
+    }
+    case 'ellipse': {
+      const c1=_dtC(page,d.p1.time,d.p1.price), c2=_dtC(page,d.p2.time,d.p2.price);
+      if (!c1||!c2) break;
+      const cx=(c1.x+c2.x)/2, cy=(c1.y+c2.y)/2;
+      const rx=Math.max(Math.abs(c2.x-c1.x)/2,1), ry=Math.max(Math.abs(c2.y-c1.y)/2,1);
+      ctx.fillStyle=d.p2.price>d.p1.price?'rgba(14,203,129,0.06)':'rgba(246,70,93,0.06)';
+      ctx.beginPath(); ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      break;
+    }
+    case 'text': {
+      const c=_dtC(page,d.time,d.price);
+      if (!c) break;
+      ctx.setLineDash([]);
+      ctx.font='bold 13px -apple-system,monospace';
+      const tw=ctx.measureText(d.text).width;
+      ctx.fillStyle='rgba(11,14,17,0.75)';
+      ctx.fillRect(c.x-2,c.y-14,tw+8,18);
+      ctx.fillStyle=d.color||'#f59e0b';
+      ctx.fillText(d.text,c.x+2,c.y);
+      ctx.beginPath(); ctx.arc(c.x,c.y,2.5,0,Math.PI*2); ctx.fill();
+      break;
+    }
+    case 'channel': {
+      const c1=_dtC(page,d.p1.time,d.p1.price), c2=_dtC(page,d.p2.time,d.p2.price);
+      if (!c1||!c2) break;
+      const dx=c2.x-c1.x, dy=c2.y-c1.y;
+      const tR=Math.abs(dx)<0.001?0:(dx>=0?(W-c1.x)/dx:(-c1.x)/dx);
+      const ex=c1.x+tR*dx, ey=c1.y+tR*dy;
+      // main line
+      ctx.beginPath(); ctx.moveTo(c1.x,c1.y); ctx.lineTo(ex,ey); ctx.stroke();
+      ctx.fillStyle=d.color;
+      [c1,c2].forEach(c=>{ ctx.beginPath(); ctx.arc(c.x,c.y,3,0,Math.PI*2); ctx.fill(); });
+      // parallel line with offset from p3
+      if (d.p3) {
+        const c3=_dtC(page,d.p3.time,d.p3.price);
+        if (c3) {
+          const t3=Math.abs(dx)<0.001?0:(c3.x-c1.x)/dx;
+          const lineY3=c1.y+t3*dy;
+          const offY=c3.y-lineY3;
+          ctx.setLineDash([4,3]);
+          ctx.beginPath(); ctx.moveTo(c1.x,c1.y+offY); ctx.lineTo(ex,ey+offY); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle='rgba(59,130,246,0.06)';
+          ctx.beginPath();
+          ctx.moveTo(c1.x,c1.y); ctx.lineTo(ex,ey);
+          ctx.lineTo(ex,ey+offY); ctx.lineTo(c1.x,c1.y+offY);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath(); ctx.arc(c3.x,c3.y,3,0,Math.PI*2); ctx.fill();
+        }
+      }
       break;
     }
     case 'fibonacci': {
@@ -2474,7 +2677,7 @@ async function selectSym(page, sym) {
   // Map 초기화 (심볼 바꿀 때 반드시 클리어)
   S[page].ob.asks.clear(); S[page].ob.bids.clear(); S[page].ob.seq = 0;
   // 드로잉 초기화
-  DT[page].drawings=[]; DT[page].drawing=false; DT[page].p1=null;
+  DT[page].drawings=[]; DT[page].stage=0; DT[page].p1=null; DT[page].p2=null;
   initCharts(page);
   if(page==='spot') document.getElementById('s-sym').textContent=sym.replace('USDT','/USDT');
   else { document.getElementById('f-sym').textContent=sym+' PERP'; }
@@ -2752,8 +2955,56 @@ function sellAllHolding(sym) {
   const qty=h.qty;
   spotHistory.unshift({sym:sym+'/USDT',dir:'sell',price,qty,amount:proceeds,pnl,time:Date.now()});
   delete holdings[sym];
-  toast(`${sym} 전량 매도 ${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))}`,pnl>=0?'var(--green)':'var(--red)');
+  toast(`${sym} 시장가 매도 ${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))}`,pnl>=0?'var(--green)':'var(--red)');
   updateTopBar(); renderSpotHoldings(); renderSpotHistory(); saveState(); checkBroke(); updatePriceLines('spot');
+}
+
+let _slsSym = null, _slsPct = 100;
+function openSpotLimitSell(sym) {
+  const h=holdings[sym]; if(!h){toast('보유 자산 없음','var(--red)');return;}
+  _slsSym=sym; _slsPct=100;
+  const price=PRICES[sym+'USDT']||(S.spot.sym===sym+'USDT'?S.spot.price:0)||0;
+  $('sls-sym').textContent=sym+'/USDT';
+  $('sls-qty').textContent=h.qty.toFixed(6);
+  $('sls-avg').textContent='$'+fmt(h.avgPrice);
+  $('sls-cur').textContent=price?'$'+fmt(price):'—';
+  $('sls-price-input').value=price?price.toFixed(2):'';
+  $('sls-qty-input').value=h.qty.toFixed(6);
+  document.querySelectorAll('.sls-pct-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sls-pct-btn')[3].classList.add('active');
+  slsUpdatePreview();
+  $('slsOverlay').style.display='flex';
+}
+function closeSpotLimitSell() { $('slsOverlay').style.display='none'; _slsSym=null; }
+function slsSetPct(pct) {
+  _slsPct=pct;
+  document.querySelectorAll('.sls-pct-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sls-pct-btn')[[25,50,75,100].indexOf(pct)]?.classList.add('active');
+  const h=holdings[_slsSym]; if(!h) return;
+  $('sls-qty-input').value=(h.qty*(pct/100)).toFixed(6);
+  slsUpdatePreview();
+}
+function slsUpdatePreview() {
+  const price=parseFloat($('sls-price-input').value)||0;
+  const qty=parseFloat($('sls-qty-input').value)||0;
+  if(!price||!qty){$('sls-preview').textContent='—';$('sls-preview').style.color='var(--text2)';return;}
+  const proceeds=qty*price*(1-0.001);
+  const h=holdings[_slsSym];
+  const pnl=h?((price-h.avgPrice)*qty):0;
+  $('sls-preview').textContent=(pnl>=0?'+$':'-$')+fmt(Math.abs(pnl))+' / 수령 $'+fmt(proceeds);
+  $('sls-preview').style.color=pnl>=0?'var(--green)':'var(--red)';
+}
+function confirmSpotLimitSell() {
+  if(!_slsSym){closeSpotLimitSell();return;}
+  const h=holdings[_slsSym]; if(!h){toast('보유 자산 없음','var(--red)');closeSpotLimitSell();return;}
+  const ep=parseFloat($('sls-price-input').value)||0;
+  const qty=parseFloat($('sls-qty-input').value)||0;
+  if(!ep){toast('지정가를 입력하세요','var(--yellow)');return;}
+  if(qty<=0||qty>h.qty+0.000001){toast('수량을 확인하세요','var(--yellow)');return;}
+  spotLimitOrders.push({id:Date.now(),sym:_slsSym+'USDT',dir:'sell',price:ep,qty,amount:0,fee:0,time:Date.now()});
+  toast(`📌 ${_slsSym} 지정가 매도 예약 @ $${fmt(ep)}`,'var(--yellow)');
+  saveState(); updatePriceLines('spot'); renderSpotOrders();
+  closeSpotLimitSell();
 }
 function renderSpotHoldings() {
   const el=$('spotHoldings');
@@ -2773,7 +3024,7 @@ function renderSpotHoldings() {
       <span class="btc-num" style="color:var(--text)">${price?'$'+fmt(price):'—'}</span>
       <span class="btc-num">${val!==null?'$'+fmt(val):'—'}</span>
       <span class="btc-pnl" style="color:${pnlColor}">${pnl!==null?(pnl>=0?'+$':'-$')+fmt(Math.abs(pnl))+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)':'—'}</span>
-      <span style="flex:0 0 76px;text-align:right"><button class="pos-mkt-btn" style="font-size:10px;padding:3px 8px" onclick="sellAllHolding('${sym}')">전량매도</button></span>
+      <span style="flex:0 0 160px;text-align:right;display:flex;gap:4px;justify-content:flex-end;align-items:center"><button class="pos-mkt-btn" style="font-size:10px;padding:3px 8px" onclick="sellAllHolding('${sym}')">시장가</button><button class="pos-lmt-btn" style="font-size:10px;padding:3px 8px" onclick="openSpotLimitSell('${sym}')">지정가</button></span>
     </div>`;
   }).join('');
 }
