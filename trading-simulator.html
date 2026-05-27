@@ -109,15 +109,20 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .chart-container { flex: 1; display: flex; flex-direction: row; min-height: 0; background: var(--bg); }
 .lc-wrap { flex: 1; position: relative; min-height: 0; overflow: hidden; }
 
-/* DRAWING TOOLBAR */
-.draw-toolbar { width: 38px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 6px 0 4px; gap: 1px; flex-shrink: 0; overflow-y: auto; scrollbar-width: none; }
+/* DRAWING TOOLBAR — TradingView style */
+.draw-toolbar { width: 46px; background: #131722; border-right: 1px solid #2a2e39; display: flex; flex-direction: column; align-items: center; padding: 8px 0 6px; gap: 2px; flex-shrink: 0; overflow-y: auto; scrollbar-width: none; }
 .draw-toolbar::-webkit-scrollbar { display: none; }
-.draw-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; color: var(--text3); transition: all 0.1s; border: 1px solid transparent; user-select: none; flex-shrink: 0; }
-.draw-btn:hover { background: var(--bg3); color: var(--text2); }
-.draw-btn.dt-on { background: rgba(59,130,246,0.18); color: var(--blue); border-color: rgba(59,130,246,0.5); }
-.draw-btn.dt-del:hover { color: var(--red); background: rgba(246,70,93,0.1); }
-.draw-sep { width: 24px; height: 1px; background: var(--border); margin: 3px 0; flex-shrink: 0; }
+.draw-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; color: #787b86; transition: background 0.12s, color 0.12s; border: none; user-select: none; flex-shrink: 0; position: relative; }
+.draw-btn:hover { background: rgba(255,255,255,0.07); color: #d1d4dc; }
+.draw-btn.dt-on { background: #2962ff; color: #fff; }
+.draw-btn.dt-on:hover { background: #1e53e5; color: #fff; }
+.draw-btn.dt-del:hover { background: rgba(246,70,93,0.14); color: #f6465d; }
+.draw-sep { width: 28px; height: 1px; background: rgba(255,255,255,0.09); margin: 4px 0; flex-shrink: 0; }
 .draw-canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 5; }
+/* Draw tooltip */
+#dt-tooltip { position:fixed; display:none; background:#1e222d; color:#d1d4dc; font-size:12px; padding:5px 10px; border-radius:4px; border:1px solid #2a2e39; box-shadow:0 2px 10px rgba(0,0,0,0.55); pointer-events:none; z-index:9999; white-space:nowrap; font-family:'SF Mono','Fira Code','Consolas',monospace; }
+#dt-tooltip::before { content:''; position:absolute; right:100%; top:50%; transform:translateY(-50%); border:5px solid transparent; border-right-color:#2a2e39; }
+#dt-tooltip::after { content:''; position:absolute; right:calc(100% - 1px); top:50%; transform:translateY(-50%); border:5px solid transparent; border-right-color:#1e222d; }
 /* SPOT LIMIT SELL MODAL */
 .sls-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.8); z-index:3000; display:flex; align-items:center; justify-content:center; }
 .sls-modal { background:var(--bg2); border:1px solid var(--border); border-radius:12px; width:420px; max-width:95vw; padding:24px; }
@@ -765,32 +770,26 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     </div>
     <div class="chart-container">
       <div class="draw-toolbar" id="s-draw-toolbar">
-        <!-- 커서 그룹 -->
-        <div class="draw-btn dt-on" id="s-dt-cursor" onclick="setDrawTool('spot','cursor',this)" title="커서 (Esc)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M2 1.5L2 11.5L5 8.8L7 13L8.8 12.2L6.8 7.8L11 7.5L2 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
-        <div class="draw-btn" id="s-dt-crosshair" onclick="setDrawTool('spot','crosshair',this)" title="십자선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="5" stroke="currentColor" stroke-width="1.3"/><line x1="7" y1="9" x2="7" y2="13" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="7" x2="5" y2="7" stroke="currentColor" stroke-width="1.3"/><line x1="9" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.3"/><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/></svg></div>
+        <div class="draw-btn dt-on" id="s-dt-cursor" onclick="setDrawTool('spot','cursor',this)" data-tip="커서 (Esc)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3.5 2.5L3.5 14.5L7 11.5L9 16L11.2 15L9.2 10.5L14 10L3.5 2.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+        <div class="draw-btn" id="s-dt-crosshair" onclick="setDrawTool('spot','crosshair',this)" data-tip="십자선 커서"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="3" stroke="currentColor" stroke-width="1.4"/><line x1="9" y1="1.5" x2="9" y2="5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="9" y1="12.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="1.5" y1="9" x2="5.5" y2="9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="12.5" y1="9" x2="16.5" y2="9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
         <div class="draw-sep"></div>
-        <!-- 선 그룹 -->
-        <div class="draw-btn" id="s-dt-trendline" onclick="setDrawTool('spot','trendline',this)" title="추세선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="12" x2="12" y2="2" stroke="currentColor" stroke-width="1.3"/><circle cx="2" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></div>
-        <div class="draw-btn" id="s-dt-ray" onclick="setDrawTool('spot','ray',this)" title="레이 (반무한선)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="11.5" x2="12" y2="3" stroke="currentColor" stroke-width="1.3"/><circle cx="2" cy="11.5" r="1.5" fill="currentColor"/><polyline points="9.5,1.5 12.5,3 10,5.5" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linejoin="round"/></svg></div>
-        <div class="draw-btn" id="s-dt-extline" onclick="setDrawTool('spot','extline',this)" title="연장선 (양방향)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="0.5" y1="13" x2="13.5" y2="1" stroke="currentColor" stroke-width="1.3"/><circle cx="4.5" cy="10.5" r="1.5" fill="currentColor"/><circle cx="9.5" cy="4.5" r="1.5" fill="currentColor"/></svg></div>
-        <div class="draw-btn" id="s-dt-hline" onclick="setDrawTool('spot','hline',this)" title="수평선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.5"/></svg></div>
-        <div class="draw-btn" id="s-dt-hray" onclick="setDrawTool('spot','hray',this)" title="수평 레이"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.3"/><circle cx="2" cy="7" r="1.5" fill="currentColor"/><polyline points="10,5 13,7 10,9" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linejoin="round"/></svg></div>
-        <div class="draw-btn" id="s-dt-vline" onclick="setDrawTool('spot','vline',this)" title="수직선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" stroke-width="1.5"/></svg></div>
-        <div class="draw-btn" id="s-dt-channel" onclick="setDrawTool('spot','channel',this)" title="평행 채널 (3클릭)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="1" y1="10" x2="13" y2="3" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="13" x2="13" y2="6" stroke="currentColor" stroke-width="1.1" stroke-dasharray="2.5,1.5"/></svg></div>
+        <div class="draw-btn" id="s-dt-trendline" onclick="setDrawTool('spot','trendline',this)" data-tip="추세선"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="15" r="2.2" fill="currentColor"/><circle cx="15" cy="3" r="2.2" fill="currentColor"/></svg></div>
+        <div class="draw-btn" id="s-dt-ray" onclick="setDrawTool('spot','ray',this)" data-tip="레이 (반무한선)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="14.5" x2="16" y2="4" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="14.5" r="2.2" fill="currentColor"/><path d="M13.5 2L16.5 4L14 6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <div class="draw-btn" id="s-dt-extline" onclick="setDrawTool('spot','extline',this)" data-tip="연장선 (양방향)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="1" y1="17" x2="17" y2="1" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="6" r="2.2" fill="currentColor"/></svg></div>
+        <div class="draw-btn" id="s-dt-hline" onclick="setDrawTool('spot','hline',this)" data-tip="수평선"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="1.5" y1="9" x2="16.5" y2="9" stroke="currentColor" stroke-width="1.7"/></svg></div>
+        <div class="draw-btn" id="s-dt-hray" onclick="setDrawTool('spot','hray',this)" data-tip="수평 레이"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2.5" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.5"/><circle cx="2.5" cy="9" r="2.2" fill="currentColor"/><path d="M13 7L16.5 9L13 11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <div class="draw-btn" id="s-dt-vline" onclick="setDrawTool('spot','vline',this)" data-tip="수직선"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="9" y1="1.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.7"/></svg></div>
+        <div class="draw-btn" id="s-dt-channel" onclick="setDrawTool('spot','channel',this)" data-tip="평행 채널 (3클릭)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2" y1="13.5" x2="16" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="16.5" x2="16" y2="8" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3,2"/></svg></div>
         <div class="draw-sep"></div>
-        <!-- 피보나치 -->
-        <div class="draw-btn" id="s-dt-fib" onclick="setDrawTool('spot','fibonacci',this)" title="피보나치 되돌림"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="2.5" x2="12" y2="2.5" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="5.5" x2="12" y2="5.5" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.6"/><line x1="2" y1="7.5" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.1"/><line x1="2" y1="9.5" x2="12" y2="9.5" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.6"/><line x1="2" y1="12.5" x2="12" y2="12.5" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="2.5" x2="3" y2="12.5" stroke="currentColor" stroke-width="0.7" stroke-opacity="0.4"/></svg></div>
+        <div class="draw-btn" id="s-dt-fib" onclick="setDrawTool('spot','fibonacci',this)" data-tip="피보나치 되돌림"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2" y1="3.5" x2="16" y2="3.5" stroke="currentColor" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5"/><line x1="2" y1="9.5" x2="16" y2="9.5" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5"/><line x1="2" y1="15.5" x2="16" y2="15.5" stroke="currentColor" stroke-width="1.3"/><line x1="3.5" y1="3.5" x2="3.5" y2="15.5" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.4"/></svg></div>
         <div class="draw-sep"></div>
-        <!-- 도형 그룹 -->
-        <div class="draw-btn" id="s-dt-rect" onclick="setDrawTool('spot','rect',this)" title="박스"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="2" y="3.5" width="10" height="7" stroke="currentColor" stroke-width="1.3"/></svg></div>
-        <div class="draw-btn" id="s-dt-ellipse" onclick="setDrawTool('spot','ellipse',this)" title="타원"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><ellipse cx="7" cy="7" rx="5.5" ry="4" stroke="currentColor" stroke-width="1.3"/></svg></div>
+        <div class="draw-btn" id="s-dt-rect" onclick="setDrawTool('spot','rect',this)" data-tip="박스 (사각형)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="4.5" width="13" height="9" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="draw-btn" id="s-dt-ellipse" onclick="setDrawTool('spot','ellipse',this)" data-tip="타원"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><ellipse cx="9" cy="9" rx="7" ry="5" stroke="currentColor" stroke-width="1.5"/></svg></div>
         <div class="draw-sep"></div>
-        <!-- 텍스트 -->
-        <div class="draw-btn" id="s-dt-text" onclick="setDrawTool('spot','text',this)" title="텍스트 주석"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><text x="2.5" y="12.5" font-size="12" font-weight="700" fill="currentColor" font-family="serif">T</text></svg></div>
+        <div class="draw-btn" id="s-dt-text" onclick="setDrawTool('spot','text',this)" data-tip="텍스트 주석"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 14L9 4L13 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><line x1="6.8" y1="10.5" x2="11.2" y2="10.5" stroke="currentColor" stroke-width="1.3"/></svg></div>
         <div class="draw-sep"></div>
-        <!-- 실행취소 / 전체삭제 -->
-        <div class="draw-btn dt-del" onclick="undoLastDrawing('spot')" title="실행취소 (Ctrl+Z)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M2.5 7C2.5 4.5 4.5 2.5 7 2.5s4.5 2 4.5 4.5S9.5 11.5 7 11.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="2,4.5 2.5,7.5 5.5,6.5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg></div>
-        <div class="draw-btn dt-del" onclick="clearDrawings('spot')" title="전체삭제"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><polyline points="2,3.5 12,3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 3.5V2.5h4v1M3.5 3.5l.8 8h5.4l.8-8" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><line x1="5.5" y1="6" x2="5.5" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="8.5" y1="6" x2="8.5" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div>
+        <div class="draw-btn dt-del" onclick="undoLastDrawing('spot')" data-tip="실행취소 (Ctrl+Z)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4.5 9.5C4.5 6.5 7 4.5 9.5 4.5C12.5 4.5 15 6.5 15 9.5C15 12.5 12.5 14.5 9.5 14.5C7 14.5 5.5 13.5 4.5 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M2.5 7L4.5 10L7.5 7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="draw-btn dt-del" onclick="clearDrawings('spot')" data-tip="전체 삭제"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="5.5" x2="15" y2="5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M7 5.5V4H11V5.5" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M4.5 5.5L5.5 14.5H12.5L13.5 5.5" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="7.5" y1="8" x2="7.5" y2="12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="10.5" y1="8" x2="10.5" y2="12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
       </div>
       <div class="lc-wrap" id="spotLcWrap"></div>
     </div>
@@ -990,32 +989,26 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     </div>
     <div class="chart-container">
       <div class="draw-toolbar" id="f-draw-toolbar">
-        <!-- 커서 그룹 -->
-        <div class="draw-btn dt-on" id="f-dt-cursor" onclick="setDrawTool('futures','cursor',this)" title="커서 (Esc)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M2 1.5L2 11.5L5 8.8L7 13L8.8 12.2L6.8 7.8L11 7.5L2 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
-        <div class="draw-btn" id="f-dt-crosshair" onclick="setDrawTool('futures','crosshair',this)" title="십자선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="5" stroke="currentColor" stroke-width="1.3"/><line x1="7" y1="9" x2="7" y2="13" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="7" x2="5" y2="7" stroke="currentColor" stroke-width="1.3"/><line x1="9" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.3"/><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/></svg></div>
+        <div class="draw-btn dt-on" id="f-dt-cursor" onclick="setDrawTool('futures','cursor',this)" data-tip="커서 (Esc)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3.5 2.5L3.5 14.5L7 11.5L9 16L11.2 15L9.2 10.5L14 10L3.5 2.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+        <div class="draw-btn" id="f-dt-crosshair" onclick="setDrawTool('futures','crosshair',this)" data-tip="십자선 커서"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="3" stroke="currentColor" stroke-width="1.4"/><line x1="9" y1="1.5" x2="9" y2="5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="9" y1="12.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="1.5" y1="9" x2="5.5" y2="9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="12.5" y1="9" x2="16.5" y2="9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
         <div class="draw-sep"></div>
-        <!-- 선 그룹 -->
-        <div class="draw-btn" id="f-dt-trendline" onclick="setDrawTool('futures','trendline',this)" title="추세선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="12" x2="12" y2="2" stroke="currentColor" stroke-width="1.3"/><circle cx="2" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg></div>
-        <div class="draw-btn" id="f-dt-ray" onclick="setDrawTool('futures','ray',this)" title="레이 (반무한선)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="11.5" x2="12" y2="3" stroke="currentColor" stroke-width="1.3"/><circle cx="2" cy="11.5" r="1.5" fill="currentColor"/><polyline points="9.5,1.5 12.5,3 10,5.5" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linejoin="round"/></svg></div>
-        <div class="draw-btn" id="f-dt-extline" onclick="setDrawTool('futures','extline',this)" title="연장선 (양방향)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="0.5" y1="13" x2="13.5" y2="1" stroke="currentColor" stroke-width="1.3"/><circle cx="4.5" cy="10.5" r="1.5" fill="currentColor"/><circle cx="9.5" cy="4.5" r="1.5" fill="currentColor"/></svg></div>
-        <div class="draw-btn" id="f-dt-hline" onclick="setDrawTool('futures','hline',this)" title="수평선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.5"/></svg></div>
-        <div class="draw-btn" id="f-dt-hray" onclick="setDrawTool('futures','hray',this)" title="수평 레이"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.3"/><circle cx="2" cy="7" r="1.5" fill="currentColor"/><polyline points="10,5 13,7 10,9" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linejoin="round"/></svg></div>
-        <div class="draw-btn" id="f-dt-vline" onclick="setDrawTool('futures','vline',this)" title="수직선"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" stroke-width="1.5"/></svg></div>
-        <div class="draw-btn" id="f-dt-channel" onclick="setDrawTool('futures','channel',this)" title="평행 채널 (3클릭)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="1" y1="10" x2="13" y2="3" stroke="currentColor" stroke-width="1.3"/><line x1="1" y1="13" x2="13" y2="6" stroke="currentColor" stroke-width="1.1" stroke-dasharray="2.5,1.5"/></svg></div>
+        <div class="draw-btn" id="f-dt-trendline" onclick="setDrawTool('futures','trendline',this)" data-tip="추세선"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="15" r="2.2" fill="currentColor"/><circle cx="15" cy="3" r="2.2" fill="currentColor"/></svg></div>
+        <div class="draw-btn" id="f-dt-ray" onclick="setDrawTool('futures','ray',this)" data-tip="레이 (반무한선)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="14.5" x2="16" y2="4" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="14.5" r="2.2" fill="currentColor"/><path d="M13.5 2L16.5 4L14 6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <div class="draw-btn" id="f-dt-extline" onclick="setDrawTool('futures','extline',this)" data-tip="연장선 (양방향)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="1" y1="17" x2="17" y2="1" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="6" r="2.2" fill="currentColor"/></svg></div>
+        <div class="draw-btn" id="f-dt-hline" onclick="setDrawTool('futures','hline',this)" data-tip="수평선"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="1.5" y1="9" x2="16.5" y2="9" stroke="currentColor" stroke-width="1.7"/></svg></div>
+        <div class="draw-btn" id="f-dt-hray" onclick="setDrawTool('futures','hray',this)" data-tip="수평 레이"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2.5" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.5"/><circle cx="2.5" cy="9" r="2.2" fill="currentColor"/><path d="M13 7L16.5 9L13 11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <div class="draw-btn" id="f-dt-vline" onclick="setDrawTool('futures','vline',this)" data-tip="수직선"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="9" y1="1.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.7"/></svg></div>
+        <div class="draw-btn" id="f-dt-channel" onclick="setDrawTool('futures','channel',this)" data-tip="평행 채널 (3클릭)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2" y1="13.5" x2="16" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="16.5" x2="16" y2="8" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3,2"/></svg></div>
         <div class="draw-sep"></div>
-        <!-- 피보나치 -->
-        <div class="draw-btn" id="f-dt-fib" onclick="setDrawTool('futures','fibonacci',this)" title="피보나치 되돌림"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><line x1="2" y1="2.5" x2="12" y2="2.5" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="5.5" x2="12" y2="5.5" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.6"/><line x1="2" y1="7.5" x2="12" y2="7.5" stroke="currentColor" stroke-width="1.1"/><line x1="2" y1="9.5" x2="12" y2="9.5" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.6"/><line x1="2" y1="12.5" x2="12" y2="12.5" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="2.5" x2="3" y2="12.5" stroke="currentColor" stroke-width="0.7" stroke-opacity="0.4"/></svg></div>
+        <div class="draw-btn" id="f-dt-fib" onclick="setDrawTool('futures','fibonacci',this)" data-tip="피보나치 되돌림"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2" y1="3.5" x2="16" y2="3.5" stroke="currentColor" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5"/><line x1="2" y1="9.5" x2="16" y2="9.5" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5"/><line x1="2" y1="15.5" x2="16" y2="15.5" stroke="currentColor" stroke-width="1.3"/><line x1="3.5" y1="3.5" x2="3.5" y2="15.5" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.4"/></svg></div>
         <div class="draw-sep"></div>
-        <!-- 도형 그룹 -->
-        <div class="draw-btn" id="f-dt-rect" onclick="setDrawTool('futures','rect',this)" title="박스"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="2" y="3.5" width="10" height="7" stroke="currentColor" stroke-width="1.3"/></svg></div>
-        <div class="draw-btn" id="f-dt-ellipse" onclick="setDrawTool('futures','ellipse',this)" title="타원"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><ellipse cx="7" cy="7" rx="5.5" ry="4" stroke="currentColor" stroke-width="1.3"/></svg></div>
+        <div class="draw-btn" id="f-dt-rect" onclick="setDrawTool('futures','rect',this)" data-tip="박스 (사각형)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="4.5" width="13" height="9" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="draw-btn" id="f-dt-ellipse" onclick="setDrawTool('futures','ellipse',this)" data-tip="타원"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><ellipse cx="9" cy="9" rx="7" ry="5" stroke="currentColor" stroke-width="1.5"/></svg></div>
         <div class="draw-sep"></div>
-        <!-- 텍스트 -->
-        <div class="draw-btn" id="f-dt-text" onclick="setDrawTool('futures','text',this)" title="텍스트 주석"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><text x="2.5" y="12.5" font-size="12" font-weight="700" fill="currentColor" font-family="serif">T</text></svg></div>
+        <div class="draw-btn" id="f-dt-text" onclick="setDrawTool('futures','text',this)" data-tip="텍스트 주석"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 14L9 4L13 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><line x1="6.8" y1="10.5" x2="11.2" y2="10.5" stroke="currentColor" stroke-width="1.3"/></svg></div>
         <div class="draw-sep"></div>
-        <!-- 실행취소 / 전체삭제 -->
-        <div class="draw-btn dt-del" onclick="undoLastDrawing('futures')" title="실행취소 (Ctrl+Z)"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M2.5 7C2.5 4.5 4.5 2.5 7 2.5s4.5 2 4.5 4.5S9.5 11.5 7 11.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="2,4.5 2.5,7.5 5.5,6.5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg></div>
-        <div class="draw-btn dt-del" onclick="clearDrawings('futures')" title="전체삭제"><svg width="15" height="15" viewBox="0 0 14 14" fill="none"><polyline points="2,3.5 12,3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 3.5V2.5h4v1M3.5 3.5l.8 8h5.4l.8-8" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><line x1="5.5" y1="6" x2="5.5" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="8.5" y1="6" x2="8.5" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div>
+        <div class="draw-btn dt-del" onclick="undoLastDrawing('futures')" data-tip="실행취소 (Ctrl+Z)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4.5 9.5C4.5 6.5 7 4.5 9.5 4.5C12.5 4.5 15 6.5 15 9.5C15 12.5 12.5 14.5 9.5 14.5C7 14.5 5.5 13.5 4.5 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M2.5 7L4.5 10L7.5 7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="draw-btn dt-del" onclick="clearDrawings('futures')" data-tip="전체 삭제"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="5.5" x2="15" y2="5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M7 5.5V4H11V5.5" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M4.5 5.5L5.5 14.5H12.5L13.5 5.5" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="7.5" y1="8" x2="7.5" y2="12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="10.5" y1="8" x2="10.5" y2="12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
       </div>
       <div class="lc-wrap" id="futLcWrap"></div>
     </div>
@@ -3888,6 +3881,20 @@ function _lockNicknameInput() {
   }
 }
 
+function _initDrawTooltips() {
+  const tt = document.getElementById('dt-tooltip');
+  document.querySelectorAll('.draw-btn[data-tip]').forEach(btn => {
+    btn.addEventListener('mouseenter', () => {
+      const r = btn.getBoundingClientRect();
+      tt.textContent = btn.getAttribute('data-tip');
+      tt.style.display = 'block';
+      tt.style.left = (r.right + 8) + 'px';
+      tt.style.top = (r.top + r.height / 2 - 12) + 'px';
+    });
+    btn.addEventListener('mouseleave', () => { tt.style.display = 'none'; });
+  });
+}
+
 async function init() {
   bindTfBtns();
   const hasState = loadState();
@@ -3932,6 +3939,7 @@ async function init() {
     }
   });
   updateTopBar();
+  _initDrawTooltips();
   if (hasState) { renderSpotHoldings(); renderSpotHistory(); renderFutPositions(); renderFutHistory(); }
   setInterval(()=>{ renderFutPositions(); renderSpotHoldings(); }, 1500);
   // AI 플레이어 랭킹 업데이트 (3초 간격)
@@ -3954,6 +3962,8 @@ init();
     <a href="mailto:asrai2635@gmail.com" style="color:#4a5568;text-decoration:none" onmouseover="this.style.color='#8896ae'" onmouseout="this.style.color='#4a5568'">문의</a>
   </div>
 </div>
+
+<div id="dt-tooltip"></div>
 
 <!-- 쿠키 동의 배너 -->
 <div id="cookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#131720;border-top:1px solid #2a3347;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:9999;gap:16px;flex-wrap:wrap">
