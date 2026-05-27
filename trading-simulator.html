@@ -1858,9 +1858,27 @@ function initCharts(page) {
 // DRAWING TOOLS ENGINE
 // ══════════════════════════════════════════════════════
 const DT = {
-  spot:    { tool:'cursor', stage:0, p1:null, p2:null, mouse:null, drawings:[] },
-  futures: { tool:'cursor', stage:0, p1:null, p2:null, mouse:null, drawings:[] }
+  spot:    { tool:'cursor', stage:0, p1:null, p2:null, mouse:null, drawings:[], selectedIdx:-1, hoverIdx:-1 },
+  futures: { tool:'cursor', stage:0, p1:null, p2:null, mouse:null, drawings:[], selectedIdx:-1, hoverIdx:-1 }
 };
+
+// 드래그 상태
+const _dtDrag = { active:false, page:null, idx:-1, startPt:null, origPts:null };
+
+// 그리기 완료 후 커서 모드로 자동 복귀 + 방금 그린 항목 선택
+function _dtFinishDraw(page) {
+  const pfx = page==='spot' ? 's' : 'f';
+  const dt = DT[page];
+  dt.selectedIdx = dt.drawings.length - 1;
+  dt.stage = 0; dt.p1 = null; dt.p2 = null;
+  dt.tool = 'cursor';
+  const toolbar = document.getElementById(pfx+'-draw-toolbar');
+  if (toolbar) toolbar.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('dt-on'));
+  document.getElementById(pfx+'-dt-cursor')?.classList.add('dt-on');
+  const canvas = document.getElementById(pfx+'-draw-canvas');
+  if (canvas) { canvas.style.pointerEvents='none'; canvas.style.cursor='default'; }
+  renderDrawings(page);
+}
 
 function setDrawTool(page, tool, btn) {
   const dt = DT[page];
@@ -1892,7 +1910,7 @@ function undoLastDrawing(page) {
   else if (dt.drawings.length) { dt.drawings.pop(); renderDrawings(page); }
 }
 function clearDrawings(page) {
-  Object.assign(DT[page], { drawings:[], stage:0, p1:null, p2:null });
+  Object.assign(DT[page], { drawings:[], stage:0, p1:null, p2:null, selectedIdx:-1, hoverIdx:-1 });
   renderDrawings(page);
 }
 
@@ -1910,24 +1928,24 @@ function initDrawCanvas(page) {
     const pt = _dtScreenToChart(page, e.clientX-r.left, e.clientY-r.top);
     if (!pt) return;
 
-    // 1-click tools
+    // 1-click tools → 즉시 완료 후 커서 복귀
     if (dt.tool==='hline') {
       dt.drawings.push({ type:'hline', price:pt.price, color:'#f59e0b' });
-      renderDrawings(page); return;
+      _dtFinishDraw(page); return;
     }
     if (dt.tool==='vline') {
       dt.drawings.push({ type:'vline', time:pt.time, color:'#3b82f6' });
-      renderDrawings(page); return;
+      _dtFinishDraw(page); return;
     }
     if (dt.tool==='hray') {
       dt.drawings.push({ type:'hray', time:pt.time, price:pt.price, color:'#f59e0b' });
-      renderDrawings(page); return;
+      _dtFinishDraw(page); return;
     }
     if (dt.tool==='text') {
       const txt = prompt('텍스트 입력:');
       if (txt && txt.trim()) {
         dt.drawings.push({ type:'text', time:pt.time, price:pt.price, text:txt.trim(), color:'#f59e0b' });
-        renderDrawings(page);
+        _dtFinishDraw(page);
       }
       return;
     }
@@ -1936,14 +1954,20 @@ function initDrawCanvas(page) {
     if (dt.tool==='channel') {
       if (dt.stage===0) { dt.stage=1; dt.p1=pt; }
       else if (dt.stage===1) { dt.stage=2; dt.p2=pt; }
-      else { dt.drawings.push({ type:'channel', p1:{...dt.p1}, p2:{...dt.p2}, p3:{...pt}, color:'#3b82f6' }); dt.stage=0; dt.p1=null; dt.p2=null; renderDrawings(page); }
+      else {
+        dt.drawings.push({ type:'channel', p1:{...dt.p1}, p2:{...dt.p2}, p3:{...pt}, color:'#3b82f6' });
+        _dtFinishDraw(page);
+      }
       return;
     }
 
     // 2-click tools
     const colorMap = { trendline:'#f59e0b', ray:'#f59e0b', extline:'#f59e0b', fibonacci:'#f59e0b', rect:'#3b82f6', ellipse:'rgba(59,130,246,0.8)' };
     if (dt.stage===0) { dt.stage=1; dt.p1=pt; }
-    else { dt.drawings.push({ type:dt.tool, p1:{...dt.p1}, p2:{...pt}, color:colorMap[dt.tool]||'#f59e0b' }); dt.stage=0; dt.p1=null; dt.p2=null; renderDrawings(page); }
+    else {
+      dt.drawings.push({ type:dt.tool, p1:{...dt.p1}, p2:{...pt}, color:colorMap[dt.tool]||'#f59e0b' });
+      _dtFinishDraw(page);
+    }
   });
 
   canvas.addEventListener('mousemove', e => {
@@ -1957,7 +1981,61 @@ function initDrawCanvas(page) {
     e.preventDefault();
     const dt = DT[page];
     if (dt.stage > 0) { dt.stage=0; dt.p1=null; dt.p2=null; renderDrawings(page); }
+    else if (dt.selectedIdx >= 0) { dt.drawings.splice(dt.selectedIdx,1); dt.selectedIdx=-1; renderDrawings(page); }
     else if (dt.drawings.length) { dt.drawings.pop(); renderDrawings(page); }
+  });
+
+  // 커서 모드: wrap 레벨에서 선택/드래그 (capture phase 로 차트 이벤트보다 먼저 처리)
+  wrap.addEventListener('mousemove', e => {
+    const dt = DT[page];
+    if (dt.tool !== 'cursor' && dt.tool !== 'crosshair') return;
+
+    // 드래그 진행 중
+    if (_dtDrag.active && _dtDrag.page === page) {
+      const r = canvas.getBoundingClientRect();
+      const cur = _dtScreenToChart(page, e.clientX-r.left, e.clientY-r.top);
+      if (cur && _dtDrag.startPt) {
+        const dP = cur.price - _dtDrag.startPt.price;
+        const dT = cur.time  - _dtDrag.startPt.time;
+        _dtApplyDrag(page, dP, dT);
+      }
+      return;
+    }
+
+    const r = canvas.getBoundingClientRect();
+    const mx = e.clientX-r.left, my = e.clientY-r.top;
+    const hit = _dtHitTest(page, mx, my);
+    if (dt.hoverIdx !== hit) { dt.hoverIdx = hit; renderDrawings(page); }
+    wrap.style.cursor = hit >= 0 ? 'pointer' : '';
+  }, false);
+
+  wrap.addEventListener('mousedown', e => {
+    const dt = DT[page];
+    if (dt.tool !== 'cursor' && dt.tool !== 'crosshair') return;
+    const r = canvas.getBoundingClientRect();
+    const mx = e.clientX-r.left, my = e.clientY-r.top;
+    const hit = _dtHitTest(page, mx, my);
+    if (hit >= 0) {
+      e.stopPropagation();
+      dt.selectedIdx = hit;
+      renderDrawings(page);
+      // 드래그 시작
+      const startPt = _dtScreenToChart(page, mx, my);
+      if (startPt) {
+        _dtDrag.active = true; _dtDrag.page = page; _dtDrag.idx = hit;
+        _dtDrag.startPt = startPt;
+        _dtDrag.origPts = JSON.parse(JSON.stringify(dt.drawings[hit]));
+      }
+    } else {
+      if (dt.selectedIdx >= 0) { dt.selectedIdx = -1; renderDrawings(page); }
+    }
+  }, false);
+
+  document.addEventListener('mouseup', () => {
+    if (_dtDrag.active && _dtDrag.page === page) {
+      _dtDrag.active=false; _dtDrag.page=null; _dtDrag.idx=-1;
+      _dtDrag.startPt=null; _dtDrag.origPts=null;
+    }
   });
 }
 
@@ -1998,7 +2076,7 @@ function _dtRender(page) {
   ctx.clearRect(0,0,W,H);
 
   const dt = DT[page];
-  dt.drawings.forEach(d => _dtDrawOne(ctx, page, d, W, H, false));
+  dt.drawings.forEach((d, i) => _dtDrawOne(ctx, page, d, W, H, false, i===dt.selectedIdx, i===dt.hoverIdx));
 
   const noPreviewTools = ['hline','vline','hray','text','crosshair'];
   const colorMap2 = { trendline:'#f59e0b', ray:'#f59e0b', extline:'#f59e0b', fibonacci:'#f59e0b', rect:'#3b82f6', ellipse:'rgba(59,130,246,0.8)', channel:'#3b82f6' };
@@ -2012,10 +2090,21 @@ function _dtRender(page) {
   }
 }
 
-function _dtDrawOne(ctx, page, d, W, H, isPreview) {
+function _dtDrawOne(ctx, page, d, W, H, isPreview, isSelected=false, isHover=false) {
   ctx.save();
-  ctx.strokeStyle = d.color||'#f59e0b';
-  ctx.lineWidth = 1.5;
+  if (isSelected) {
+    ctx.strokeStyle = '#60a5fa';
+    ctx.lineWidth = 2;
+    ctx.shadowColor = 'rgba(96,165,250,0.5)';
+    ctx.shadowBlur = 6;
+  } else if (isHover) {
+    ctx.strokeStyle = d.color||'#f59e0b';
+    ctx.lineWidth = 2.2;
+    ctx.globalAlpha = 0.95;
+  } else {
+    ctx.strokeStyle = d.color||'#f59e0b';
+    ctx.lineWidth = 1.5;
+  }
   ctx.font = '11px monospace';
   if (isPreview) ctx.setLineDash([5,4]);
 
@@ -2192,6 +2281,126 @@ function _dtDrawOne(ctx, page, d, W, H, isPreview) {
     }
   }
   ctx.restore();
+
+  // 선택된 드로잉: 핸들(조절점) 그리기
+  if (isSelected) {
+    const pts = _dtGetHandlePoints(page, d);
+    if (pts.length) {
+      ctx.save();
+      ctx.shadowColor = 'rgba(96,165,250,0.6)'; ctx.shadowBlur = 4;
+      pts.forEach(pt => {
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 5, 0, Math.PI*2);
+        ctx.fillStyle = '#60a5fa'; ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+      });
+      ctx.restore();
+    }
+  }
+}
+
+function _dtGetHandlePoints(page, d) {
+  const pts = [];
+  const add = (time, price) => { const c=_dtC(page,time,price); if(c) pts.push(c); };
+  switch(d.type) {
+    case 'hline': {
+      const y=S[page].candleSeries?.priceToCoordinate(d.price);
+      const chart=S[page].lchart; if(!y||!chart) break;
+      const W=document.getElementById((page==='spot'?'s':'f')+'-draw-canvas')?.width||400;
+      pts.push({x:W*0.2,y},{x:W*0.5,y},{x:W*0.8,y}); break;
+    }
+    case 'vline': {
+      const x=S[page].lchart?.timeScale().timeToCoordinate(d.time);
+      const canvas=document.getElementById((page==='spot'?'s':'f')+'-draw-canvas');
+      if(x==null||!canvas) break;
+      pts.push({x,y:canvas.height*0.2},{x,y:canvas.height*0.5},{x,y:canvas.height*0.8}); break;
+    }
+    case 'hray': { const y=S[page].candleSeries?.priceToCoordinate(d.price),xs=S[page].lchart?.timeScale().timeToCoordinate(d.time); if(y!=null&&xs!=null) pts.push({x:xs,y}); break; }
+    case 'trendline': case 'ray': case 'extline': case 'fibonacci': case 'rect': case 'ellipse':
+      add(d.p1.time,d.p1.price); add(d.p2.time,d.p2.price); break;
+    case 'channel':
+      add(d.p1.time,d.p1.price); add(d.p2.time,d.p2.price);
+      if(d.p3) add(d.p3.time,d.p3.price); break;
+    case 'text': { const c=_dtC(page,d.time,d.price); if(c) pts.push(c); break; }
+  }
+  return pts;
+}
+
+// ── 드로잉 히트 테스트 ────────────────────────────────
+function _ptSegDist(px,py,ax,ay,bx,by) {
+  const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy;
+  if(l2<0.001) return Math.hypot(px-ax,py-ay);
+  const t=Math.max(0,Math.min(1,((px-ax)*dx+(py-ay)*dy)/l2));
+  return Math.hypot(px-ax-t*dx,py-ay-t*dy);
+}
+function _dtHitTest(page, mx, my) {
+  const drawings=DT[page].drawings, T=8;
+  for(let i=drawings.length-1;i>=0;i--) if(_dtHitOne(page,drawings[i],mx,my,T)) return i;
+  return -1;
+}
+function _dtHitOne(page,d,mx,my,T) {
+  switch(d.type) {
+    case 'hline': { const y=S[page].candleSeries?.priceToCoordinate(d.price); return y!=null&&Math.abs(my-y)<T; }
+    case 'vline': { const x=S[page].lchart?.timeScale().timeToCoordinate(d.time); return x!=null&&Math.abs(mx-x)<T; }
+    case 'hray': {
+      const y=S[page].candleSeries?.priceToCoordinate(d.price);
+      const xs=S[page].lchart?.timeScale().timeToCoordinate(d.time);
+      return y!=null&&xs!=null&&Math.abs(my-y)<T&&mx>=xs-T;
+    }
+    case 'trendline': case 'ray': case 'extline': {
+      const c1=_dtC(page,d.p1.time,d.p1.price),c2=_dtC(page,d.p2.time,d.p2.price);
+      return c1&&c2&&_ptSegDist(mx,my,c1.x,c1.y,c2.x,c2.y)<T;
+    }
+    case 'fibonacci': {
+      const c1=_dtC(page,d.p1.time,d.p1.price),c2=_dtC(page,d.p2.time,d.p2.price);
+      if(!c1||!c2) return false;
+      const xL=Math.min(c1.x,c2.x),xR=Math.max(c1.x,c2.x);
+      if(mx<xL-T||mx>xR+T) return false;
+      return FIB_LEVELS.some(({r})=>{ const price=d.p1.price+(d.p2.price-d.p1.price)*r; const y=S[page].candleSeries?.priceToCoordinate(price); return y!=null&&Math.abs(my-y)<T; });
+    }
+    case 'rect': {
+      const c1=_dtC(page,d.p1.time,d.p1.price),c2=_dtC(page,d.p2.time,d.p2.price);
+      if(!c1||!c2) return false;
+      const rx=Math.min(c1.x,c2.x),ry=Math.min(c1.y,c2.y),rw=Math.abs(c2.x-c1.x),rh=Math.abs(c2.y-c1.y);
+      return (Math.abs(mx-rx)<T||Math.abs(mx-rx-rw)<T)&&my>=ry-T&&my<=ry+rh+T ||
+             (Math.abs(my-ry)<T||Math.abs(my-ry-rh)<T)&&mx>=rx-T&&mx<=rx+rw+T;
+    }
+    case 'ellipse': {
+      const c1=_dtC(page,d.p1.time,d.p1.price),c2=_dtC(page,d.p2.time,d.p2.price);
+      if(!c1||!c2) return false;
+      const cx=(c1.x+c2.x)/2,cy=(c1.y+c2.y)/2,rx=Math.max(Math.abs(c2.x-c1.x)/2,1),ry2=Math.max(Math.abs(c2.y-c1.y)/2,1);
+      return Math.abs(Math.sqrt(((mx-cx)/rx)**2+((my-cy)/ry2)**2)-1)<T/Math.min(rx,ry2);
+    }
+    case 'channel': {
+      const c1=_dtC(page,d.p1.time,d.p1.price),c2=_dtC(page,d.p2.time,d.p2.price);
+      if(!c1||!c2) return false;
+      if(_ptSegDist(mx,my,c1.x,c1.y,c2.x,c2.y)<T) return true;
+      if(d.p3){ const c3=_dtC(page,d.p3.time,d.p3.price); if(c3&&_ptSegDist(mx,my,c1.x,c3.y+(c1.y-c3.y),c2.x,c2.y+(c3.y-c3.y))<T*2) return true; }
+      return false;
+    }
+    case 'text': { const c=_dtC(page,d.time,d.price); return c!=null&&Math.abs(mx-c.x)<60&&Math.abs(my-c.y)<16; }
+  }
+  return false;
+}
+
+// ── 드래그 적용 ───────────────────────────────────────
+function _dtApplyDrag(page, dPrice, dTime) {
+  const dt=DT[page]; if(!_dtDrag.origPts) return;
+  const d=dt.drawings[_dtDrag.idx]; if(!d) return;
+  const o=_dtDrag.origPts;
+  const shift = obj => obj ? { ...obj, price:obj.price+dPrice, time:obj.time+dTime } : obj;
+  switch(d.type) {
+    case 'hline': d.price=o.price+dPrice; break;
+    case 'vline': d.time=o.time+dTime; break;
+    case 'hray':  d.price=o.price+dPrice; d.time=o.time+dTime; break;
+    case 'text':  d.price=o.price+dPrice; d.time=o.time+dTime; break;
+    case 'trendline': case 'ray': case 'extline':
+    case 'fibonacci': case 'rect': case 'ellipse':
+      d.p1=shift(o.p1); d.p2=shift(o.p2); break;
+    case 'channel':
+      d.p1=shift(o.p1); d.p2=shift(o.p2); d.p3=shift(o.p3); break;
+  }
+  renderDrawings(page);
 }
 
 function calcSMA(candles, period) {
@@ -2677,7 +2886,7 @@ async function selectSym(page, sym) {
   // Map 초기화 (심볼 바꿀 때 반드시 클리어)
   S[page].ob.asks.clear(); S[page].ob.bids.clear(); S[page].ob.seq = 0;
   // 드로잉 초기화
-  DT[page].drawings=[]; DT[page].stage=0; DT[page].p1=null; DT[page].p2=null;
+  DT[page].drawings=[]; DT[page].stage=0; DT[page].p1=null; DT[page].p2=null; DT[page].selectedIdx=-1; DT[page].hoverIdx=-1;
   initCharts(page);
   if(page==='spot') document.getElementById('s-sym').textContent=sym.replace('USDT','/USDT');
   else { document.getElementById('f-sym').textContent=sym+' PERP'; }
@@ -3708,6 +3917,10 @@ async function init() {
       closeSidebar(page);
       const pfx=page==='spot'?'s':'f';
       setDrawTool(page,'cursor',document.getElementById(pfx+'-dt-cursor'));
+    }
+    if ((e.key==='Delete'||e.key==='Backspace') && document.activeElement===document.body) {
+      const dt=DT[page];
+      if(dt.selectedIdx>=0){ dt.drawings.splice(dt.selectedIdx,1); dt.selectedIdx=-1; renderDrawings(page); e.preventDefault(); }
     }
     if ((e.ctrlKey||e.metaKey) && e.key==='z') { e.preventDefault(); undoLastDrawing(page); }
   });
