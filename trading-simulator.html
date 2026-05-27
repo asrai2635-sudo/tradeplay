@@ -136,12 +136,29 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .sls-pct-btn.active { background:rgba(246,70,93,0.15); border-color:var(--red); color:var(--red); }
 
 /* INDICATOR BUTTONS */
-.ind-row { display:flex; gap:4px; align-items:center; margin-left:8px; }
-.ind-btn { padding:2px 7px; border:1px solid var(--border); border-radius:3px; background:transparent; font-family:inherit; font-size:10px; cursor:pointer; color:var(--text3); transition:all 0.1s; }
+.ind-row { display:flex; gap:4px; align-items:center; margin-left:8px; flex-wrap:wrap; }
+.ind-wrap { display:inline-flex; align-items:center; }
+.ind-btn { padding:2px 7px; border:1px solid var(--border); border-radius:3px 0 0 3px; background:transparent; font-family:inherit; font-size:10px; cursor:pointer; color:var(--text3); transition:all 0.1s; }
 .ind-btn:hover { background:var(--bg3); color:var(--text2); }
-.ind-btn.i-ma7  { background:rgba(59,130,246,0.15); color:#3b82f6; border-color:#3b82f6; }
-.ind-btn.i-ma25 { background:rgba(245,158,11,0.15); color:#f59e0b; border-color:#f59e0b; }
-.ind-btn.i-ma99 { background:rgba(239,68,68,0.15);  color:#ef4444; border-color:#ef4444; }
+.ind-gear { width:16px; height:20px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); border-left:none; border-radius:0 3px 3px 0; background:transparent; color:var(--text3); cursor:pointer; font-size:9px; padding:0; transition:all 0.1s; line-height:1; }
+.ind-gear:hover { background:var(--bg3); color:var(--text2); }
+/* Indicator settings panel */
+.ind-panel { position:fixed; background:#1a1d26; border:1px solid #2a3347; border-radius:8px; z-index:6000; min-width:230px; box-shadow:0 8px 32px rgba(0,0,0,0.7); font-family:inherit; }
+.ind-panel-hdr { display:flex; align-items:center; justify-content:space-between; padding:11px 14px 9px; border-bottom:1px solid #2a3347; }
+.ind-panel-hdr span { font-size:13px; font-weight:600; color:#d1d4dc; }
+.ind-panel-hdr button { background:none; border:none; color:#787b86; cursor:pointer; font-size:15px; padding:0; line-height:1; }
+.ind-panel-hdr button:hover { color:#d1d4dc; }
+.ind-panel-body { padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
+.ind-panel-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.ind-panel-row label { font-size:11px; color:#787b86; white-space:nowrap; }
+.ind-panel-row select, .ind-panel-row input[type=number] { background:#252935; border:1px solid #2a3347; color:#d1d4dc; border-radius:4px; padding:4px 8px; font-size:12px; font-family:inherit; width:110px; outline:none; }
+.ind-panel-row input[type=color] { width:44px; height:26px; border:none; border-radius:4px; cursor:pointer; background:none; padding:1px; }
+.ind-w-btn { padding:3px 9px; background:#252935; border:1px solid #2a3347; color:#787b86; border-radius:4px; cursor:pointer; font-size:11px; font-family:inherit; transition:all 0.1s; }
+.ind-w-btn.on { background:#2962ff; border-color:#2962ff; color:#fff; }
+.ind-panel-ftr { display:flex; gap:8px; padding:8px 14px 12px; border-top:1px solid #2a3347; justify-content:flex-end; }
+.ind-panel-ftr button { padding:5px 14px; border-radius:4px; font-size:12px; font-family:inherit; cursor:pointer; border:1px solid #2a3347; }
+.ind-panel-ftr .ipc { background:transparent; color:#d1d4dc; }
+.ind-panel-ftr .ipa { background:#2962ff; border-color:#2962ff; color:#fff; }
 
 /* % BUTTONS */
 .pct-row { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-bottom:7px; }
@@ -763,9 +780,9 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
         <button class="tf-btn" data-tf="Y">년봉</button>
       </div>
       <div class="ind-row">
-        <button class="ind-btn i-ma7"  id="sInd7"  onclick="toggleInd('spot','ma7')">MA7</button>
-        <button class="ind-btn i-ma25" id="sInd25" onclick="toggleInd('spot','ma25')">MA25</button>
-        <button class="ind-btn"        id="sInd99" onclick="toggleInd('spot','ma99')">MA99</button>
+        <span class="ind-wrap"><button class="ind-btn" id="sInd7"  onclick="toggleInd('spot','ma7')">MA<span id="sInd7P">7</span></button><button class="ind-gear" onclick="openIndSettings(event,'spot','ma7')" title="설정">⚙</button></span>
+        <span class="ind-wrap"><button class="ind-btn" id="sInd25" onclick="toggleInd('spot','ma25')">MA<span id="sInd25P">25</span></button><button class="ind-gear" onclick="openIndSettings(event,'spot','ma25')" title="설정">⚙</button></span>
+        <span class="ind-wrap"><button class="ind-btn" id="sInd99" onclick="toggleInd('spot','ma99')">MA<span id="sInd99P">99</span></button><button class="ind-gear" onclick="openIndSettings(event,'spot','ma99')" title="설정">⚙</button></span>
       </div>
     </div>
     <div class="chart-container">
@@ -981,9 +998,9 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
         <button class="tf-btn" data-tf="Y">년봉</button>
       </div>
       <div class="ind-row">
-        <button class="ind-btn i-ma7"  id="fInd7"  onclick="toggleInd('futures','ma7')">MA7</button>
-        <button class="ind-btn i-ma25" id="fInd25" onclick="toggleInd('futures','ma25')">MA25</button>
-        <button class="ind-btn"        id="fInd99" onclick="toggleInd('futures','ma99')">MA99</button>
+        <span class="ind-wrap"><button class="ind-btn" id="fInd7"  onclick="toggleInd('futures','ma7')">MA<span id="fInd7P">7</span></button><button class="ind-gear" onclick="openIndSettings(event,'futures','ma7')" title="설정">⚙</button></span>
+        <span class="ind-wrap"><button class="ind-btn" id="fInd25" onclick="toggleInd('futures','ma25')">MA<span id="fInd25P">25</span></button><button class="ind-gear" onclick="openIndSettings(event,'futures','ma25')" title="설정">⚙</button></span>
+        <span class="ind-wrap"><button class="ind-btn" id="fInd99" onclick="toggleInd('futures','ma99')">MA<span id="fInd99P">99</span></button><button class="ind-gear" onclick="openIndSettings(event,'futures','ma99')" title="설정">⚙</button></span>
       </div>
     </div>
     <div class="chart-container">
@@ -1382,7 +1399,11 @@ const S = {
     candles: [], priceLines: [],
     lchart: null, candleSeries: null, volSeries: null,
     ma7Series: null, ma25Series: null, ma99Series: null,
-    indicators: { ma7: true, ma25: true, ma99: false },
+    indicators: {
+      ma7:  { visible:true,  type:'sma', period:7,  color:'#3b82f6', width:1 },
+      ma25: { visible:true,  type:'sma', period:25, color:'#f59e0b', width:1 },
+      ma99: { visible:false, type:'sma', period:99, color:'#ef4444', width:1 },
+    },
     pageWs: null,
     ob: { asks: new Map(), bids: new Map(), seq: 0 }
   },
@@ -1392,7 +1413,11 @@ const S = {
     fundingRate: 0, nextFundingTime: 0,
     lchart: null, candleSeries: null, volSeries: null,
     ma7Series: null, ma25Series: null, ma99Series: null,
-    indicators: { ma7: true, ma25: true, ma99: false },
+    indicators: {
+      ma7:  { visible:true,  type:'sma', period:7,  color:'#3b82f6', width:1 },
+      ma25: { visible:true,  type:'sma', period:25, color:'#f59e0b', width:1 },
+      ma99: { visible:false, type:'sma', period:99, color:'#ef4444', width:1 },
+    },
     pageWs: null,
     ob: { asks: new Map(), bids: new Map(), seq: 0 }
   }
@@ -1833,7 +1858,13 @@ function initCharts(page) {
   S[page].ma7Series = ma7;
   S[page].ma25Series = ma25;
   S[page].ma99Series = ma99;
-  if (!S[page].indicators) S[page].indicators = { ma7: true, ma25: true, ma99: false };
+  if (!S[page].indicators || typeof S[page].indicators.ma7 !== 'object') {
+    S[page].indicators = {
+      ma7:  { visible:true,  type:'sma', period:7,  color:'#3b82f6', width:1 },
+      ma25: { visible:true,  type:'sma', period:25, color:'#f59e0b', width:1 },
+      ma99: { visible:false, type:'sma', period:99, color:'#ef4444', width:1 },
+    };
+  }
 
   // 지표 초기 가시성 적용
   applyIndVisibility(page);
@@ -2447,6 +2478,28 @@ function calcSMA(candles, period) {
     return { time: Math.floor(c.time / 1000), value: avg };
   }).filter(Boolean);
 }
+function calcEMA(candles, period) {
+  const k = 2 / (period + 1);
+  let ema = null;
+  return candles.map((c, i) => {
+    if (i < period - 1) return null;
+    if (i === period - 1) ema = candles.slice(0, period).reduce((s, x) => s + x.close, 0) / period;
+    else ema = c.close * k + ema * (1 - k);
+    return { time: Math.floor(c.time / 1000), value: ema };
+  }).filter(Boolean);
+}
+function setMaData(page) {
+  const ind = S[page].indicators;
+  const candles = S[page].candles;
+  if (!candles || !candles.length) return;
+  for (const key of ['ma7','ma25','ma99']) {
+    const series = S[page][key+'Series'];
+    if (!series) continue;
+    const cfg = ind[key];
+    series.setData((cfg.type === 'ema' ? calcEMA : calcSMA)(candles, cfg.period));
+    series.applyOptions({ color: cfg.color, lineWidth: cfg.width });
+  }
+}
 
 function renderCharts(page) {
   const candles = S[page].candles;
@@ -2463,25 +2516,33 @@ function renderCharts(page) {
     color: c.close >= c.open ? 'rgba(14,203,129,0.4)' : 'rgba(246,70,93,0.4)'
   })));
 
-  S[page].ma7Series.setData(calcSMA(candles, 7));
-  S[page].ma25Series.setData(calcSMA(candles, 25));
-  S[page].ma99Series.setData(calcSMA(candles, 99));
+  setMaData(page);
   updatePriceLines(page);
 }
 
 function applyIndVisibility(page) {
   const pfx = page === 'spot' ? 's' : 'f';
   const ind = S[page].indicators;
-  S[page].ma7Series?.applyOptions({ visible: ind.ma7 });
-  S[page].ma25Series?.applyOptions({ visible: ind.ma25 });
-  S[page].ma99Series?.applyOptions({ visible: ind.ma99 });
-  $(`${pfx}Ind7`)?.classList.toggle('i-ma7',  ind.ma7);
-  $(`${pfx}Ind25`)?.classList.toggle('i-ma25', ind.ma25);
-  $(`${pfx}Ind99`)?.classList.toggle('i-ma99', ind.ma99);
+  const numMap = { ma7:'7', ma25:'25', ma99:'99' };
+  for (const [key, cfg] of Object.entries(ind)) {
+    const series = S[page][key+'Series'];
+    if (series) series.applyOptions({ visible: cfg.visible, color: cfg.color, lineWidth: cfg.width });
+    const num = numMap[key];
+    const btn = $(`${pfx}Ind${num}`);
+    const pSpan = $(`${pfx}Ind${num}P`);
+    if (pSpan) pSpan.textContent = cfg.period;
+    if (btn) {
+      if (cfg.visible) {
+        btn.style.cssText = `background:${cfg.color}22;color:${cfg.color};border-color:${cfg.color}`;
+      } else {
+        btn.style.cssText = '';
+      }
+    }
+  }
 }
 
 function toggleInd(page, key) {
-  S[page].indicators[key] = !S[page].indicators[key];
+  S[page].indicators[key].visible = !S[page].indicators[key].visible;
   applyIndVisibility(page);
 }
 
@@ -2631,11 +2692,7 @@ function handlePageMsg(page, data) {
     if (!S[page].candleSeries) return;
     S[page].candleSeries.update({ time: Math.floor(c.time/1000), open: c.open, high: c.high, low: c.low, close: c.close });
     S[page].volSeries.update({ time: Math.floor(c.time/1000), value: c.volume, color: c.close>=c.open?'rgba(14,203,129,0.4)':'rgba(246,70,93,0.4)' });
-    if (isNew) {
-      S[page].ma7Series.setData(calcSMA(arr, 7));
-      S[page].ma25Series.setData(calcSMA(arr, 25));
-      S[page].ma99Series.setData(calcSMA(arr, 99));
-    }
+    if (isNew) setMaData(page);
   }
 }
 
@@ -3925,6 +3982,53 @@ function _lockNicknameInput() {
   }
 }
 
+// ── 지표 설정 패널 ──────────────────────────────────────
+let _ispPage = null, _ispKey = null;
+function openIndSettings(e, page, key) {
+  e.stopPropagation();
+  _ispPage = page; _ispKey = key;
+  const cfg = S[page].indicators[key];
+  const names = { ma7:'MA 1', ma25:'MA 2', ma99:'MA 3' };
+  $('indPanelTitle').textContent = names[key] + ' 설정';
+  $('ispType').value = cfg.type;
+  $('ispPeriod').value = cfg.period;
+  $('ispColor').value = cfg.color;
+  setIspW(cfg.width, true);
+
+  const panel = $('indPanel');
+  panel.style.display = 'block';
+  // 버튼 위치 기준으로 패널 위치 결정
+  const r = e.currentTarget.getBoundingClientRect();
+  let top = r.bottom + 6, left = r.left;
+  const pw = 240, ph = 230;
+  if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+  if (top + ph > window.innerHeight - 8) top = r.top - ph - 6;
+  panel.style.top = top + 'px';
+  panel.style.left = left + 'px';
+}
+function closeIndPanel() { $('indPanel').style.display = 'none'; _ispPage = _ispKey = null; }
+function setIspW(w, silent) {
+  [1,2,3].forEach(n => $('ispW'+n)?.classList.toggle('on', n===w));
+  if (!silent) $('indPanel')._w = w;
+  else $('indPanel')._w = w;
+}
+function applyIndPanel() {
+  if (!_ispPage || !_ispKey) return;
+  const cfg = S[_ispPage].indicators[_ispKey];
+  cfg.type   = $('ispType').value;
+  cfg.period = Math.max(1, Math.min(500, parseInt($('ispPeriod').value) || cfg.period));
+  cfg.color  = $('ispColor').value;
+  cfg.width  = $('indPanel')._w || cfg.width;
+  setMaData(_ispPage);
+  applyIndVisibility(_ispPage);
+  closeIndPanel();
+}
+// 패널 외부 클릭 시 닫기
+document.addEventListener('click', e => {
+  const p = $('indPanel');
+  if (p && p.style.display !== 'none' && !p.contains(e.target)) closeIndPanel();
+});
+
 function _initDrawTooltips() {
   const tt = document.getElementById('dt-tooltip');
   document.querySelectorAll('.draw-btn[data-tip]').forEach(btn => {
@@ -4008,6 +4112,43 @@ init();
 </div>
 
 <div id="dt-tooltip"></div>
+
+<!-- Indicator settings panel -->
+<div id="indPanel" class="ind-panel" style="display:none">
+  <div class="ind-panel-hdr">
+    <span id="indPanelTitle">지표 설정</span>
+    <button onclick="closeIndPanel()">✕</button>
+  </div>
+  <div class="ind-panel-body">
+    <div class="ind-panel-row">
+      <label>유형</label>
+      <select id="ispType">
+        <option value="sma">SMA (단순이동평균)</option>
+        <option value="ema">EMA (지수이동평균)</option>
+      </select>
+    </div>
+    <div class="ind-panel-row">
+      <label>기간</label>
+      <input type="number" id="ispPeriod" min="1" max="500" step="1">
+    </div>
+    <div class="ind-panel-row">
+      <label>색상</label>
+      <input type="color" id="ispColor">
+    </div>
+    <div class="ind-panel-row">
+      <label>두께</label>
+      <div style="display:flex;gap:4px">
+        <button class="ind-w-btn" id="ispW1" onclick="setIspW(1)">얇게</button>
+        <button class="ind-w-btn" id="ispW2" onclick="setIspW(2)">중간</button>
+        <button class="ind-w-btn" id="ispW3" onclick="setIspW(3)">굵게</button>
+      </div>
+    </div>
+  </div>
+  <div class="ind-panel-ftr">
+    <button class="ipc" onclick="closeIndPanel()">취소</button>
+    <button class="ipa" onclick="applyIndPanel()">적용</button>
+  </div>
+</div>
 
 <!-- 쿠키 동의 배너 -->
 <div id="cookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#131720;border-top:1px solid #2a3347;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:9999;gap:16px;flex-wrap:wrap">
