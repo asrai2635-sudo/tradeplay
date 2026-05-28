@@ -75,17 +75,16 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .sb-sort-btn:hover { color: var(--text2); }
 .sb-sort-btn.active { color: var(--blue); font-weight: 600; }
 .sym-list { flex: 1; overflow-y: auto; }
-.sym-item { padding: 6px 8px; cursor: pointer; border-bottom: 1px solid var(--border); display: flex; align-items: center; transition: background 0.1s; min-height: 36px; }
+.sym-item { padding: 8px 10px; cursor: pointer; border-bottom: 1px solid var(--border); display: flex; align-items: center; transition: background 0.1s; min-height: 58px; }
 .sym-item:hover { background: var(--bg3); }
-.sym-item.active { background: var(--bg4); border-left: 2px solid var(--blue); padding-left: 6px; }
-.sym-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #fff; flex-shrink: 0; margin-right: 6px; letter-spacing: -0.3px; }
-.sym-name-col { flex: 1; min-width: 0; overflow: hidden; }
-.sym-name { font-weight: 600; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sym-kr { font-weight: 400; font-size: 10px; color: var(--text3); }
-.sym-sub { font-size: 10px; color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sym-price-col { flex: 0 0 68px; text-align: right; }
-.sym-price { font-size: 12px; color: var(--text); }
-.sym-chg-col { flex: 0 0 52px; text-align: right; }
+.sym-item.active { background: var(--bg4); border-left: 2px solid var(--blue); padding-left: 8px; }
+.sym-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0; margin-right: 9px; letter-spacing: -0.3px; }
+.sym-name-col { flex: 1; min-width: 0; overflow: hidden; text-align: center; }
+.sym-name { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.sym-sub { font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+.sym-price-col { flex: 0 0 76px; text-align: right; }
+.sym-price { font-size: 13px; color: var(--text); }
+.sym-chg-col { flex: 0 0 56px; text-align: right; }
 .sym-chg { font-size: 12px; font-weight: 600; }
 .sym-vol-col { flex: 0 0 52px; text-align: right; }
 .sym-vol { font-size: 11px; color: var(--text2); }
@@ -1713,10 +1712,38 @@ const COIN_KR = {
   ORDI:'오디',SATS:'사츠',BOME:'북오브멤',
   STX:'스택스',MEME:'밈코인',BRETT:'브렛',
   NOT:'노트코인',IO:'아이오넷',ZK:'지케이싱크',
-  LISTA:'리스타DAO',RENDER:'렌더',WIF:'도그위프햇',
+  LISTA:'리스타DAO',RENDER:'렌더',
   EIGEN:'아이겐레이어',CATI:'캣즌더햇',HMSTR:'해머스터',
   SCR:'스크롤',NEIRO:'네이로',DOGS:'독스',
   '1000PEPE':'페페(1000)','1000SHIB':'시바이누(1000)',
+  FLOKI:'플로키',PENGU:'푸들리',PNUT:'피넛다람쥐',
+  MOVE:'무브먼트',ACT:'액트펀',GRASS:'그라스',
+  GOAT:'고트세우스맥시무스',MOODENG:'무덩',POPCAT:'팝캣',
+  MEW:'고양이무덩',TURBO:'터보',COW:'카우프로토콜',
+  POL:'폴리곤(신)',W:'웜홀',OMNI:'옴니네트워크',
+  REZ:'레스테이크드',ETHFI:'이더파이',BOME:'북오브멤',
+  ENA:'에테나',ONDO:'온도파이낸스',STRK:'스타크넷',
+  PIXEL:'픽셀',PORTAL:'포털',MANTA:'만타네트워크',
+  ALT:'알트레이어',JUP:'주피터',ZETA:'제타체인',
+  DYM:'다이먼션',NTRN:'뉴트론',TIA:'셀레스티아',
+  AEVO:'에보',SAGA:'사가',MERL:'멀린체인',
+  BANANA:'바나나건',RUNE:'토르체인',BSOL:'블레이즈스테이킹',
+  DEGEN:'디젠',LOWER:'로워',RDNT:'레디언트캐피탈',
+  LDO:'리도다오',RPL:'로켓풀',SSV:'SSV네트워크',
+  FXS:'프랙스셰어',CVX:'컨벡스파이낸스',PENDLE:'펜들',
+  ETHW:'이더리움PoW',PEOPLE:'컨스티튜션DAO',HIGH:'하이스트리트',
+  LEVER:'레버파이',LAZIO:'라치오팬토큰',PORTO:'포르투팬토큰',
+  ALPINE:'알파인팬토큰',SANTOS:'산토스팬토큰',BAR:'바르사팬토큰',
+  PSG:'PSG팬토큰',ACM:'밀란팬토큰',CITY:'맨시티팬토큰',
+  CAKE:'팬케이크스왑',XVS:'비너스',ALPACA:'알파카파이낸스',
+  AUCTION:'바운스파이낸스',BEL:'벨라프로토콜',BIFI:'비파이파이낸스',
+  WING:'윙파이낸스',SXP:'솔라리스',CTSI:'카르테시',
+  NMR:'뉴머레어',OMG:'OMG네트워크',STORJ:'스토리지',
+  CVC:'시빅',DNT:'디스트릭트0x',NKN:'뉴카인드오브네트워크',
+  AKRO:'아크로폴리스',CTXC:'코르텍스',PAXG:'팍스골드',
+  STMX:'스톰X',KEY:'셀프키',OXT:'오키드',
+  SKL:'스칼라',RAY:'레이디움',SAMO:'사모예드코인',
+  MSOL:'마리네이드',ORCA:'오르카',MNGO:'망고마켓',
 };
 function coinColor(sym) {
   const base = sym.replace('USDT','').replace('PERP','');
@@ -1772,7 +1799,7 @@ function renderSidebar(page) {
     const bg = coinColor(t.sym);
     return `<div class="sym-item${isActive?' active':''}" data-sym="${t.sym}" onclick="sbClick('${page}','${st.market}','${t.sym}')">` +
       `<div class="sym-icon" style="background:${bg}">${initials}</div>` +
-      `<div class="sym-name-col"><div class="sym-name">${base}${COIN_KR[base]?` <span class="sym-kr">${COIN_KR[base]}</span>`:''}</div><div class="sym-sub">USDT</div></div>` +
+      `<div class="sym-name-col"><div class="sym-name">${base}</div>${COIN_KR[base]?`<div class="sym-sub">${COIN_KR[base]}</div>`:''}</div>` +
       `<div class="sym-price-col"><div class="sym-price">${fmtSP(t.price)}</div></div>` +
       `<div class="sym-chg-col"><div class="sym-chg ${cc}">${t.chgPct>=0?'+':''}${t.chgPct.toFixed(2)}%</div></div>` +
       `<div class="sym-vol-col"><div class="sym-vol">${fmtK(t.vol)}</div></div>` +
