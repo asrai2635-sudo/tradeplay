@@ -1381,7 +1381,7 @@ let _uid = null;
 
 _auth.signInAnonymously()
   .then(cred => { _uid = cred.user.uid; _uploadRanking(); })
-  .catch(e => console.warn('[FB] auth:', e));
+  .catch(()=>{});
 
 // 5초 디바운스 업로드 (거래 후 과다 호출 방지)
 let _uploadTimer = null;
@@ -1398,7 +1398,7 @@ function _uploadRanking() {
       equity    : Math.round(equity * 100) / 100,
       roi       : Math.round(roi * 100) / 100,
       updatedAt : firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(e => console.warn('[FB] upload:', e));
+    }).catch(()=>{});
   }, 5000);
 }
 
@@ -1513,24 +1513,6 @@ function calcUnrealizedPnl() {
   return total;
 }
 
-// 총자산 = 가용USDT + 현물보유×현재가 + 선물마진 + 선물미실현손익
-function calcTotalEquity() {
-  let total = wallet;
-  // 현물: 보유 수량 × 현재가 (가격 없으면 평단가로 fallback)
-  Object.keys(holdings).forEach(sym => {
-    const price = PRICES[sym + 'USDT'] || holdings[sym].avgPrice;
-    total += holdings[sym].qty * price;
-  });
-  // 선물: 마진 반환 + 미실현 손익
-  futPositions.forEach(p => {
-    total += p.margin;
-    const price = PRICES[p.sym] || 0; if (!price) return;
-    total += p.dir === 'long'
-      ? (price - p.entryPrice) / p.entryPrice * p.margin * p.leverage
-      : (p.entryPrice - price) / p.entryPrice * p.margin * p.leverage;
-  });
-  return total;
-}
 
 function updateTopBar() {
   const totalEquity = calcTotalEquity();
@@ -1740,63 +1722,6 @@ const COIN_COLORS = {
   LTC:'#838383',PEPE:'#479f53',WIF:'#c8852a',SHIB:'#e3730a',TRX:'#eb0029',
   SUI:'#4da2ff',TON:'#0088cc',APT:'#00c2ff',FIL:'#0090ff',INJ:'#00bbff'
 };
-const COIN_KR = {
-  BTC:'비트코인',ETH:'이더리움',SOL:'솔라나',XRP:'리플',BNB:'바이낸스코인',
-  DOGE:'도지코인',ADA:'에이다',AVAX:'아발란체',MATIC:'폴리곤',LINK:'체인링크',
-  DOT:'폴카닷',ATOM:'코스모스',NEAR:'니어프로토콜',ARB:'아비트럼',OP:'옵티미즘',
-  LTC:'라이트코인',PEPE:'페페',WIF:'도그위프햇',SHIB:'시바이누',TRX:'트론',
-  SUI:'수이',TON:'톤코인',APT:'앱토스',FIL:'파일코인',INJ:'인젝티브',
-  UNI:'유니스왑',AAVE:'에이브',MKR:'메이커',COMP:'컴파운드',CRV:'커브',
-  SNX:'신세틱스','1INCH':'원인치',SUSHI:'스시스왑',YFI:'연파이낸스',
-  SAND:'더샌드박스',MANA:'디센트럴랜드',AXS:'엑시인피니티',
-  GALA:'갈라',ENJ:'엔진코인',CHZ:'칠리즈',FLOW:'플로우',
-  FTM:'팬텀',ALGO:'알고랜드',VET:'비체인',EGLD:'멀티버스X',
-  HBAR:'헤데라',XLM:'스텔라루멘',EOS:'이오스',XTZ:'테조스',
-  DASH:'대시',ZEC:'지캐시',XMR:'모네로',BCH:'비트코인캐시',
-  ETC:'이더리움클래식',THETA:'쎄타',ICP:'인터넷컴퓨터',
-  RUNE:'토르체인',KSM:'쿠사마',ZIL:'질리카',
-  KAVA:'카바',BAND:'밴드프로토콜',RSR:'리저브라이츠',
-  OCEAN:'오션프로토콜',GRT:'더그래프',LRC:'루프링',
-  IMX:'이뮤터블X',GMT:'스테픈',APE:'에이프코인',
-  OP:'옵티미즘',BLUR:'블러',MAGIC:'매직',
-  WLD:'월드코인',SEI:'세이',TIA:'셀레스티아',
-  PYTH:'파이스',JTO:'지토',BONK:'봉크',
-  ORDI:'오디',SATS:'사츠',BOME:'북오브멤',
-  STX:'스택스',MEME:'밈코인',BRETT:'브렛',
-  NOT:'노트코인',IO:'아이오넷',ZK:'지케이싱크',
-  LISTA:'리스타DAO',RENDER:'렌더',
-  EIGEN:'아이겐레이어',CATI:'캣즌더햇',HMSTR:'해머스터',
-  SCR:'스크롤',NEIRO:'네이로',DOGS:'독스',
-  '1000PEPE':'페페(1000)','1000SHIB':'시바이누(1000)',
-  FLOKI:'플로키',PENGU:'푸들리',PNUT:'피넛다람쥐',
-  MOVE:'무브먼트',ACT:'액트펀',GRASS:'그라스',
-  GOAT:'고트세우스맥시무스',MOODENG:'무덩',POPCAT:'팝캣',
-  MEW:'고양이무덩',TURBO:'터보',COW:'카우프로토콜',
-  POL:'폴리곤(신)',W:'웜홀',OMNI:'옴니네트워크',
-  REZ:'레스테이크드',ETHFI:'이더파이',BOME:'북오브멤',
-  ENA:'에테나',ONDO:'온도파이낸스',STRK:'스타크넷',
-  PIXEL:'픽셀',PORTAL:'포털',MANTA:'만타네트워크',
-  ALT:'알트레이어',JUP:'주피터',ZETA:'제타체인',
-  DYM:'다이먼션',NTRN:'뉴트론',TIA:'셀레스티아',
-  AEVO:'에보',SAGA:'사가',MERL:'멀린체인',
-  BANANA:'바나나건',RUNE:'토르체인',BSOL:'블레이즈스테이킹',
-  DEGEN:'디젠',LOWER:'로워',RDNT:'레디언트캐피탈',
-  LDO:'리도다오',RPL:'로켓풀',SSV:'SSV네트워크',
-  FXS:'프랙스셰어',CVX:'컨벡스파이낸스',PENDLE:'펜들',
-  ETHW:'이더리움PoW',PEOPLE:'컨스티튜션DAO',HIGH:'하이스트리트',
-  LEVER:'레버파이',LAZIO:'라치오팬토큰',PORTO:'포르투팬토큰',
-  ALPINE:'알파인팬토큰',SANTOS:'산토스팬토큰',BAR:'바르사팬토큰',
-  PSG:'PSG팬토큰',ACM:'밀란팬토큰',CITY:'맨시티팬토큰',
-  CAKE:'팬케이크스왑',XVS:'비너스',ALPACA:'알파카파이낸스',
-  AUCTION:'바운스파이낸스',BEL:'벨라프로토콜',BIFI:'비파이파이낸스',
-  WING:'윙파이낸스',SXP:'솔라리스',CTSI:'카르테시',
-  NMR:'뉴머레어',OMG:'OMG네트워크',STORJ:'스토리지',
-  CVC:'시빅',DNT:'디스트릭트0x',NKN:'뉴카인드오브네트워크',
-  AKRO:'아크로폴리스',CTXC:'코르텍스',PAXG:'팍스골드',
-  STMX:'스톰X',KEY:'셀프키',OXT:'오키드',
-  SKL:'스칼라',RAY:'레이디움',SAMO:'사모예드코인',
-  MSOL:'마리네이드',ORCA:'오르카',MNGO:'망고마켓',
-};
 function coinColor(sym) {
   const base = sym.replace('USDT','').replace('PERP','');
   if (COIN_COLORS[base]) return COIN_COLORS[base];
@@ -1824,15 +1749,10 @@ function renderSidebar(page) {
   // 즐겨찾기 필터
   if (st.favOnly) data = data.filter(t => sbFavs[favKey].has(t.sym));
 
-  // 검색 필터 (심볼 + 한글명)
+  // 검색 필터
   if (st.query) {
     const q = st.query.toUpperCase();
-    const qKr = st.query;
-    data = data.filter(t => {
-      if (t.sym.includes(q)) return true;
-      const base = t.sym.replace('USDT','').replace('PERP','');
-      return (COIN_KR[base] || '').includes(qKr);
-    });
+    data = data.filter(t => t.sym.includes(q));
   }
 
   // 정렬
@@ -2751,9 +2671,9 @@ function startPageWS(page, sym, tf) {
   };
   ws.onmessage = e => {
     if (ws._dead) return;
-    try { handlePageMsg(page, JSON.parse(e.data)); } catch(ex) { console.warn('[WS msg]', ex); }
+    try { handlePageMsg(page, JSON.parse(e.data)); } catch(ex) {}
   };
-  ws.onerror = ev => console.warn('[WS err]', page, ev.type);
+  ws.onerror = () => {};
   ws.onclose = () => {
     clearInterval(ws._ping);
     if (ws._dead) return;
@@ -4065,7 +3985,6 @@ async function renderRanking() {
         </div>`).join('');
       return;
     } catch(e) {
-      console.warn('[FB] renderRanking:', e);
     }
   }
 
@@ -4220,14 +4139,13 @@ async function init() {
   updateTopBar();
   _initDrawTooltips();
   if (hasState) { renderSpotHoldings(); renderSpotHistory(); renderFutPositions(); renderFutHistory(); }
-  setInterval(()=>{ renderFutPositions(); renderSpotHoldings(); }, 1500);
-  // AI 플레이어 랭킹 업데이트 (3초 간격)
-  setInterval(()=>{
-    updateAiPlayers();
-    if ($('rankOverlay')?.style.display !== 'none') renderRanking();
-  }, 3000);
-  // 사이드바 전체 가격 갱신 (10초 간격 REST)
-  setInterval(refreshAllPrices, 10000);
+  let _tick = 0;
+  setInterval(() => {
+    _tick++;
+    renderFutPositions(); renderSpotHoldings();
+    if (_tick % 2 === 0) { updateAiPlayers(); if ($('rankOverlay')?.style.display !== 'none') renderRanking(); }
+    if (_tick % 7 === 0) refreshAllPrices();
+  }, 1500);
 }
 init();
 </script>
