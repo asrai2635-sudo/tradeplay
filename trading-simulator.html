@@ -2276,9 +2276,31 @@ function initDrawCanvas(page) {
 function _dtScreenToChart(page, x, y) {
   const chart=S[page].lchart, series=S[page].candleSeries;
   if (!chart||!series) return null;
-  const time=chart.timeScale().coordinateToTime(x);
-  const price=series.coordinateToPrice(y);
-  if (time==null||price==null) return null;
+
+  let time=chart.timeScale().coordinateToTime(x);
+  // 캔들 범위 밖(오른쪽 빈 공간 등)이면 픽셀 비율로 시간 외삽
+  if (time==null) {
+    const vr=chart.timeScale().getVisibleRange();
+    if (!vr) return null;
+    const xF=chart.timeScale().timeToCoordinate(vr.from);
+    const xT=chart.timeScale().timeToCoordinate(vr.to);
+    if (xF==null||xT==null) return null;
+    const pxPerSec=(Number(xT)-Number(xF))/(Number(vr.to)-Number(vr.from));
+    if (Math.abs(pxPerSec)<1e-9) return null;
+    time=Number(vr.from)+(x-Number(xF))/pxPerSec;
+  }
+
+  let price=series.coordinateToPrice(y);
+  // 가격 범위 밖이면 선형 외삽
+  if (price==null) {
+    const pfx=page==='spot'?'s':'f';
+    const cvs=document.getElementById(pfx+'-draw-canvas');
+    const CH=cvs?.height||400;
+    const p0=series.coordinateToPrice(0), p1=series.coordinateToPrice(CH);
+    if (p0!=null&&p1!=null&&Math.abs(p1-p0)>1e-9) price=p0+(y/CH)*(p1-p0);
+    else return null;
+  }
+
   return { time, price };
 }
 function _dtC(page, time, price) {
