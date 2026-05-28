@@ -81,6 +81,7 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .sym-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #fff; flex-shrink: 0; margin-right: 6px; letter-spacing: -0.3px; }
 .sym-name-col { flex: 1; min-width: 0; overflow: hidden; }
 .sym-name { font-weight: 600; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sym-kr { font-weight: 400; font-size: 10px; color: var(--text3); }
 .sym-sub { font-size: 10px; color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sym-price-col { flex: 0 0 68px; text-align: right; }
 .sym-price { font-size: 12px; color: var(--text); }
@@ -1771,7 +1772,7 @@ function renderSidebar(page) {
     const bg = coinColor(t.sym);
     return `<div class="sym-item${isActive?' active':''}" data-sym="${t.sym}" onclick="sbClick('${page}','${st.market}','${t.sym}')">` +
       `<div class="sym-icon" style="background:${bg}">${initials}</div>` +
-      `<div class="sym-name-col"><div class="sym-name">${base}</div><div class="sym-sub">${COIN_KR[base]||'USDT'}</div></div>` +
+      `<div class="sym-name-col"><div class="sym-name">${base}${COIN_KR[base]?` <span class="sym-kr">${COIN_KR[base]}</span>`:''}</div><div class="sym-sub">USDT</div></div>` +
       `<div class="sym-price-col"><div class="sym-price">${fmtSP(t.price)}</div></div>` +
       `<div class="sym-chg-col"><div class="sym-chg ${cc}">${t.chgPct>=0?'+':''}${t.chgPct.toFixed(2)}%</div></div>` +
       `<div class="sym-vol-col"><div class="sym-vol">${fmtK(t.vol)}</div></div>` +
