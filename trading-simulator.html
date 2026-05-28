@@ -80,9 +80,8 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .sym-item.active { background: var(--bg4); border-left: 2px solid var(--blue); padding-left: 6px; }
 .sym-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #fff; flex-shrink: 0; margin-right: 6px; letter-spacing: -0.3px; }
 .sym-name-col { flex: 1; min-width: 0; overflow: hidden; }
-.sym-name { font-weight: 600; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: baseline; gap: 5px; }
-.sym-kr { font-size: 10px; font-weight: 400; color: var(--text3); white-space: nowrap; }
-.sym-sub { font-size: 10px; color: var(--text3); }
+.sym-name { font-weight: 600; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sym-sub { font-size: 10px; color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sym-price-col { flex: 0 0 68px; text-align: right; }
 .sym-price { font-size: 12px; color: var(--text); }
 .sym-chg-col { flex: 0 0 52px; text-align: right; }
@@ -105,6 +104,8 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .tf-btn { padding: 5px 10px; border: 1px solid var(--border); border-radius: 3px; background: transparent; color: var(--text2); font-family: inherit; font-size: 12px; cursor: pointer; transition: all 0.1s; white-space: nowrap; }
 .tf-btn:hover { background: var(--bg3); color: var(--text); }
 .tf-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+.ind-toggle-btn { margin-left: 6px; border-color: var(--border); color: var(--text3); }
+.ind-toggle-btn.active { background: var(--bg3); color: var(--text); border-color: var(--text3); }
 
 /* CHART CONTAINER — Lightweight Charts */
 .chart-container { flex: 1; display: flex; flex-direction: row; min-height: 0; background: var(--bg); }
@@ -779,8 +780,9 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
         <button class="tf-btn" data-tf="W">주봉</button>
         <button class="tf-btn" data-tf="M">월봉</button>
         <button class="tf-btn" data-tf="Y">년봉</button>
+        <button class="tf-btn ind-toggle-btn" id="sIndToggleBtn" onclick="toggleIndRow('spot')" title="보조지표">보조지표</button>
       </div>
-      <div class="ind-row">
+      <div class="ind-row" id="sIndRow" style="display:none">
         <span class="ind-wrap"><button class="ind-btn" id="sInd7"  onclick="toggleInd('spot','ma7')">MA<span id="sInd7P">7</span></button><button class="ind-gear" onclick="openIndSettings(event,'spot','ma7')" title="설정">⚙</button></span>
         <span class="ind-wrap"><button class="ind-btn" id="sInd25" onclick="toggleInd('spot','ma25')">MA<span id="sInd25P">25</span></button><button class="ind-gear" onclick="openIndSettings(event,'spot','ma25')" title="설정">⚙</button></span>
         <span class="ind-wrap"><button class="ind-btn" id="sInd99" onclick="toggleInd('spot','ma99')">MA<span id="sInd99P">99</span></button><button class="ind-gear" onclick="openIndSettings(event,'spot','ma99')" title="설정">⚙</button></span>
@@ -801,7 +803,6 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
         <div class="draw-btn" id="s-dt-fib" onclick="setDrawTool('spot','fibonacci',this)" data-tip="피보나치 되돌림"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2" y1="3.5" x2="16" y2="3.5" stroke="currentColor" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5"/><line x1="2" y1="9.5" x2="16" y2="9.5" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5"/><line x1="2" y1="15.5" x2="16" y2="15.5" stroke="currentColor" stroke-width="1.3"/><line x1="3.5" y1="3.5" x2="3.5" y2="15.5" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.4"/></svg></div>
         <div class="draw-sep"></div>
         <div class="draw-btn" id="s-dt-rect" onclick="setDrawTool('spot','rect',this)" data-tip="박스 (사각형)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="4.5" width="13" height="9" stroke="currentColor" stroke-width="1.5"/></svg></div>
-        <div class="draw-btn" id="s-dt-ellipse" onclick="setDrawTool('spot','ellipse',this)" data-tip="타원"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><ellipse cx="9" cy="9" rx="7" ry="5" stroke="currentColor" stroke-width="1.5"/></svg></div>
         <div class="draw-sep"></div>
         <div class="draw-btn" id="s-dt-text" onclick="setDrawTool('spot','text',this)" data-tip="텍스트 주석"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 14L9 4L13 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><line x1="6.8" y1="10.5" x2="11.2" y2="10.5" stroke="currentColor" stroke-width="1.3"/></svg></div>
         <div class="draw-sep"></div>
@@ -997,8 +998,9 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
         <button class="tf-btn" data-tf="W">주봉</button>
         <button class="tf-btn" data-tf="M">월봉</button>
         <button class="tf-btn" data-tf="Y">년봉</button>
+        <button class="tf-btn ind-toggle-btn" id="fIndToggleBtn" onclick="toggleIndRow('futures')" title="보조지표">보조지표</button>
       </div>
-      <div class="ind-row">
+      <div class="ind-row" id="fIndRow" style="display:none">
         <span class="ind-wrap"><button class="ind-btn" id="fInd7"  onclick="toggleInd('futures','ma7')">MA<span id="fInd7P">7</span></button><button class="ind-gear" onclick="openIndSettings(event,'futures','ma7')" title="설정">⚙</button></span>
         <span class="ind-wrap"><button class="ind-btn" id="fInd25" onclick="toggleInd('futures','ma25')">MA<span id="fInd25P">25</span></button><button class="ind-gear" onclick="openIndSettings(event,'futures','ma25')" title="설정">⚙</button></span>
         <span class="ind-wrap"><button class="ind-btn" id="fInd99" onclick="toggleInd('futures','ma99')">MA<span id="fInd99P">99</span></button><button class="ind-gear" onclick="openIndSettings(event,'futures','ma99')" title="설정">⚙</button></span>
@@ -1019,7 +1021,6 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
         <div class="draw-btn" id="f-dt-fib" onclick="setDrawTool('futures','fibonacci',this)" data-tip="피보나치 되돌림"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2" y1="3.5" x2="16" y2="3.5" stroke="currentColor" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5"/><line x1="2" y1="9.5" x2="16" y2="9.5" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5"/><line x1="2" y1="15.5" x2="16" y2="15.5" stroke="currentColor" stroke-width="1.3"/><line x1="3.5" y1="3.5" x2="3.5" y2="15.5" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.4"/></svg></div>
         <div class="draw-sep"></div>
         <div class="draw-btn" id="f-dt-rect" onclick="setDrawTool('futures','rect',this)" data-tip="박스 (사각형)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="4.5" width="13" height="9" stroke="currentColor" stroke-width="1.5"/></svg></div>
-        <div class="draw-btn" id="f-dt-ellipse" onclick="setDrawTool('futures','ellipse',this)" data-tip="타원"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><ellipse cx="9" cy="9" rx="7" ry="5" stroke="currentColor" stroke-width="1.5"/></svg></div>
         <div class="draw-sep"></div>
         <div class="draw-btn" id="f-dt-text" onclick="setDrawTool('futures','text',this)" data-tip="텍스트 주석"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 14L9 4L13 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><line x1="6.8" y1="10.5" x2="11.2" y2="10.5" stroke="currentColor" stroke-width="1.3"/></svg></div>
         <div class="draw-sep"></div>
@@ -1770,7 +1771,7 @@ function renderSidebar(page) {
     const bg = coinColor(t.sym);
     return `<div class="sym-item${isActive?' active':''}" data-sym="${t.sym}" onclick="sbClick('${page}','${st.market}','${t.sym}')">` +
       `<div class="sym-icon" style="background:${bg}">${initials}</div>` +
-      `<div class="sym-name-col"><div class="sym-name">${base}<span class="sym-kr">${COIN_KR[base]||''}</span></div><div class="sym-sub">USDT</div></div>` +
+      `<div class="sym-name-col"><div class="sym-name">${base}</div><div class="sym-sub">${COIN_KR[base]||'USDT'}</div></div>` +
       `<div class="sym-price-col"><div class="sym-price">${fmtSP(t.price)}</div></div>` +
       `<div class="sym-chg-col"><div class="sym-chg ${cc}">${t.chgPct>=0?'+':''}${t.chgPct.toFixed(2)}%</div></div>` +
       `<div class="sym-vol-col"><div class="sym-vol">${fmtK(t.vol)}</div></div>` +
@@ -2577,6 +2578,15 @@ function applyIndVisibility(page) {
   }
 }
 
+function toggleIndRow(page) {
+  const rowId = page === 'spot' ? 'sIndRow' : 'fIndRow';
+  const btnId = page === 'spot' ? 'sIndToggleBtn' : 'fIndToggleBtn';
+  const row = $(rowId), btn = $(btnId);
+  if (!row) return;
+  const open = row.style.display !== 'none';
+  row.style.display = open ? 'none' : 'flex';
+  btn.classList.toggle('active', !open);
+}
 function toggleInd(page, key) {
   S[page].indicators[key].visible = !S[page].indicators[key].visible;
   applyIndVisibility(page);
