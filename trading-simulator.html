@@ -1900,7 +1900,6 @@ function setSbMarket(page, market, btn) {
   sbState[page].market = market;
   btn.closest('.sb-mtabs').querySelectorAll('.sb-mtab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  if (market !== page) switchPage(market);
   renderSidebar(page);
 }
 function setSbSort(page, key) {
