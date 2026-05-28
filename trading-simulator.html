@@ -2276,22 +2276,30 @@ function initDrawCanvas(page) {
 function _dtScreenToChart(page, x, y) {
   const chart=S[page].lchart, series=S[page].candleSeries;
   if (!chart||!series) return null;
+  const ts=chart.timeScale();
 
-  let time=chart.timeScale().coordinateToTime(x);
-  // 캔들 범위 밖(오른쪽 빈 공간 등)이면 픽셀 비율로 시간 외삽
+  let time=ts.coordinateToTime(x);
+
+  // coordinateToTime은 데이터 없는 영역(미래 빈 공간)에서 null 반환
+  // → 실제 캔들 2개를 앵커로 픽셀/시간 비율 계산 후 외삽
   if (time==null) {
-    const vr=chart.timeScale().getVisibleRange();
-    if (!vr) return null;
-    const xF=chart.timeScale().timeToCoordinate(vr.from);
-    const xT=chart.timeScale().timeToCoordinate(vr.to);
-    if (xF==null||xT==null) return null;
-    const pxPerSec=(Number(xT)-Number(xF))/(Number(vr.to)-Number(vr.from));
-    if (Math.abs(pxPerSec)<1e-9) return null;
-    time=Number(vr.from)+(x-Number(xF))/pxPerSec;
+    const candles=S[page].candles;
+    if (!candles||candles.length<2) return null;
+    let x1=null,t1=null,x2=null,t2=null;
+    for (let i=candles.length-1; i>=0 && (x1==null||x2==null); i--) {
+      const ct=Math.floor(candles[i].time/1000);
+      const cx=ts.timeToCoordinate(ct);
+      if (cx!=null) {
+        if (x1==null){x1=Number(cx);t1=ct;}
+        else {x2=Number(cx);t2=ct;}
+      }
+    }
+    if (x1==null||x2==null||Math.abs(x1-x2)<0.5) return null;
+    const pxPerSec=(x1-x2)/(t1-t2);
+    time=t1+(x-x1)/pxPerSec;
   }
 
   let price=series.coordinateToPrice(y);
-  // 가격 범위 밖이면 선형 외삽
   if (price==null) {
     const pfx=page==='spot'?'s':'f';
     const cvs=document.getElementById(pfx+'-draw-canvas');
@@ -2353,6 +2361,44 @@ function _dtGetClip(page, W, H) {
   return { w: Math.max(W - rw, 0), h: Math.max(H - th, 0) };
 }
 
+function _drawFutureGrid(ctx, page, CW, CH) {
+  const chart = S[page].lchart;
+  const candles = S[page].candles;
+  if (!chart || !candles || candles.length < 2) return;
+  const ts = chart.timeScale();
+  const lastTime = Math.floor(candles[candles.length-1].time / 1000);
+  const intervalSec = Math.round((candles[candles.length-1].time - candles[candles.length-2].time) / 1000);
+  if (intervalSec <= 0) return;
+  // Find 2 visible candle anchors for pixel-per-second extrapolation
+  let x1=null,t1=null,x2=null,t2=null;
+  for (let i=candles.length-1; i>=0 && (x1==null||x2==null); i--) {
+    const ct=Math.floor(candles[i].time/1000);
+    const cx=ts.timeToCoordinate(ct);
+    if (cx!=null) {
+      if (x1==null){x1=Number(cx);t1=ct;}
+      else {x2=Number(cx);t2=ct;}
+    }
+  }
+  if (x1==null||x2==null||Math.abs(x1-x2)<0.5) return;
+  const pxPerSec=(x1-x2)/(t1-t2);
+  const xLast = x1+(lastTime-t1)*pxPerSec;
+  if (xLast >= CW) return; // no visible future area
+  ctx.save();
+  ctx.strokeStyle = '#1c2230';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([]);
+  let futT = lastTime + intervalSec;
+  while (true) {
+    const fx = x1+(futT-t1)*pxPerSec;
+    if (fx > CW) break;
+    if (fx > xLast) {
+      ctx.beginPath(); ctx.moveTo(fx,0); ctx.lineTo(fx,CH); ctx.stroke();
+    }
+    futT += intervalSec;
+  }
+  ctx.restore();
+}
+
 function _dtRender(page) {
   const pfx = page==='spot' ? 's' : 'f';
   const canvas = document.getElementById(pfx+'-draw-canvas');
@@ -2367,6 +2413,8 @@ function _dtRender(page) {
   ctx.beginPath();
   ctx.rect(0, 0, CW, CH);
   ctx.clip();
+
+  _drawFutureGrid(ctx, page, CW, CH);
 
   const dt = DT[page];
   dt.drawings.forEach((d, i) => _dtDrawOne(ctx, page, d, CW, CH, false, i===dt.selectedIdx, i===dt.hoverIdx));
