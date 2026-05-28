@@ -153,6 +153,69 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 #dt-tooltip { position:fixed; display:none; background:#1e222d; color:#d1d4dc; font-size:12px; padding:5px 10px; border-radius:4px; border:1px solid #2a2e39; box-shadow:0 2px 10px rgba(0,0,0,0.55); pointer-events:none; z-index:9999; white-space:nowrap; font-family:'SF Mono','Fira Code','Consolas',monospace; }
 #dt-tooltip::before { content:''; position:absolute; right:100%; top:50%; transform:translateY(-50%); border:5px solid transparent; border-right-color:#2a2e39; }
 #dt-tooltip::after { content:''; position:absolute; right:calc(100% - 1px); top:50%; transform:translateY(-50%); border:5px solid transparent; border-right-color:#1e222d; }
+
+/* ── Line-group submenu ────────────────────────────── */
+.dt-group { position: relative; }
+.dt-group-btn { position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; color: #787b86; transition: background 0.12s, color 0.12s; user-select: none; flex-shrink: 0; }
+.dt-group-btn:hover { background: rgba(255,255,255,0.07); color: #d1d4dc; }
+.dt-group-btn.dt-on { background: #2962ff; color: #fff; }
+.dt-group-btn.dt-on:hover { background: #1e53e5; }
+.dt-group-arrow { position: absolute; bottom: 4px; right: 4px; width: 0; height: 0; border-left: 4px solid transparent; border-bottom: 4px solid currentColor; opacity: 0.55; pointer-events: none; }
+.dt-submenu { position: fixed; display: none; flex-direction: column; background: #1e222d; border: 1px solid #2a2e39; border-radius: 7px; box-shadow: 0 6px 28px rgba(0,0,0,0.7); z-index: 9990; padding: 4px; min-width: 175px; }
+.dt-submenu.open { display: flex; }
+.dt-submenu .draw-btn { width: 100%; height: 32px; justify-content: flex-start; gap: 9px; padding: 0 10px; font-size: 12px; color: #9ba3bc; border-radius: 4px; box-sizing: border-box; }
+.dt-submenu .draw-btn span { flex: 1; }
+.dt-submenu .draw-btn:hover { background: rgba(41,98,255,0.16); color: #d1d4dc; }
+.dt-submenu .draw-btn.dt-on { background: rgba(41,98,255,0.22); color: #5c8fff; }
+
+/* ── Indicator button in draw toolbar ────────────── */
+.dt-ind-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; color: #787b86; transition: background 0.12s, color 0.12s; user-select: none; flex-shrink: 0; border: none; background: none; padding: 0; }
+.dt-ind-btn:hover { background: rgba(255,255,255,0.07); color: #d1d4dc; }
+.dt-ind-btn.active { background: rgba(41,98,255,0.18); color: #5c8fff; }
+
+/* ── Indicator search panel ──────────────────────── */
+.ind-search-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.52); z-index: 8000; display: none; }
+.ind-search-bg.open { display: block; }
+.ind-search-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 470px; max-width: 95vw; max-height: 78vh; background: #131722; border: 1px solid #2a2e39; border-radius: 10px; display: flex; flex-direction: column; box-shadow: 0 14px 55px rgba(0,0,0,0.85); overflow: hidden; z-index: 8001; }
+.ind-search-hdr { padding: 14px 14px 10px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1e2230; flex-shrink: 0; }
+.ind-search-title { font-size: 14px; font-weight: 700; color: #d1d4dc; flex: 1; }
+.ind-search-close { border: none; background: none; color: #5a6a7e; cursor: pointer; font-size: 18px; line-height: 1; transition: color 0.1s; padding: 0; }
+.ind-search-close:hover { color: #d1d4dc; }
+.ind-search-box { margin: 8px 12px 4px; position: relative; flex-shrink: 0; }
+.ind-search-input { width: 100%; box-sizing: border-box; background: #1e2230; border: 1px solid #2a2e39; border-radius: 6px; padding: 8px 12px 8px 34px; color: #d1d4dc; font-size: 13px; font-family: inherit; outline: none; }
+.ind-search-input:focus { border-color: #2962ff; }
+.ind-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #5a6a7e; pointer-events: none; }
+.ind-list { flex: 1; overflow-y: auto; padding: 4px 0 8px; scrollbar-width: thin; scrollbar-color: #2a2e39 transparent; }
+.ind-list::-webkit-scrollbar { width: 4px; } .ind-list::-webkit-scrollbar-track { background: transparent; } .ind-list::-webkit-scrollbar-thumb { background: #2a2e39; border-radius: 4px; }
+.ind-cat-hdr { padding: 10px 14px 4px; font-size: 10px; color: #5a6a7e; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; }
+.ind-list-item { display: flex; align-items: center; padding: 8px 14px; cursor: pointer; gap: 10px; transition: background 0.1s; }
+.ind-list-item:hover { background: rgba(255,255,255,0.04); }
+.ind-list-item-icon { width: 28px; height: 28px; border-radius: 6px; background: #1e2430; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #8896ae; flex-shrink: 0; letter-spacing: -0.5px; }
+.ind-list-item-name { flex: 1; font-size: 13px; color: #c4c9d4; }
+.ind-list-item-tag { font-size: 10px; color: #5a7090; background: #1e2430; border-radius: 3px; padding: 2px 6px; white-space: nowrap; }
+.ind-list-item-add { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #2a3347; background: none; color: #5a7090; cursor: pointer; font-size: 17px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
+.ind-list-item-add:hover { background: #2962ff; border-color: #2962ff; color: #fff; }
+
+/* ── Active indicator chips ───────────────────────── */
+.active-inds-bar { display: none; gap: 4px; padding: 2px 8px; flex-wrap: wrap; align-items: center; flex-shrink: 0; border-bottom: 1px solid #181c27; }
+.active-inds-bar.has-inds { display: flex; }
+.act-ind-chip { display: inline-flex; align-items: center; gap: 4px; background: rgba(41,98,255,0.1); border: 1px solid rgba(41,98,255,0.22); border-radius: 4px; padding: 2px 6px 2px 7px; font-size: 11px; color: #8896ae; }
+.act-ind-chip-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.act-ind-chip-rm { border: none; background: none; color: #4a5568; cursor: pointer; font-size: 12px; line-height: 1; padding: 0 0 0 3px; transition: color 0.1s; }
+.act-ind-chip-rm:hover { color: #f6465d; }
+
+/* ── chart-col (wraps lc-wrap + sub-panels) ─────── */
+.chart-col { flex: 1; display: flex; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden; }
+
+/* ── Sub-panel oscillator charts ────────────────── */
+.sub-panels { flex-shrink: 0; display: flex; flex-direction: column; }
+.sub-panel { position: relative; border-top: 2px solid #1a1f2e; }
+.sub-panel-hdr { position: absolute; top: 5px; left: 8px; z-index: 10; display: flex; align-items: center; gap: 6px; }
+.sub-panel-title { font-size: 11px; color: rgba(200,210,225,0.75); font-weight: 600; background: rgba(11,14,17,0.65); padding: 2px 6px; border-radius: 3px; }
+.sub-panel-close { pointer-events: all; border: none; background: rgba(11,14,17,0.65); color: #5a6a7e; cursor: pointer; font-size: 12px; padding: 2px 5px; border-radius: 3px; transition: color 0.1s; line-height: 1; }
+.sub-panel-close:hover { color: #f6465d; }
+.sub-lc-wrap { width: 100%; height: 100%; }
+
 /* SPOT LIMIT SELL MODAL */
 .sls-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.8); z-index:3000; display:flex; align-items:center; justify-content:center; }
 .sls-modal { background:var(--bg2); border:1px solid var(--border); border-radius:12px; width:420px; max-width:95vw; padding:24px; }
@@ -821,14 +884,23 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     <div class="chart-container">
       <div class="draw-toolbar" id="s-draw-toolbar">
         <div class="draw-btn dt-on" id="s-dt-cursor" onclick="setDrawTool('spot','cursor',this)" data-tip="커서 (Esc)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3.5 2.5L3.5 14.5L7 11.5L9 16L11.2 15L9.2 10.5L14 10L3.5 2.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+        <button class="dt-ind-btn" id="s-dt-ind" onclick="openIndSearch('spot')" data-tip="보조지표 추가"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><polyline points="2,14 5,9 9,12 13,6 16,3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="5" cy="9" r="1.8" fill="currentColor"/><circle cx="9" cy="12" r="1.8" fill="currentColor"/><circle cx="13" cy="6" r="1.8" fill="currentColor"/></svg></button>
         <div class="draw-sep"></div>
-        <div class="draw-btn" id="s-dt-trendline" onclick="setDrawTool('spot','trendline',this)" data-tip="추세선"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="15" r="2.2" fill="currentColor"/><circle cx="15" cy="3" r="2.2" fill="currentColor"/></svg></div>
-        <div class="draw-btn" id="s-dt-ray" onclick="setDrawTool('spot','ray',this)" data-tip="레이 (반무한선)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="14.5" x2="16" y2="4" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="14.5" r="2.2" fill="currentColor"/><path d="M13.5 2L16.5 4L14 6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
-        <div class="draw-btn" id="s-dt-extline" onclick="setDrawTool('spot','extline',this)" data-tip="연장선 (양방향)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="1" y1="17" x2="17" y2="1" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="6" r="2.2" fill="currentColor"/></svg></div>
-        <div class="draw-btn" id="s-dt-hline" onclick="setDrawTool('spot','hline',this)" data-tip="수평선"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="1.5" y1="9" x2="16.5" y2="9" stroke="currentColor" stroke-width="1.7"/></svg></div>
-        <div class="draw-btn" id="s-dt-hray" onclick="setDrawTool('spot','hray',this)" data-tip="수평 레이"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2.5" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.5"/><circle cx="2.5" cy="9" r="2.2" fill="currentColor"/><path d="M13 7L16.5 9L13 11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
-        <div class="draw-btn" id="s-dt-vline" onclick="setDrawTool('spot','vline',this)" data-tip="수직선"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="9" y1="1.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.7"/></svg></div>
-        <div class="draw-btn" id="s-dt-channel" onclick="setDrawTool('spot','channel',this)" data-tip="평행 채널 (3클릭)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2" y1="13.5" x2="16" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="16.5" x2="16" y2="8" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3,2"/></svg></div>
+        <div class="dt-group" id="s-line-group">
+          <div class="dt-group-btn" id="s-dt-lines" onclick="toggleLineMenu('spot',this)" data-tip="선 도구">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="15" r="2.2" fill="currentColor"/><circle cx="15" cy="3" r="2.2" fill="currentColor"/></svg>
+            <span class="dt-group-arrow"></span>
+          </div>
+          <div class="dt-submenu" id="s-line-menu">
+            <div class="draw-btn" id="s-dt-trendline" onclick="selectLineMenu('spot','trendline',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="15" r="2.2" fill="currentColor"/><circle cx="15" cy="3" r="2.2" fill="currentColor"/></svg><span>추세선</span></div>
+            <div class="draw-btn" id="s-dt-ray" onclick="selectLineMenu('spot','ray',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="3" y1="14.5" x2="16" y2="4" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="14.5" r="2.2" fill="currentColor"/><path d="M13.5 2L16.5 4L14 6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>레이</span></div>
+            <div class="draw-btn" id="s-dt-extline" onclick="selectLineMenu('spot','extline',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="1" y1="17" x2="17" y2="1" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="6" r="2.2" fill="currentColor"/></svg><span>연장선</span></div>
+            <div class="draw-btn" id="s-dt-hline" onclick="selectLineMenu('spot','hline',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="1.5" y1="9" x2="16.5" y2="9" stroke="currentColor" stroke-width="1.7"/></svg><span>수평선</span></div>
+            <div class="draw-btn" id="s-dt-hray" onclick="selectLineMenu('spot','hray',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="2.5" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.5"/><circle cx="2.5" cy="9" r="2.2" fill="currentColor"/><path d="M13 7L16.5 9L13 11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>수평 레이</span></div>
+            <div class="draw-btn" id="s-dt-vline" onclick="selectLineMenu('spot','vline',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="9" y1="1.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.7"/></svg><span>수직선</span></div>
+            <div class="draw-btn" id="s-dt-channel" onclick="selectLineMenu('spot','channel',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="2" y1="13.5" x2="16" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="16.5" x2="16" y2="8" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3,2"/></svg><span>평행 채널</span></div>
+          </div>
+        </div>
         <div class="draw-sep"></div>
         <div class="draw-btn" id="s-dt-fib" onclick="setDrawTool('spot','fibonacci',this)" data-tip="피보나치 되돌림"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2" y1="3.5" x2="16" y2="3.5" stroke="currentColor" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5"/><line x1="2" y1="9.5" x2="16" y2="9.5" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5"/><line x1="2" y1="15.5" x2="16" y2="15.5" stroke="currentColor" stroke-width="1.3"/><line x1="3.5" y1="3.5" x2="3.5" y2="15.5" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.4"/></svg></div>
         <div class="draw-sep"></div>
@@ -839,7 +911,11 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
         <div class="draw-btn dt-del" onclick="undoLastDrawing('spot')" data-tip="실행취소 (Ctrl+Z)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4.5 9.5C4.5 6.5 7 4.5 9.5 4.5C12.5 4.5 15 6.5 15 9.5C15 12.5 12.5 14.5 9.5 14.5C7 14.5 5.5 13.5 4.5 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M2.5 7L4.5 10L7.5 7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="draw-btn dt-del" onclick="clearDrawings('spot')" data-tip="전체 삭제"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="5.5" x2="15" y2="5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M7 5.5V4H11V5.5" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M4.5 5.5L5.5 14.5H12.5L13.5 5.5" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="7.5" y1="8" x2="7.5" y2="12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="10.5" y1="8" x2="10.5" y2="12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
       </div>
-      <div class="lc-wrap" id="spotLcWrap"></div>
+      <div class="chart-col">
+        <div class="active-inds-bar" id="s-active-inds"></div>
+        <div class="lc-wrap" id="spotLcWrap"></div>
+        <div class="sub-panels" id="s-sub-panels"></div>
+      </div>
     </div>
   </div>
 
@@ -1045,14 +1121,23 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     <div class="chart-container">
       <div class="draw-toolbar" id="f-draw-toolbar">
         <div class="draw-btn dt-on" id="f-dt-cursor" onclick="setDrawTool('futures','cursor',this)" data-tip="커서 (Esc)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3.5 2.5L3.5 14.5L7 11.5L9 16L11.2 15L9.2 10.5L14 10L3.5 2.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+        <button class="dt-ind-btn" id="f-dt-ind" onclick="openIndSearch('futures')" data-tip="보조지표 추가"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><polyline points="2,14 5,9 9,12 13,6 16,3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="5" cy="9" r="1.8" fill="currentColor"/><circle cx="9" cy="12" r="1.8" fill="currentColor"/><circle cx="13" cy="6" r="1.8" fill="currentColor"/></svg></button>
         <div class="draw-sep"></div>
-        <div class="draw-btn" id="f-dt-trendline" onclick="setDrawTool('futures','trendline',this)" data-tip="추세선"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="15" r="2.2" fill="currentColor"/><circle cx="15" cy="3" r="2.2" fill="currentColor"/></svg></div>
-        <div class="draw-btn" id="f-dt-ray" onclick="setDrawTool('futures','ray',this)" data-tip="레이 (반무한선)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="14.5" x2="16" y2="4" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="14.5" r="2.2" fill="currentColor"/><path d="M13.5 2L16.5 4L14 6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
-        <div class="draw-btn" id="f-dt-extline" onclick="setDrawTool('futures','extline',this)" data-tip="연장선 (양방향)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="1" y1="17" x2="17" y2="1" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="6" r="2.2" fill="currentColor"/></svg></div>
-        <div class="draw-btn" id="f-dt-hline" onclick="setDrawTool('futures','hline',this)" data-tip="수평선"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="1.5" y1="9" x2="16.5" y2="9" stroke="currentColor" stroke-width="1.7"/></svg></div>
-        <div class="draw-btn" id="f-dt-hray" onclick="setDrawTool('futures','hray',this)" data-tip="수평 레이"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2.5" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.5"/><circle cx="2.5" cy="9" r="2.2" fill="currentColor"/><path d="M13 7L16.5 9L13 11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
-        <div class="draw-btn" id="f-dt-vline" onclick="setDrawTool('futures','vline',this)" data-tip="수직선"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="9" y1="1.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.7"/></svg></div>
-        <div class="draw-btn" id="f-dt-channel" onclick="setDrawTool('futures','channel',this)" data-tip="평행 채널 (3클릭)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2" y1="13.5" x2="16" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="16.5" x2="16" y2="8" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3,2"/></svg></div>
+        <div class="dt-group" id="f-line-group">
+          <div class="dt-group-btn" id="f-dt-lines" onclick="toggleLineMenu('futures',this)" data-tip="선 도구">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="15" r="2.2" fill="currentColor"/><circle cx="15" cy="3" r="2.2" fill="currentColor"/></svg>
+            <span class="dt-group-arrow"></span>
+          </div>
+          <div class="dt-submenu" id="f-line-menu">
+            <div class="draw-btn" id="f-dt-trendline" onclick="selectLineMenu('futures','trendline',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="15" r="2.2" fill="currentColor"/><circle cx="15" cy="3" r="2.2" fill="currentColor"/></svg><span>추세선</span></div>
+            <div class="draw-btn" id="f-dt-ray" onclick="selectLineMenu('futures','ray',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="3" y1="14.5" x2="16" y2="4" stroke="currentColor" stroke-width="1.5"/><circle cx="3" cy="14.5" r="2.2" fill="currentColor"/><path d="M13.5 2L16.5 4L14 6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>레이</span></div>
+            <div class="draw-btn" id="f-dt-extline" onclick="selectLineMenu('futures','extline',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="1" y1="17" x2="17" y2="1" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="6" r="2.2" fill="currentColor"/></svg><span>연장선</span></div>
+            <div class="draw-btn" id="f-dt-hline" onclick="selectLineMenu('futures','hline',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="1.5" y1="9" x2="16.5" y2="9" stroke="currentColor" stroke-width="1.7"/></svg><span>수평선</span></div>
+            <div class="draw-btn" id="f-dt-hray" onclick="selectLineMenu('futures','hray',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="2.5" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.5"/><circle cx="2.5" cy="9" r="2.2" fill="currentColor"/><path d="M13 7L16.5 9L13 11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>수평 레이</span></div>
+            <div class="draw-btn" id="f-dt-vline" onclick="selectLineMenu('futures','vline',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="9" y1="1.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.7"/></svg><span>수직선</span></div>
+            <div class="draw-btn" id="f-dt-channel" onclick="selectLineMenu('futures','channel',this)"><svg width="15" height="15" viewBox="0 0 18 18" fill="none"><line x1="2" y1="13.5" x2="16" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="16.5" x2="16" y2="8" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3,2"/></svg><span>평행 채널</span></div>
+          </div>
+        </div>
         <div class="draw-sep"></div>
         <div class="draw-btn" id="f-dt-fib" onclick="setDrawTool('futures','fibonacci',this)" data-tip="피보나치 되돌림"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="2" y1="3.5" x2="16" y2="3.5" stroke="currentColor" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5"/><line x1="2" y1="9.5" x2="16" y2="9.5" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.5"/><line x1="2" y1="15.5" x2="16" y2="15.5" stroke="currentColor" stroke-width="1.3"/><line x1="3.5" y1="3.5" x2="3.5" y2="15.5" stroke="currentColor" stroke-width="0.9" stroke-opacity="0.4"/></svg></div>
         <div class="draw-sep"></div>
@@ -1063,7 +1148,11 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
         <div class="draw-btn dt-del" onclick="undoLastDrawing('futures')" data-tip="실행취소 (Ctrl+Z)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4.5 9.5C4.5 6.5 7 4.5 9.5 4.5C12.5 4.5 15 6.5 15 9.5C15 12.5 12.5 14.5 9.5 14.5C7 14.5 5.5 13.5 4.5 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M2.5 7L4.5 10L7.5 7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="draw-btn dt-del" onclick="clearDrawings('futures')" data-tip="전체 삭제"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="5.5" x2="15" y2="5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M7 5.5V4H11V5.5" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M4.5 5.5L5.5 14.5H12.5L13.5 5.5" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="7.5" y1="8" x2="7.5" y2="12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="10.5" y1="8" x2="10.5" y2="12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
       </div>
-      <div class="lc-wrap" id="futLcWrap"></div>
+      <div class="chart-col">
+        <div class="active-inds-bar" id="f-active-inds"></div>
+        <div class="lc-wrap" id="futLcWrap"></div>
+        <div class="sub-panels" id="f-sub-panels"></div>
+      </div>
     </div>
   </div>
 
@@ -1907,6 +1996,13 @@ function initCharts(page) {
       ma99: { visible:false, type:'sma', period:99, color:'#ef4444', width:1 },
     };
   }
+  if (!S[page].activeInds) S[page].activeInds = [];
+  // Rebuild overlay series for any existing active indicators after chart recreate
+  // (sub-panels were destroyed with DOM, recreate them)
+  const pfxI = page==='spot'?'s':'f';
+  document.getElementById(pfxI+'-sub-panels').innerHTML = '';
+  S[page].activeInds.forEach(entry => { entry.series = null; entry.subPanel = null; _createIndSeries(page, entry); });
+  renderActiveIndBar(page);
 
   // 지표 초기 가시성 적용
   applyIndVisibility(page);
@@ -1929,6 +2025,8 @@ const DT = {
 // 드래그 상태
 const _dtDrag = { active:false, page:null, idx:-1, startPt:null, origPts:null };
 
+const LINE_TOOLS = new Set(['trendline','ray','extline','hline','hray','vline','channel']);
+
 // 그리기 완료 후 커서 모드로 자동 복귀 + 방금 그린 항목 선택
 function _dtFinishDraw(page) {
   const pfx = page==='spot' ? 's' : 'f';
@@ -1937,7 +2035,7 @@ function _dtFinishDraw(page) {
   dt.stage = 0; dt.p1 = null; dt.p2 = null;
   dt.tool = 'cursor';
   const toolbar = document.getElementById(pfx+'-draw-toolbar');
-  if (toolbar) toolbar.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('dt-on'));
+  if (toolbar) toolbar.querySelectorAll('.draw-btn, .dt-group-btn').forEach(b => b.classList.remove('dt-on'));
   document.getElementById(pfx+'-dt-cursor')?.classList.add('dt-on');
   const canvas = document.getElementById(pfx+'-draw-canvas');
   if (canvas) { canvas.style.pointerEvents='none'; canvas.style.cursor='default'; }
@@ -1948,13 +2046,18 @@ function setDrawTool(page, tool, btn) {
   const dt = DT[page];
   const pfx = page==='spot' ? 's' : 'f';
   dt.stage = 0; dt.p1 = null; dt.p2 = null;
-  // 같은 도구 재클릭 → 커서로 복귀
   dt.tool = (dt.tool === tool && tool !== 'cursor') ? 'cursor' : tool;
 
   const toolbar = document.getElementById(pfx+'-draw-toolbar');
-  if (toolbar) toolbar.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('dt-on'));
-  const activeId = dt.tool === 'cursor' ? pfx+'-dt-cursor' : pfx+'-dt-'+dt.tool;
-  const activeEl = document.getElementById(activeId);
+  if (toolbar) toolbar.querySelectorAll('.draw-btn, .dt-group-btn').forEach(b => b.classList.remove('dt-on'));
+  let activeEl;
+  if (dt.tool === 'cursor') {
+    activeEl = document.getElementById(pfx+'-dt-cursor');
+  } else if (LINE_TOOLS.has(dt.tool)) {
+    activeEl = document.getElementById(pfx+'-dt-lines');
+  } else {
+    activeEl = document.getElementById(pfx+'-dt-'+dt.tool);
+  }
   if (activeEl) activeEl.classList.add('dt-on');
 
   const canvas = document.getElementById(pfx+'-draw-canvas');
@@ -2559,6 +2662,7 @@ function renderCharts(page) {
   })));
 
   setMaData(page);
+  updateAllInds(page);
   updatePriceLines(page);
 }
 
@@ -2582,6 +2686,470 @@ function applyIndVisibility(page) {
     }
   }
 }
+
+// ══════════════════════════════════════════════════════
+// INDICATOR CALCULATIONS
+// ══════════════════════════════════════════════════════
+function calcWMA(candles, period) {
+  const wt = period*(period+1)/2;
+  return candles.map((c,i)=>{
+    if(i<period-1) return null;
+    let s=0; for(let j=0;j<period;j++) s+=candles[i-j].close*(period-j);
+    return {time:Math.floor(c.time/1000),value:s/wt};
+  }).filter(Boolean);
+}
+function calcBB(candles, period=20, mult=2) {
+  const r={upper:[],mid:[],lower:[]};
+  candles.forEach((c,i)=>{
+    if(i<period-1) return;
+    const sl=candles.slice(i-period+1,i+1);
+    const avg=sl.reduce((s,x)=>s+x.close,0)/period;
+    const std=Math.sqrt(sl.reduce((s,x)=>s+(x.close-avg)**2,0)/period);
+    const t=Math.floor(c.time/1000);
+    r.upper.push({time:t,value:avg+mult*std}); r.mid.push({time:t,value:avg}); r.lower.push({time:t,value:avg-mult*std});
+  });
+  return r;
+}
+function calcVWAP(candles) {
+  let cpv=0,cv=0,lastDay=null;
+  return candles.map(c=>{
+    const day=new Date(c.time).toDateString();
+    if(day!==lastDay){cpv=0;cv=0;lastDay=day;}
+    const tp=(c.high+c.low+c.close)/3; cpv+=tp*c.volume; cv+=c.volume;
+    return cv>0?{time:Math.floor(c.time/1000),value:cpv/cv}:null;
+  }).filter(Boolean);
+}
+function calcSAR(candles, step=0.02, maxStep=0.2) {
+  if(candles.length<2) return [];
+  let rising=true, sar=candles[0].low, ep=candles[0].high, af=step;
+  const out=[];
+  for(let i=1;i<candles.length;i++){
+    const c=candles[i],p=candles[i-1];
+    sar=sar+af*(ep-sar);
+    if(rising){
+      if(c.low<sar){rising=false;sar=ep;ep=c.low;af=step;}
+      else{if(c.high>ep){ep=c.high;af=Math.min(af+step,maxStep);}sar=Math.min(sar,p.low,i>1?candles[i-2].low:p.low);}
+    }else{
+      if(c.high>sar){rising=true;sar=ep;ep=c.high;af=step;}
+      else{if(c.low<ep){ep=c.low;af=Math.min(af+step,maxStep);}sar=Math.max(sar,p.high,i>1?candles[i-2].high:p.high);}
+    }
+    out.push({time:Math.floor(c.time/1000),value:sar});
+  }
+  return out;
+}
+function calcDonchian(candles, period=20) {
+  const r={upper:[],mid:[],lower:[]};
+  candles.forEach((c,i)=>{
+    if(i<period-1) return;
+    const sl=candles.slice(i-period+1,i+1);
+    const hi=Math.max(...sl.map(x=>x.high)),lo=Math.min(...sl.map(x=>x.low));
+    const t=Math.floor(c.time/1000);
+    r.upper.push({time:t,value:hi}); r.mid.push({time:t,value:(hi+lo)/2}); r.lower.push({time:t,value:lo});
+  });
+  return r;
+}
+function calcATRArr(candles, period=14) {
+  const trs=candles.map((c,i)=>({time:Math.floor(c.time/1000),tr:i===0?c.high-c.low:Math.max(c.high-c.low,Math.abs(c.high-candles[i-1].close),Math.abs(c.low-candles[i-1].close))}));
+  const k=2/(period+1); let atr=null;
+  return trs.map((t,i)=>{
+    if(i<period-1) return null;
+    if(i===period-1) atr=trs.slice(0,period).reduce((s,x)=>s+x.tr,0)/period;
+    else atr=t.tr*k+atr*(1-k);
+    return {time:t.time,value:atr};
+  }).filter(Boolean);
+}
+function calcKeltner(candles, period=20, mult=2) {
+  const atrA=calcATRArr(candles,period), emaA=calcEMA(candles,period);
+  const em={},r={upper:[],mid:[],lower:[]};
+  emaA.forEach(e=>em[e.time]=e.value);
+  atrA.forEach(a=>{const m=em[a.time]; if(m==null) return; r.mid.push({time:a.time,value:m}); r.upper.push({time:a.time,value:m+mult*a.value}); r.lower.push({time:a.time,value:m-mult*a.value});});
+  return r;
+}
+function calcSupertrend(candles, period=10, mult=3) {
+  const atrA=calcATRArr(candles,period), atrM={};
+  atrA.forEach(a=>atrM[a.time]=a.value);
+  const out=[]; let trend=1,pFinal=null,pUB=null,pLB=null;
+  candles.forEach(c=>{
+    const t=Math.floor(c.time/1000),atr=atrM[t];
+    if(!atr) return;
+    const hl2=(c.high+c.low)/2;
+    let ub=hl2+mult*atr, lb=hl2-mult*atr;
+    if(pLB!==null){lb=Math.max(lb,pLB); ub=Math.min(ub,pUB);}
+    if(pFinal!==null){if(trend===1&&c.close<pFinal) trend=-1; else if(trend===-1&&c.close>pFinal) trend=1;}
+    pFinal=trend===1?lb:ub; pUB=ub; pLB=lb;
+    out.push({time:t,value:pFinal,color:trend===1?'#0ecb81':'#f6465d'});
+  });
+  return out;
+}
+function calcRSI(candles, period=14) {
+  let g=0,l=0; const out=[];
+  for(let i=1;i<candles.length;i++){
+    const d=candles[i].close-candles[i-1].close;
+    if(i<=period){g+=Math.max(0,d);l+=Math.max(0,-d);}
+    if(i===period){g/=period;l/=period;out.push({time:Math.floor(candles[i].time/1000),value:l===0?100:100-100/(1+g/l)});continue;}
+    if(i>period){g=(g*(period-1)+Math.max(0,d))/period;l=(l*(period-1)+Math.max(0,-d))/period;out.push({time:Math.floor(candles[i].time/1000),value:l===0?100:100-100/(1+g/l)});}
+  }
+  return out;
+}
+function calcMACD(candles, fast=12, slow=26, signal=9) {
+  const ef=calcEMA(candles,fast),es=calcEMA(candles,slow),fm={},sm={};
+  ef.forEach(e=>fm[e.time]=e.value); es.forEach(e=>sm[e.time]=e.value);
+  const ml=Object.keys(sm).map(t=>({time:parseInt(t),value:(fm[t]??null)-sm[t]})).filter(x=>x.value!=null).sort((a,b)=>a.time-b.time);
+  const k=2/(signal+1); let sig=null; const sl=[],hl=[];
+  ml.forEach((m,i)=>{
+    if(i<signal-1) return;
+    if(i===signal-1) sig=ml.slice(0,signal).reduce((s,x)=>s+x.value,0)/signal;
+    else sig=m.value*k+sig*(1-k);
+    sl.push({time:m.time,value:sig});
+    hl.push({time:m.time,value:m.value-sig,color:m.value-sig>=0?'rgba(14,203,129,0.75)':'rgba(246,70,93,0.75)'});
+  });
+  return {macd:ml,signal:sl,hist:hl};
+}
+function calcStochastic(candles, k=14, d=3, smooth=3) {
+  const kL=[];
+  for(let i=k-1;i<candles.length;i++){
+    const sl=candles.slice(i-k+1,i+1);
+    const hi=Math.max(...sl.map(x=>x.high)),lo=Math.min(...sl.map(x=>x.low));
+    kL.push({time:Math.floor(candles[i].time/1000),value:hi===lo?50:((candles[i].close-lo)/(hi-lo))*100});
+  }
+  const ks=[];
+  for(let i=smooth-1;i<kL.length;i++) ks.push({time:kL[i].time,value:kL.slice(i-smooth+1,i+1).reduce((s,x)=>s+x.value,0)/smooth});
+  const dL=[];
+  for(let i=d-1;i<ks.length;i++) dL.push({time:ks[i].time,value:ks.slice(i-d+1,i+1).reduce((s,x)=>s+x.value,0)/d});
+  return {k:ks,d:dL};
+}
+function calcStochRSI(candles, rp=14, sp=14, k=3, d=3) {
+  const rsi=calcRSI(candles,rp); const kL=[];
+  for(let i=sp-1;i<rsi.length;i++){
+    const sl=rsi.slice(i-sp+1,i+1);
+    const hi=Math.max(...sl.map(x=>x.value)),lo=Math.min(...sl.map(x=>x.value));
+    kL.push({time:rsi[i].time,value:hi===lo?0:((rsi[i].value-lo)/(hi-lo))*100});
+  }
+  const ks=[];
+  for(let i=k-1;i<kL.length;i++) ks.push({time:kL[i].time,value:kL.slice(i-k+1,i+1).reduce((s,x)=>s+x.value,0)/k});
+  const dL=[];
+  for(let i=d-1;i<ks.length;i++) dL.push({time:ks[i].time,value:ks.slice(i-d+1,i+1).reduce((s,x)=>s+x.value,0)/d});
+  return {k:ks,d:dL};
+}
+function calcWilliamsR(candles, period=14) {
+  return candles.map((c,i)=>{
+    if(i<period-1) return null;
+    const sl=candles.slice(i-period+1,i+1);
+    const hi=Math.max(...sl.map(x=>x.high)),lo=Math.min(...sl.map(x=>x.low));
+    return {time:Math.floor(c.time/1000),value:hi===lo?-50:((hi-c.close)/(hi-lo))*-100};
+  }).filter(Boolean);
+}
+function calcCCI(candles, period=20) {
+  return candles.map((c,i)=>{
+    if(i<period-1) return null;
+    const sl=candles.slice(i-period+1,i+1);
+    const tp=(c.high+c.low+c.close)/3;
+    const tpA=sl.map(x=>(x.high+x.low+x.close)/3);
+    const avg=tpA.reduce((s,x)=>s+x,0)/period;
+    const md=tpA.reduce((s,x)=>s+Math.abs(x-avg),0)/period;
+    return {time:Math.floor(c.time/1000),value:md===0?0:(tp-avg)/(0.015*md)};
+  }).filter(Boolean);
+}
+function calcADX(candles, period=14) {
+  const trs=[],pdm=[],ndm=[];
+  for(let i=1;i<candles.length;i++){
+    const c=candles[i],p=candles[i-1];
+    trs.push(Math.max(c.high-c.low,Math.abs(c.high-p.close),Math.abs(c.low-p.close)));
+    pdm.push(c.high-p.high>p.low-c.low&&c.high-p.high>0?c.high-p.high:0);
+    ndm.push(p.low-c.low>c.high-p.high&&p.low-c.low>0?p.low-c.low:0);
+  }
+  let atr=trs.slice(0,period).reduce((s,x)=>s+x,0);
+  let pd=pdm.slice(0,period).reduce((s,x)=>s+x,0);
+  let nd=ndm.slice(0,period).reduce((s,x)=>s+x,0);
+  const out=[]; let dx14=0,dxArr=[];
+  for(let i=period;i<trs.length;i++){
+    atr=atr-atr/period+trs[i]; pd=pd-pd/period+pdm[i]; nd=nd-nd/period+ndm[i];
+    const pdi=atr===0?0:(pd/atr)*100, ndi=atr===0?0:(nd/atr)*100;
+    const dx=pdi+ndi===0?0:Math.abs(pdi-ndi)/(pdi+ndi)*100;
+    dxArr.push(dx);
+    if(dxArr.length>=period){
+      if(dxArr.length===period) dx14=dxArr.reduce((s,x)=>s+x,0)/period;
+      else dx14=(dx14*(period-1)+dx)/period;
+      if(i+1<candles.length) out.push({time:Math.floor(candles[i+1].time/1000),adx:dx14,pdi,ndi});
+    }
+  }
+  return out;
+}
+function calcOBV(candles) {
+  let obv=0;
+  return candles.map((c,i)=>{
+    if(i>0) obv+=c.close>candles[i-1].close?c.volume:c.close<candles[i-1].close?-c.volume:0;
+    return {time:Math.floor(c.time/1000),value:obv};
+  });
+}
+function calcMFI(candles, period=14) {
+  return candles.map((c,i)=>{
+    if(i<period) return null;
+    const sl=candles.slice(i-period+1,i+1);
+    let pf=0,nf=0;
+    for(let j=1;j<sl.length;j++){
+      const tp=(sl[j].high+sl[j].low+sl[j].close)/3, pt=(sl[j-1].high+sl[j-1].low+sl[j-1].close)/3;
+      const mf=tp*sl[j].volume; if(tp>pt) pf+=mf; else nf+=mf;
+    }
+    return {time:Math.floor(c.time/1000),value:nf===0?100:100-100/(1+pf/nf)};
+  }).filter(Boolean);
+}
+function calcROC(candles, period=12) {
+  return candles.map((c,i)=>{
+    if(i<period) return null;
+    const p=candles[i-period].close;
+    return {time:Math.floor(c.time/1000),value:p===0?0:((c.close-p)/p)*100};
+  }).filter(Boolean);
+}
+function calcMomentum(candles, period=10) {
+  return candles.map((c,i)=>i<period?null:{time:Math.floor(c.time/1000),value:c.close-candles[i-period].close}).filter(Boolean);
+}
+function calcAO(candles) {
+  const s5=[],s34=[];
+  candles.forEach((c,i)=>{
+    if(i>=4) s5.push({time:Math.floor(c.time/1000),v:candles.slice(i-4,i+1).reduce((s,x)=>s+(x.high+x.low)/2,0)/5});
+    if(i>=33) s34.push({time:Math.floor(c.time/1000),v:candles.slice(i-33,i+1).reduce((s,x)=>s+(x.high+x.low)/2,0)/34});
+  });
+  const m34={}; s34.forEach(x=>m34[x.time]=x.v);
+  let prev=null;
+  return s5.map(s=>{
+    const v=m34[s.time]; if(v==null) return null;
+    const ao=s.v-v; const c=prev==null||ao>=prev?'rgba(14,203,129,0.75)':'rgba(246,70,93,0.75)'; prev=ao;
+    return {time:s.time,value:ao,color:c};
+  }).filter(Boolean);
+}
+
+// ══════════════════════════════════════════════════════
+// INDICATOR CATALOG & STATE SYSTEM
+// ══════════════════════════════════════════════════════
+const IND_CATALOG = [
+  {id:'sma',      name:'SMA (단순이동평균)',   cat:'오버레이',   type:'overlay',    color:'#2196F3'},
+  {id:'ema',      name:'EMA (지수이동평균)',   cat:'오버레이',   type:'overlay',    color:'#FF9800'},
+  {id:'wma',      name:'WMA (가중이동평균)',   cat:'오버레이',   type:'overlay',    color:'#9C27B0'},
+  {id:'bb',       name:'볼린저 밴드',          cat:'오버레이',   type:'overlay',    color:'#00BCD4'},
+  {id:'vwap',     name:'VWAP',                 cat:'오버레이',   type:'overlay',    color:'#E91E63'},
+  {id:'sar',      name:'Parabolic SAR',         cat:'오버레이',   type:'overlay',    color:'#FFEB3B'},
+  {id:'donchian', name:'Donchian 채널',         cat:'오버레이',   type:'overlay',    color:'#4CAF50'},
+  {id:'keltner',  name:'Keltner 채널',          cat:'오버레이',   type:'overlay',    color:'#FF5722'},
+  {id:'supertrend',name:'Supertrend',           cat:'오버레이',   type:'overlay',    color:'#4CAF50'},
+  {id:'rsi',      name:'RSI',                   cat:'오실레이터', type:'oscillator', color:'#F06292'},
+  {id:'macd',     name:'MACD',                  cat:'오실레이터', type:'oscillator', color:'#2196F3'},
+  {id:'stoch',    name:'스토캐스틱',            cat:'오실레이터', type:'oscillator', color:'#00BCD4'},
+  {id:'stochrsi', name:'스토캐스틱 RSI',        cat:'오실레이터', type:'oscillator', color:'#9C27B0'},
+  {id:'williams', name:'Williams %R',           cat:'오실레이터', type:'oscillator', color:'#FF9800'},
+  {id:'cci',      name:'CCI',                   cat:'오실레이터', type:'oscillator', color:'#4CAF50'},
+  {id:'atr',      name:'ATR',                   cat:'오실레이터', type:'oscillator', color:'#9C27B0'},
+  {id:'adx',      name:'ADX + DI',              cat:'오실레이터', type:'oscillator', color:'#FF5722'},
+  {id:'obv',      name:'OBV',                   cat:'오실레이터', type:'oscillator', color:'#00BCD4'},
+  {id:'mfi',      name:'MFI (자금흐름지수)',    cat:'오실레이터', type:'oscillator', color:'#E91E63'},
+  {id:'roc',      name:'ROC (변화율)',           cat:'오실레이터', type:'oscillator', color:'#FF9800'},
+  {id:'momentum', name:'모멘텀',                cat:'오실레이터', type:'oscillator', color:'#9C27B0'},
+  {id:'ao',       name:'Awesome Oscillator',    cat:'오실레이터', type:'oscillator', color:'#4CAF50'},
+];
+
+let _indSearchPage = null, _indIdCtr = 0;
+
+function openIndSearch(page) {
+  _indSearchPage = page;
+  document.getElementById('ind-search-bg').classList.add('open');
+  const inp = document.getElementById('ind-search-input');
+  inp.value = ''; renderIndList('');
+  setTimeout(()=>inp.focus(), 60);
+}
+function closeIndSearch() {
+  document.getElementById('ind-search-bg').classList.remove('open');
+  _indSearchPage = null;
+}
+function renderIndList(q) {
+  q = (q||'').trim().toUpperCase();
+  const filtered = IND_CATALOG.filter(x=>!q||x.name.toUpperCase().includes(q)||x.id.toUpperCase().includes(q));
+  const cats = [...new Set(filtered.map(x=>x.cat))];
+  document.getElementById('ind-list-body').innerHTML = cats.map(cat=>
+    `<div class="ind-cat-hdr">${cat}</div>` +
+    filtered.filter(x=>x.cat===cat).map(ind=>
+      `<div class="ind-list-item" onclick="addIndicator('${ind.id}')">
+        <div class="ind-list-item-icon" style="color:${ind.color}">${ind.id.toUpperCase().slice(0,5)}</div>
+        <div class="ind-list-item-name">${ind.name}</div>
+        <div class="ind-list-item-tag">${ind.type==='overlay'?'오버레이':'서브패널'}</div>
+        <button class="ind-list-item-add" title="추가">+</button>
+      </div>`
+    ).join('')
+  ).join('');
+}
+function addIndicator(indId) {
+  if (!_indSearchPage) return;
+  const page = _indSearchPage;
+  const cat = IND_CATALOG.find(x=>x.id===indId); if (!cat) return;
+  if (!S[page].activeInds) S[page].activeInds = [];
+  const instanceId = indId+'_'+(++_indIdCtr);
+  const defaultParams = {
+    sma:{period:20,color:'#2196F3',width:1}, ema:{period:20,color:'#FF9800',width:1},
+    wma:{period:20,color:'#9C27B0',width:1}, bb:{period:20,stdMult:2,color:'#00BCD4',width:1},
+    vwap:{color:'#E91E63',width:2}, sar:{step:0.02,maxStep:0.2,color:'#FFEB3B'},
+    donchian:{period:20,color:'#4CAF50',width:1}, keltner:{period:20,mult:2,color:'#FF5722',width:1},
+    supertrend:{period:10,mult:3}, rsi:{period:14,color:'#F06292',width:1},
+    macd:{fast:12,slow:26,signal:9}, stoch:{k:14,d:3,smooth:3}, stochrsi:{rp:14,sp:14,k:3,d:3},
+    williams:{period:14,color:'#FF9800',width:1}, cci:{period:20,color:'#4CAF50',width:1},
+    atr:{period:14,color:'#9C27B0',width:1}, adx:{period:14}, obv:{color:'#00BCD4',width:1},
+    mfi:{period:14,color:'#E91E63',width:1}, roc:{period:12,color:'#FF9800',width:1},
+    momentum:{period:10,color:'#9C27B0',width:1}, ao:{}
+  };
+  const entry = {id:indId, instanceId, params:{...defaultParams[indId]}, series:null, subPanel:null};
+  S[page].activeInds.push(entry);
+  _createIndSeries(page, entry);
+  _updateIndData(page, entry);
+  renderActiveIndBar(page);
+  closeIndSearch();
+}
+function removeIndicator(page, instanceId) {
+  if (!S[page].activeInds) return;
+  const idx = S[page].activeInds.findIndex(x=>x.instanceId===instanceId);
+  if (idx<0) return;
+  _destroyIndSeries(page, S[page].activeInds[idx]);
+  S[page].activeInds.splice(idx,1);
+  renderActiveIndBar(page);
+}
+function _createIndSeries(page, entry) {
+  const chart = S[page].lchart; if (!chart) return;
+  const pfx = page==='spot'?'s':'f';
+  const cat = IND_CATALOG.find(x=>x.id===entry.id); if (!cat) return;
+  const p = entry.params, lso = {lastValueVisible:false,priceLineVisible:false,crosshairMarkerVisible:false};
+  if (cat.type==='overlay') {
+    switch(entry.id) {
+      case 'sma': case 'ema': case 'wma':
+        entry.series={main:chart.addLineSeries({...lso,color:p.color,lineWidth:p.width||1})}; break;
+      case 'bb':
+        entry.series={upper:chart.addLineSeries({...lso,color:p.color,lineWidth:p.width||1}),mid:chart.addLineSeries({...lso,color:p.color,lineWidth:1,lineStyle:2}),lower:chart.addLineSeries({...lso,color:p.color,lineWidth:p.width||1})}; break;
+      case 'vwap':
+        entry.series={main:chart.addLineSeries({...lso,color:p.color,lineWidth:p.width||2})}; break;
+      case 'sar':
+        entry.series={main:chart.addLineSeries({...lso,color:p.color,lineWidth:1})}; break;
+      case 'donchian': case 'keltner':
+        entry.series={upper:chart.addLineSeries({...lso,color:p.color,lineWidth:p.width||1}),mid:chart.addLineSeries({...lso,color:p.color,lineWidth:1,lineStyle:2}),lower:chart.addLineSeries({...lso,color:p.color,lineWidth:p.width||1})}; break;
+      case 'supertrend':
+        entry.series={main:chart.addLineSeries({...lso,color:'#0ecb81',lineWidth:2})}; break;
+    }
+  } else {
+    // Oscillator → sub-panel
+    const spEl = document.getElementById(pfx+'-sub-panels');
+    const panelEl = document.createElement('div');
+    panelEl.className='sub-panel'; panelEl.id='subp-'+entry.instanceId; panelEl.style.height='150px';
+    panelEl.innerHTML=`<div class="sub-panel-hdr"><span class="sub-panel-title">${cat.name}</span><button class="sub-panel-close" onclick="removeIndicator('${page}','${entry.instanceId}')">✕</button></div><div class="sub-lc-wrap" id="slc-${entry.instanceId}"></div>`;
+    spEl.appendChild(panelEl);
+    const subWrap = document.getElementById('slc-'+entry.instanceId);
+    const subChart = LightweightCharts.createChart(subWrap,{
+      layout:{background:{color:'#0b0e11'},textColor:'#8896ae'},
+      grid:{vertLines:{color:'#1c2230'},horzLines:{color:'#1c2230'}},
+      rightPriceScale:{borderColor:'#2a3347',scaleMargins:{top:0.1,bottom:0.05}},
+      timeScale:{borderColor:'#2a3347',timeVisible:true,secondsVisible:false,visible:false},
+      crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
+      handleScroll:true,handleScale:true
+    });
+    entry.subPanel={el:panelEl,chart:subChart,wrap:subWrap};
+    // Sync timescale with main
+    chart.timeScale().subscribeVisibleTimeRangeChange(tr=>{
+      if(!entry.subPanel) return;
+      try{entry.subPanel.chart.timeScale().setVisibleRange(tr);}catch(e){}
+    });
+    const lsv={lastValueVisible:true,priceLineVisible:false};
+    switch(entry.id){
+      case 'rsi': entry.series={main:subChart.addLineSeries({...lsv,color:p.color||'#F06292',lineWidth:p.width||1})}; break;
+      case 'macd': entry.series={macd:subChart.addLineSeries({...lsv,color:'#2196F3',lineWidth:1}),signal:subChart.addLineSeries({...lsv,color:'#FF9800',lineWidth:1}),hist:subChart.addHistogramSeries({lastValueVisible:false,priceLineVisible:false})}; break;
+      case 'stoch': entry.series={k:subChart.addLineSeries({...lsv,color:'#00BCD4',lineWidth:1}),d:subChart.addLineSeries({...lsv,color:'#FF9800',lineWidth:1})}; break;
+      case 'stochrsi': entry.series={k:subChart.addLineSeries({...lsv,color:'#9C27B0',lineWidth:1}),d:subChart.addLineSeries({...lsv,color:'#FF9800',lineWidth:1})}; break;
+      case 'williams': entry.series={main:subChart.addLineSeries({...lsv,color:p.color||'#FF9800',lineWidth:p.width||1})}; break;
+      case 'cci': entry.series={main:subChart.addLineSeries({...lsv,color:p.color||'#4CAF50',lineWidth:p.width||1})}; break;
+      case 'atr': entry.series={main:subChart.addLineSeries({...lsv,color:p.color||'#9C27B0',lineWidth:p.width||1})}; break;
+      case 'adx': entry.series={adx:subChart.addLineSeries({...lsv,color:'#FF5722',lineWidth:2}),pdi:subChart.addLineSeries({...lsv,color:'#4CAF50',lineWidth:1}),ndi:subChart.addLineSeries({...lsv,color:'#f6465d',lineWidth:1})}; break;
+      case 'obv': entry.series={main:subChart.addLineSeries({...lsv,color:p.color||'#00BCD4',lineWidth:p.width||1})}; break;
+      case 'mfi': entry.series={main:subChart.addLineSeries({...lsv,color:p.color||'#E91E63',lineWidth:p.width||1})}; break;
+      case 'roc': entry.series={main:subChart.addLineSeries({...lsv,color:p.color||'#FF9800',lineWidth:p.width||1})}; break;
+      case 'momentum': entry.series={main:subChart.addLineSeries({...lsv,color:p.color||'#9C27B0',lineWidth:p.width||1})}; break;
+      case 'ao': entry.series={main:subChart.addHistogramSeries({lastValueVisible:false,priceLineVisible:false})}; break;
+    }
+    new ResizeObserver(()=>{if(entry.subPanel?.chart) subChart.resize(subWrap.clientWidth,subWrap.clientHeight);}).observe(subWrap);
+  }
+}
+function _updateIndData(page, entry) {
+  const candles=S[page].candles; if(!candles||!candles.length||!entry.series) return;
+  const p=entry.params;
+  try{
+    switch(entry.id){
+      case 'sma': entry.series.main.setData(calcSMA(candles,p.period||20)); break;
+      case 'ema': entry.series.main.setData(calcEMA(candles,p.period||20)); break;
+      case 'wma': entry.series.main.setData(calcWMA(candles,p.period||20)); break;
+      case 'bb': {const d=calcBB(candles,p.period||20,p.stdMult||2);entry.series.upper.setData(d.upper);entry.series.mid.setData(d.mid);entry.series.lower.setData(d.lower);break;}
+      case 'vwap': entry.series.main.setData(calcVWAP(candles)); break;
+      case 'sar': entry.series.main.setData(calcSAR(candles,p.step||0.02,p.maxStep||0.2)); break;
+      case 'donchian': {const d=calcDonchian(candles,p.period||20);entry.series.upper.setData(d.upper);entry.series.mid.setData(d.mid);entry.series.lower.setData(d.lower);break;}
+      case 'keltner': {const d=calcKeltner(candles,p.period||20,p.mult||2);entry.series.upper.setData(d.upper);entry.series.mid.setData(d.mid);entry.series.lower.setData(d.lower);break;}
+      case 'supertrend': entry.series.main.setData(calcSupertrend(candles,p.period||10,p.mult||3)); break;
+      case 'rsi': entry.series.main.setData(calcRSI(candles,p.period||14)); break;
+      case 'macd': {const d=calcMACD(candles,p.fast||12,p.slow||26,p.signal||9);entry.series.macd.setData(d.macd);entry.series.signal.setData(d.signal);entry.series.hist.setData(d.hist);break;}
+      case 'stoch': {const d=calcStochastic(candles,p.k||14,p.d||3,p.smooth||3);entry.series.k.setData(d.k);entry.series.d.setData(d.d);break;}
+      case 'stochrsi': {const d=calcStochRSI(candles,p.rp||14,p.sp||14,p.k||3,p.d||3);entry.series.k.setData(d.k);entry.series.d.setData(d.d);break;}
+      case 'williams': entry.series.main.setData(calcWilliamsR(candles,p.period||14)); break;
+      case 'cci': entry.series.main.setData(calcCCI(candles,p.period||20)); break;
+      case 'atr': entry.series.main.setData(calcATRArr(candles,p.period||14)); break;
+      case 'adx': {const d=calcADX(candles,p.period||14);entry.series.adx.setData(d.map(x=>({time:x.time,value:x.adx})));entry.series.pdi.setData(d.map(x=>({time:x.time,value:x.pdi})));entry.series.ndi.setData(d.map(x=>({time:x.time,value:x.ndi})));break;}
+      case 'obv': entry.series.main.setData(calcOBV(candles)); break;
+      case 'mfi': entry.series.main.setData(calcMFI(candles,p.period||14)); break;
+      case 'roc': entry.series.main.setData(calcROC(candles,p.period||12)); break;
+      case 'momentum': entry.series.main.setData(calcMomentum(candles,p.period||10)); break;
+      case 'ao': entry.series.main.setData(calcAO(candles)); break;
+    }
+  }catch(e){}
+}
+function _destroyIndSeries(page, entry) {
+  const chart=S[page].lchart;
+  try{
+    if(entry.subPanel){entry.subPanel.chart.remove();entry.subPanel.el.remove();entry.subPanel=null;}
+    else if(chart&&entry.series){Object.values(entry.series).forEach(s=>{try{chart.removeSeries(s);}catch(e){}});}
+  }catch(e){}
+  entry.series=null;
+}
+function updateAllInds(page) {
+  (S[page].activeInds||[]).forEach(entry=>_updateIndData(page,entry));
+}
+function renderActiveIndBar(page) {
+  const pfx=page==='spot'?'s':'f';
+  const bar=document.getElementById(pfx+'-active-inds'); if(!bar) return;
+  const inds=S[page].activeInds||[];
+  if(!inds.length){bar.classList.remove('has-inds');bar.innerHTML='';return;}
+  bar.classList.add('has-inds');
+  bar.innerHTML=inds.map(e=>{
+    const cat=IND_CATALOG.find(x=>x.id===e.id);
+    const color=e.params?.color||cat?.color||'#5c8fff';
+    return `<span class="act-ind-chip"><span class="act-ind-chip-dot" style="background:${color}"></span><span>${cat?.name||e.id}</span><button class="act-ind-chip-rm" onclick="removeIndicator('${page}','${e.instanceId}')" title="제거">✕</button></span>`;
+  }).join('');
+}
+
+// ── Line tools submenu ──────────────────────────────
+function toggleLineMenu(page, btn) {
+  const pfx=page==='spot'?'s':'f';
+  const menu=document.getElementById(pfx+'-line-menu');
+  if(!menu) return;
+  const isOpen=menu.classList.contains('open');
+  document.querySelectorAll('.dt-submenu').forEach(m=>m.classList.remove('open'));
+  if(!isOpen){
+    const r=btn.getBoundingClientRect();
+    menu.style.left=(r.right+4)+'px'; menu.style.top=r.top+'px';
+    menu.classList.add('open');
+  }
+}
+function selectLineMenu(page, tool, el) {
+  const pfx=page==='spot'?'s':'f';
+  const groupBtn=document.getElementById(pfx+'-dt-lines');
+  if(groupBtn&&el){
+    const svg=el.querySelector('svg')?.cloneNode(true);
+    if(svg){svg.setAttribute('width','18');svg.setAttribute('height','18');groupBtn.innerHTML='';groupBtn.appendChild(svg);const a=document.createElement('span');a.className='dt-group-arrow';groupBtn.appendChild(a);}
+  }
+  document.querySelectorAll('.dt-submenu').forEach(m=>m.classList.remove('open'));
+  setDrawTool(page,tool,groupBtn);
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.dt-group')&&!e.target.closest('.dt-submenu')) document.querySelectorAll('.dt-submenu').forEach(m=>m.classList.remove('open'));
+});
 
 function toggleIndRow(page) {
   const rowId = page === 'spot' ? 'sIndRow' : 'fIndRow';
@@ -4081,7 +4649,7 @@ document.addEventListener('click', e => {
 
 function _initDrawTooltips() {
   const tt = document.getElementById('dt-tooltip');
-  document.querySelectorAll('.draw-btn[data-tip]').forEach(btn => {
+  document.querySelectorAll('.draw-btn[data-tip], .dt-group-btn[data-tip], .dt-ind-btn[data-tip]').forEach(btn => {
     btn.addEventListener('mouseenter', () => {
       const r = btn.getBoundingClientRect();
       tt.textContent = btn.getAttribute('data-tip');
@@ -4196,6 +4764,21 @@ init();
   <div class="ind-panel-ftr">
     <button class="ipc" onclick="closeIndPanel()">취소</button>
     <button class="ipa" onclick="applyIndPanel()">적용</button>
+  </div>
+</div>
+
+<!-- Indicator search panel -->
+<div id="ind-search-bg" class="ind-search-bg" onclick="if(event.target===this)closeIndSearch()">
+  <div class="ind-search-panel">
+    <div class="ind-search-hdr">
+      <span class="ind-search-title">보조지표 추가</span>
+      <button class="ind-search-close" onclick="closeIndSearch()">✕</button>
+    </div>
+    <div class="ind-search-box">
+      <span class="ind-search-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5.8" cy="5.8" r="4" stroke="currentColor" stroke-width="1.5"/><line x1="9" y1="9" x2="13" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+      <input class="ind-search-input" id="ind-search-input" placeholder="지표 검색..." oninput="renderIndList(this.value)">
+    </div>
+    <div class="ind-list" id="ind-list-body"></div>
   </div>
 </div>
 
