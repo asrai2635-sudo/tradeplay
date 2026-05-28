@@ -56,7 +56,7 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .sb-toggle-btn.open { color:var(--blue); }
 
 /* SIDEBAR — 기본 숨김, 클릭 시 오버레이로 슬라이드인 */
-.sidebar { position:absolute; top:0; left:0; bottom:0; width:300px; z-index:100; transform:translateX(-100%); transition:transform 0.2s ease; border-right:1px solid var(--border); background:var(--bg2); display:flex; flex-direction:column; }
+.sidebar { position:absolute; top:0; left:0; bottom:0; width:360px; z-index:100; transform:translateX(-100%); transition:transform 0.2s ease; border-right:1px solid var(--border); background:var(--bg2); display:flex; flex-direction:column; }
 .sidebar.open { transform:translateX(0); box-shadow:4px 0 24px rgba(0,0,0,0.5); }
 
 /* SIDEBAR 뒷배경 (클릭 시 닫힘) */
@@ -80,7 +80,8 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .sym-item.active { background: var(--bg4); border-left: 2px solid var(--blue); padding-left: 6px; }
 .sym-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #fff; flex-shrink: 0; margin-right: 6px; letter-spacing: -0.3px; }
 .sym-name-col { flex: 1; min-width: 0; overflow: hidden; }
-.sym-name { font-weight: 600; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sym-name { font-weight: 600; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: baseline; gap: 5px; }
+.sym-kr { font-size: 10px; font-weight: 400; color: var(--text3); white-space: nowrap; }
 .sym-sub { font-size: 10px; color: var(--text3); }
 .sym-price-col { flex: 0 0 68px; text-align: right; }
 .sym-price { font-size: 12px; color: var(--text); }
@@ -1686,6 +1687,35 @@ const COIN_COLORS = {
   LTC:'#838383',PEPE:'#479f53',WIF:'#c8852a',SHIB:'#e3730a',TRX:'#eb0029',
   SUI:'#4da2ff',TON:'#0088cc',APT:'#00c2ff',FIL:'#0090ff',INJ:'#00bbff'
 };
+const COIN_KR = {
+  BTC:'비트코인',ETH:'이더리움',SOL:'솔라나',XRP:'리플',BNB:'바이낸스코인',
+  DOGE:'도지코인',ADA:'에이다',AVAX:'아발란체',MATIC:'폴리곤',LINK:'체인링크',
+  DOT:'폴카닷',ATOM:'코스모스',NEAR:'니어프로토콜',ARB:'아비트럼',OP:'옵티미즘',
+  LTC:'라이트코인',PEPE:'페페',WIF:'도그위프햇',SHIB:'시바이누',TRX:'트론',
+  SUI:'수이',TON:'톤코인',APT:'앱토스',FIL:'파일코인',INJ:'인젝티브',
+  UNI:'유니스왑',AAVE:'에이브',MKR:'메이커',COMP:'컴파운드',CRV:'커브',
+  SNX:'신세틱스',1INCH:'원인치',SUSHI:'스시스왑',YFI:'연파이낸스',
+  SAND:'더샌드박스',MANA:'디센트럴랜드',AXS:'엑시인피니티',
+  GALA:'갈라',ENJ:'엔진코인',CHZ:'칠리즈',FLOW:'플로우',
+  FTM:'팬텀',ALGO:'알고랜드',VET:'비체인',EGLD:'멀티버스X',
+  HBAR:'헤데라',XLM:'스텔라루멘',EOS:'이오스',XTZ:'테조스',
+  DASH:'대시',ZEC:'지캐시',XMR:'모네로',BCH:'비트코인캐시',
+  ETC:'이더리움클래식',THETA:'쎄타',ICP:'인터넷컴퓨터',
+  RUNE:'토르체인',KSM:'쿠사마',ZIL:'질리카',
+  KAVA:'카바',BAND:'밴드프로토콜',RSR:'리저브라이츠',
+  OCEAN:'오션프로토콜',GRT:'더그래프',LRC:'루프링',
+  IMX:'이뮤터블X',GMT:'스테픈',APE:'에이프코인',
+  OP:'옵티미즘',BLUR:'블러',MAGIC:'매직',
+  WLD:'월드코인',SEI:'세이',TIA:'셀레스티아',
+  PYTH:'파이스',JTO:'지토',BONK:'봉크',
+  ORDI:'오디',SATS:'사츠',BOME:'북오브멤',
+  STX:'스택스',MEME:'밈코인',BRETT:'브렛',
+  NOT:'노트코인',IO:'아이오넷',ZK:'지케이싱크',
+  LISTA:'리스타DAO',RENDER:'렌더',WIF:'도그위프햇',
+  EIGEN:'아이겐레이어',CATI:'캣즌더햇',HMSTR:'해머스터',
+  SCR:'스크롤',NEIRO:'네이로',DOGS:'독스',
+  1000PEPE:'페페(1000)',1000SHIB:'시바이누(1000)',
+};
 function coinColor(sym) {
   const base = sym.replace('USDT','').replace('PERP','');
   if (COIN_COLORS[base]) return COIN_COLORS[base];
@@ -1709,10 +1739,16 @@ function renderSidebar(page) {
   const curSym = S[page].sym;
   let data = [...ALL_DATA[st.market]];
 
-  // 검색 필터
+  // 검색 필터 (심볼 + 한글명)
   if (st.query) {
     const q = st.query.toUpperCase();
-    data = data.filter(t => t.sym.includes(q));
+    const qKr = st.query;
+    data = data.filter(t => {
+      if (t.sym.includes(q)) return true;
+      const base = t.sym.replace('USDT','').replace('PERP','');
+      const kr = COIN_KR[base] || '';
+      return kr.includes(qKr);
+    });
   }
 
   // 정렬
@@ -1734,7 +1770,7 @@ function renderSidebar(page) {
     const bg = coinColor(t.sym);
     return `<div class="sym-item${isActive?' active':''}" data-sym="${t.sym}" onclick="sbClick('${page}','${st.market}','${t.sym}')">` +
       `<div class="sym-icon" style="background:${bg}">${initials}</div>` +
-      `<div class="sym-name-col"><div class="sym-name">${base}</div><div class="sym-sub">USDT</div></div>` +
+      `<div class="sym-name-col"><div class="sym-name">${base}<span class="sym-kr">${COIN_KR[base]||''}</span></div><div class="sym-sub">USDT</div></div>` +
       `<div class="sym-price-col"><div class="sym-price">${fmtSP(t.price)}</div></div>` +
       `<div class="sym-chg-col"><div class="sym-chg ${cc}">${t.chgPct>=0?'+':''}${t.chgPct.toFixed(2)}%</div></div>` +
       `<div class="sym-vol-col"><div class="sym-vol">${fmtK(t.vol)}</div></div>` +
