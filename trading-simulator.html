@@ -80,7 +80,7 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .sb-mtab.active { color:#f0b90b; border-bottom-color:#f0b90b; font-weight:700; }
 
 /* SORT HEADER ROW */
-.sb-sort-row { display:flex; align-items:center; padding:6px 10px; border-bottom:1px solid var(--border); flex-shrink:0; background:#0a0d12; }
+.sb-sort-row { display:flex; align-items:center; gap:6px; padding:6px 10px; border-bottom:1px solid var(--border); flex-shrink:0; background:#0a0d12; }
 .sb-sort-btn { font-size:11px; color:#4a5568; cursor:pointer; padding:2px; border-radius:2px; transition:color 0.1s; white-space:nowrap; user-select:none; }
 .sb-sort-btn:hover { color:var(--text2); }
 .sb-sort-btn.active { color:#f0b90b; font-weight:600; }
@@ -92,17 +92,17 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .sym-list::-webkit-scrollbar-thumb { background:#2a3347; border-radius:2px; }
 
 /* COIN ROW */
-.sym-item { padding:10px 10px; cursor:pointer; border-bottom:1px solid #131a27; display:flex; align-items:center; transition:background 0.12s; min-height:64px; }
+.sym-item { padding:10px 10px; cursor:pointer; border-bottom:1px solid #131a27; display:flex; align-items:center; gap:6px; transition:background 0.12s; min-height:58px; }
 .sym-item:hover { background:#131d2e; }
 .sym-item.active { background:#162040; border-left:3px solid #f0b90b; padding-left:7px; }
 
 /* STAR BUTTON */
-.sym-star { width:20px; height:20px; border:none; background:none; cursor:pointer; color:#2a3a50; font-size:15px; flex-shrink:0; padding:0; margin-right:8px; transition:color 0.15s; line-height:1; display:flex; align-items:center; justify-content:center; }
+.sym-star { width:20px; height:20px; border:none; background:none; cursor:pointer; color:#2a3a50; font-size:14px; flex-shrink:0; padding:0; transition:color 0.15s; line-height:1; display:flex; align-items:center; justify-content:center; }
 .sym-star:hover { color:#f0b90b; }
 .sym-star.fav { color:#f0b90b; }
 
 /* COIN ICON */
-.sym-icon { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; flex-shrink:0; margin-right:10px; letter-spacing:-0.5px; box-shadow:0 2px 8px rgba(0,0,0,0.3); }
+.sym-icon { width:25px; height:25px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:800; color:#fff; flex-shrink:0; letter-spacing:-0.3px; }
 
 /* NAME COLUMN */
 .sym-name-col { flex:1; min-width:0; overflow:hidden; }
@@ -778,7 +778,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
       <div class="sb-mtab" onclick="setSbMarket('spot','futures',this)">선물</div>
     </div>
     <div class="sb-sort-row">
-      <span style="flex:0 0 74px"></span>
+      <span style="flex:0 0 45px"></span>
       <span class="sb-sort-btn" id="sbs-name-spot" onclick="setSbSort('spot','name')" style="flex:1">이름</span>
       <span class="sb-sort-btn" id="sbs-price-spot" onclick="setSbSort('spot','price')" style="flex:0 0 80px;text-align:right">가격</span>
       <span class="sb-sort-btn" id="sbs-chg-spot" onclick="setSbSort('spot','change')" style="flex:0 0 58px;text-align:right">24H%</span>
@@ -1003,7 +1003,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
       <div class="sb-mtab active" onclick="setSbMarket('futures','futures',this)">선물</div>
     </div>
     <div class="sb-sort-row">
-      <span style="flex:0 0 74px"></span>
+      <span style="flex:0 0 45px"></span>
       <span class="sb-sort-btn" id="sbs-name-fut" onclick="setSbSort('futures','name')" style="flex:1">이름</span>
       <span class="sb-sort-btn" id="sbs-price-fut" onclick="setSbSort('futures','price')" style="flex:0 0 80px;text-align:right">가격</span>
       <span class="sb-sort-btn" id="sbs-chg-fut" onclick="setSbSort('futures','change')" style="flex:0 0 58px;text-align:right">24H%</span>
