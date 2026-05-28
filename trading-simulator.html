@@ -749,10 +749,6 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 
 <div class="topnav">
   <div class="logo">Trade<span>Play</span></div>
-  <div class="main-tabs">
-    <div class="main-tab active" onclick="switchPage('spot')">현물</div>
-    <div class="main-tab" onclick="switchPage('futures')">선물</div>
-  </div>
   <div class="nav-right">
     <div class="wallet-badge" id="balBadge"><span class="wallet-label">총자산</span><span class="wallet-val" id="topBal">$1,000.00</span></div>
     <div class="unreal-badge" id="unrealBadge"><span style="color:var(--text2);margin-right:5px">미실현</span><span id="topUnreal" style="color:var(--text2)">$0.00</span></div>
@@ -1657,10 +1653,7 @@ function watchAd(amount, btnId) {
 // ══════════════════════════════════════════════════════
 function switchPage(p) {
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.main-tab').forEach(el=>el.classList.remove('active'));
   $('page-'+p).classList.add('active');
-  const idx={spot:0,futures:1}[p];
-  document.querySelectorAll('.main-tab')[idx].classList.add('active');
   requestAnimationFrame(()=>{
     const wrap = $(p === 'spot' ? 'spotLcWrap' : 'futLcWrap');
     if (S[p].lchart && wrap) S[p].lchart.resize(wrap.clientWidth, wrap.clientHeight);
@@ -1863,7 +1856,7 @@ function renderSidebar(page) {
     return `<div class="sym-item${isActive?' active':''}" data-sym="${t.sym}" onclick="sbClick('${page}','${st.market}','${t.sym}')">` +
       `<button class="sym-star${isFav?' fav':''}" onclick="toggleFav(event,'${page}','${st.market}','${t.sym}')">${isFav?'★':'☆'}</button>` +
       `<div class="sym-icon" style="background:${bg}">${initials}</div>` +
-      `<div class="sym-name-col"><div class="sym-name">${base}</div>${COIN_KR[base]?`<div class="sym-sub">${COIN_KR[base]}</div>`:''}</div>` +
+      `<div class="sym-name-col"><div class="sym-name">${base}</div></div>` +
       `<div class="sym-price-col"><div class="sym-price">${fmtSP(t.price)}</div></div>` +
       `<div class="sym-chg-col"><div class="sym-chg ${cc}">${t.chgPct>=0?'+':''}${t.chgPct.toFixed(2)}%</div></div>` +
       `<div class="sym-vol-col"><div class="sym-vol">${fmtK(t.vol)}</div></div>` +
@@ -1907,6 +1900,7 @@ function setSbMarket(page, market, btn) {
   sbState[page].market = market;
   btn.closest('.sb-mtabs').querySelectorAll('.sb-mtab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+  if (market !== page) switchPage(market);
   renderSidebar(page);
 }
 function setSbSort(page, key) {
