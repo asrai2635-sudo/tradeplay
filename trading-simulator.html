@@ -204,6 +204,41 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .act-ind-chip-rm { border: none; background: none; color: #4a5568; cursor: pointer; font-size: 12px; line-height: 1; padding: 0 0 0 3px; transition: color 0.1s; }
 .act-ind-chip-rm:hover { color: #f6465d; }
 
+/* ── Toast notification ──────────────────────────── */
+.toast { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); background: #1e2430; border: 1px solid #2a3347; color: #d1d4dc; font-size: 13px; padding: 10px 18px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); z-index: 9999; opacity: 0; transition: opacity 0.25s; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; }
+
+/* ── Price alert UI ──────────────────────────────── */
+.alert-btn { padding: 4px 10px; background: none; border: 1px solid #2a3347; border-radius: 4px; color: #5a7090; font-size: 11px; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 5px; transition: all 0.15s; flex-shrink: 0; }
+.alert-btn:hover { border-color: #f59e0b; color: #f59e0b; }
+.alert-popup { position: fixed; background: #1e222d; border: 1px solid #2a2e39; border-radius: 8px; box-shadow: 0 6px 28px rgba(0,0,0,0.7); z-index: 9100; width: 260px; display: none; padding: 14px; }
+.alert-popup.open { display: block; }
+.alert-popup-title { font-size: 12px; font-weight: 700; color: #d1d4dc; margin-bottom: 10px; }
+.alert-input-row { display: flex; gap: 6px; margin-bottom: 8px; }
+.alert-price-input { flex: 1; background: #131722; border: 1px solid #2a2e39; border-radius: 4px; color: #d1d4dc; font-size: 12px; padding: 5px 8px; font-family: inherit; outline: none; }
+.alert-price-input:focus { border-color: #f59e0b; }
+.alert-add-btn { background: #f59e0b; border: none; color: #000; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: inherit; font-weight: 700; }
+.alert-list { max-height: 140px; overflow-y: auto; }
+.alert-row { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid #1e2230; font-size: 12px; color: #8896ae; }
+.alert-row-price { flex: 1; }
+.alert-row-dir { font-size: 11px; }
+.alert-row-rm { border: none; background: none; color: #4a5568; cursor: pointer; font-size: 13px; padding: 0; transition: color 0.1s; }
+.alert-row-rm:hover { color: #f6465d; }
+
+/* ── Indicator param edit popup ──────────────────── */
+.ind-edit-popup { position: fixed; background: #1e222d; border: 1px solid #2a2e39; border-radius: 8px; box-shadow: 0 6px 28px rgba(0,0,0,0.7); z-index: 9100; width: 240px; display: none; padding: 14px; }
+.ind-edit-popup.open { display: block; }
+.ind-edit-title { font-size: 12px; font-weight: 700; color: #d1d4dc; margin-bottom: 10px; }
+.ind-edit-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.ind-edit-row label { font-size: 11px; color: #8896ae; width: 60px; flex-shrink: 0; }
+.ind-edit-row input[type=number] { flex: 1; background: #131722; border: 1px solid #2a2e39; border-radius: 4px; color: #d1d4dc; font-size: 12px; padding: 4px 7px; font-family: inherit; outline: none; }
+.ind-edit-row input[type=number]:focus { border-color: #2962ff; }
+.ind-edit-row input[type=color] { width: 36px; height: 26px; border: 1px solid #2a2e39; border-radius: 4px; cursor: pointer; background: none; padding: 1px; }
+.ind-edit-ftr { display: flex; gap: 6px; margin-top: 10px; }
+.ind-edit-ftr button { flex: 1; padding: 5px; border-radius: 4px; border: 1px solid #2a2e39; font-size: 12px; cursor: pointer; font-family: inherit; }
+.ind-edit-cancel { background: none; color: #8896ae; }
+.ind-edit-apply { background: #2962ff; border-color: #2962ff; color: #fff; }
+
 /* ── chart-col (wraps lc-wrap + sub-panels) ─────── */
 .chart-col { flex: 1; display: flex; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden; }
 
@@ -215,6 +250,9 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .sub-panel-close { pointer-events: all; border: none; background: rgba(11,14,17,0.65); color: #5a6a7e; cursor: pointer; font-size: 12px; padding: 2px 5px; border-radius: 3px; transition: color 0.1s; line-height: 1; }
 .sub-panel-close:hover { color: #f6465d; }
 .sub-lc-wrap { width: 100%; height: 100%; }
+.sub-panel-resizer { position: absolute; top: -4px; left: 0; right: 0; height: 8px; cursor: ns-resize; z-index: 20; }
+.sub-panel-resizer::after { content:''; position:absolute; top:3px; left:50%; transform:translateX(-50%); width:32px; height:2px; background:rgba(255,255,255,0.12); border-radius:2px; transition: background 0.15s; }
+.sub-panel-resizer:hover::after { background: rgba(41,98,255,0.6); }
 
 /* SPOT LIMIT SELL MODAL */
 .sls-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.8); z-index:3000; display:flex; align-items:center; justify-content:center; }
@@ -874,6 +912,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
         <button class="tf-btn" data-tf="M">월봉</button>
         <button class="tf-btn" data-tf="Y">년봉</button>
         <button class="tf-btn ind-toggle-btn" id="sIndToggleBtn" onclick="toggleIndRow('spot')" title="보조지표">보조지표</button>
+        <button class="alert-btn" id="s-alert-btn" onclick="toggleAlertPopup('spot',this)" title="가격 알림 설정">🔔 알림</button>
       </div>
       <div class="ind-row" id="sIndRow" style="display:none">
         <span class="ind-wrap"><button class="ind-btn" id="sInd7"  onclick="toggleInd('spot','ma7')">MA<span id="sInd7P">7</span></button><button class="ind-gear" onclick="openIndSettings(event,'spot','ma7')" title="설정">⚙</button></span>
@@ -1111,6 +1150,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
         <button class="tf-btn" data-tf="M">월봉</button>
         <button class="tf-btn" data-tf="Y">년봉</button>
         <button class="tf-btn ind-toggle-btn" id="fIndToggleBtn" onclick="toggleIndRow('futures')" title="보조지표">보조지표</button>
+        <button class="alert-btn" id="f-alert-btn" onclick="toggleAlertPopup('futures',this)" title="가격 알림 설정">🔔 알림</button>
       </div>
       <div class="ind-row" id="fIndRow" style="display:none">
         <span class="ind-wrap"><button class="ind-btn" id="fInd7"  onclick="toggleInd('futures','ma7')">MA<span id="fInd7P">7</span></button><button class="ind-gear" onclick="openIndSettings(event,'futures','ma7')" title="설정">⚙</button></span>
@@ -1632,6 +1672,14 @@ function saveState() {
   localStorage.setItem('tp_equity',       JSON.stringify(equityHistory));
   localStorage.setItem('tp_spot_history', JSON.stringify(spotHistory.slice(0,50)));
   localStorage.setItem('tp_fut_history',  JSON.stringify(futHistory.slice(0,30)));
+  // 지표 설정 저장
+  ['spot','futures'].forEach(pg => {
+    localStorage.setItem('tp_inds_'+pg, JSON.stringify({
+      indicators: S[pg].indicators,
+      activeInds: (S[pg].activeInds||[]).map(({id,instanceId,params})=>({id,instanceId,params}))
+    }));
+  });
+  localStorage.setItem('tp_ind_ctr', String(_indIdCtr));
   _uploadRanking();
 }
 function loadState() {
@@ -1648,6 +1696,18 @@ function loadState() {
   equityHistory   = JSON.parse(localStorage.getItem('tp_equity')       || '[]');
   spotHistory     = JSON.parse(localStorage.getItem('tp_spot_history') || '[]');
   futHistory     = JSON.parse(localStorage.getItem('tp_fut_history')   || '[]');
+  // 지표 설정 복원
+  ['spot','futures'].forEach(pg => {
+    try {
+      const raw = localStorage.getItem('tp_inds_'+pg);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (d.indicators && typeof d.indicators.ma7 === 'object') S[pg].indicators = d.indicators;
+      if (Array.isArray(d.activeInds)) S[pg].activeInds = d.activeInds.map(e=>({...e,series:null,subPanel:null}));
+    } catch(e) {}
+  });
+  const savedCtr = parseInt(localStorage.getItem('tp_ind_ctr')||'0');
+  if (savedCtr > _indIdCtr) _indIdCtr = savedCtr;
   return true;
 }
 
@@ -3027,14 +3087,17 @@ function _createIndSeries(page, entry) {
       case 'donchian': case 'keltner':
         entry.series={upper:chart.addLineSeries({...lso,color:p.color,lineWidth:p.width||1}),mid:chart.addLineSeries({...lso,color:p.color,lineWidth:1,lineStyle:2}),lower:chart.addLineSeries({...lso,color:p.color,lineWidth:p.width||1})}; break;
       case 'supertrend':
-        entry.series={main:chart.addLineSeries({...lso,color:'#0ecb81',lineWidth:2})}; break;
+        entry.series={bull:chart.addLineSeries({...lso,color:'#0ecb81',lineWidth:2}),bear:chart.addLineSeries({...lso,color:'#f6465d',lineWidth:2})}; break;
     }
   } else {
     // Oscillator → sub-panel
     const spEl = document.getElementById(pfx+'-sub-panels');
     const panelEl = document.createElement('div');
     panelEl.className='sub-panel'; panelEl.id='subp-'+entry.instanceId; panelEl.style.height='150px';
-    panelEl.innerHTML=`<div class="sub-panel-hdr"><span class="sub-panel-title">${cat.name}</span><button class="sub-panel-close" onclick="removeIndicator('${page}','${entry.instanceId}')">✕</button></div><div class="sub-lc-wrap" id="slc-${entry.instanceId}"></div>`;
+    panelEl.innerHTML=`<div class="sub-panel-resizer" id="rz-${entry.instanceId}"></div><div class="sub-panel-hdr"><span class="sub-panel-title">${cat.name}</span><button class="sub-panel-close" onclick="removeIndicator('${page}','${entry.instanceId}')">✕</button></div><div class="sub-lc-wrap" id="slc-${entry.instanceId}"></div>`;
+    // 드래그 리사이즈
+    const rzEl=panelEl.querySelector('.sub-panel-resizer');
+    if(rzEl) rzEl.addEventListener('mousedown',e=>_startSubResize(e,panelEl));
     spEl.appendChild(panelEl);
     const subWrap = document.getElementById('slc-'+entry.instanceId);
     const subChart = LightweightCharts.createChart(subWrap,{
@@ -3083,7 +3146,19 @@ function _updateIndData(page, entry) {
       case 'sar': entry.series.main.setData(calcSAR(candles,p.step||0.02,p.maxStep||0.2)); break;
       case 'donchian': {const d=calcDonchian(candles,p.period||20);entry.series.upper.setData(d.upper);entry.series.mid.setData(d.mid);entry.series.lower.setData(d.lower);break;}
       case 'keltner': {const d=calcKeltner(candles,p.period||20,p.mult||2);entry.series.upper.setData(d.upper);entry.series.mid.setData(d.mid);entry.series.lower.setData(d.lower);break;}
-      case 'supertrend': entry.series.main.setData(calcSupertrend(candles,p.period||10,p.mult||3)); break;
+      case 'supertrend': {
+        const raw=calcSupertrend(candles,p.period||10,p.mult||3);
+        const bull=[],bear=[];
+        raw.forEach((d,i)=>{
+          const isBull=d.color==='#0ecb81';
+          const pt={time:d.time,value:d.value};
+          if(isBull) bull.push(pt); else bear.push(pt);
+          if(i>0&&raw[i-1].color!==d.color)(isBull?bear:bull).push(pt);
+        });
+        entry.series.bull.setData(bull.sort((a,b)=>a.time-b.time));
+        entry.series.bear.setData(bear.sort((a,b)=>a.time-b.time));
+        break;
+      }
       case 'rsi': entry.series.main.setData(calcRSI(candles,p.period||14)); break;
       case 'macd': {const d=calcMACD(candles,p.fast||12,p.slow||26,p.signal||9);entry.series.macd.setData(d.macd);entry.series.signal.setData(d.signal);entry.series.hist.setData(d.hist);break;}
       case 'stoch': {const d=calcStochastic(candles,p.k||14,p.d||3,p.smooth||3);entry.series.k.setData(d.k);entry.series.d.setData(d.d);break;}
@@ -3120,8 +3195,77 @@ function renderActiveIndBar(page) {
   bar.innerHTML=inds.map(e=>{
     const cat=IND_CATALOG.find(x=>x.id===e.id);
     const color=e.params?.color||cat?.color||'#5c8fff';
-    return `<span class="act-ind-chip"><span class="act-ind-chip-dot" style="background:${color}"></span><span>${cat?.name||e.id}</span><button class="act-ind-chip-rm" onclick="removeIndicator('${page}','${e.instanceId}')" title="제거">✕</button></span>`;
+    return `<span class="act-ind-chip" onclick="openIndEdit(event,'${page}','${e.instanceId}')" style="cursor:pointer" title="설정 편집"><span class="act-ind-chip-dot" style="background:${color}"></span><span>${cat?.name||e.id}</span><button class="act-ind-chip-rm" onclick="event.stopPropagation();removeIndicator('${page}','${e.instanceId}')" title="제거">✕</button></span>`;
   }).join('');
+}
+
+let _indEditPage=null, _indEditId=null;
+const IND_PARAM_LABELS = {
+  period:'기간', fast:'빠른선', slow:'느린선', signal:'시그널',
+  k:'K기간', d:'D기간', smooth:'스무딩', rp:'RSI기간', sp:'Stoch기간',
+  stdMult:'배수', mult:'배수', step:'스텝', maxStep:'최대스텝',
+  color:'색상', width:'두께'
+};
+function openIndEdit(e, page, instanceId) {
+  e.stopPropagation();
+  const entry=(S[page].activeInds||[]).find(x=>x.instanceId===instanceId); if(!entry) return;
+  const cat=IND_CATALOG.find(x=>x.id===entry.id);
+  _indEditPage=page; _indEditId=instanceId;
+  document.getElementById('ind-edit-title').textContent=(cat?.name||entry.id)+' 설정';
+  const fields=document.getElementById('ind-edit-fields');
+  fields.innerHTML=Object.entries(entry.params).map(([k,v])=>{
+    const lbl=IND_PARAM_LABELS[k]||k;
+    if(k==='color') return `<div class="ind-edit-row"><label>${lbl}</label><input type="color" id="iep_${k}" value="${v}"></div>`;
+    if(k==='width') return `<div class="ind-edit-row"><label>${lbl}</label><input type="number" id="iep_${k}" value="${v}" min="1" max="4" step="1" style="width:50px"></div>`;
+    if(typeof v==='number') return `<div class="ind-edit-row"><label>${lbl}</label><input type="number" id="iep_${k}" value="${v}" min="1" max="500" step="${v<1?0.01:1}"></div>`;
+    return '';
+  }).join('');
+  const popup=document.getElementById('ind-edit-popup');
+  popup.classList.add('open');
+  const r=e.currentTarget.getBoundingClientRect();
+  let top=r.bottom+6, left=r.left;
+  if(left+250>window.innerWidth-8) left=window.innerWidth-258;
+  if(top+280>window.innerHeight-8) top=r.top-280-6;
+  popup.style.top=top+'px'; popup.style.left=left+'px';
+}
+function closeIndEdit() { document.getElementById('ind-edit-popup').classList.remove('open'); _indEditPage=_indEditId=null; }
+function applyIndEdit() {
+  if(!_indEditPage||!_indEditId) return;
+  const entry=(S[_indEditPage].activeInds||[]).find(x=>x.instanceId===_indEditId); if(!entry) return;
+  Object.keys(entry.params).forEach(k=>{
+    const el=document.getElementById('iep_'+k); if(!el) return;
+    if(k==='color') entry.params[k]=el.value;
+    else if(typeof entry.params[k]==='number') entry.params[k]=parseFloat(el.value)||entry.params[k];
+  });
+  _destroyIndSeries(_indEditPage,entry);
+  _createIndSeries(_indEditPage,entry);
+  _updateIndData(_indEditPage,entry);
+  renderActiveIndBar(_indEditPage);
+  saveState();
+  closeIndEdit();
+}
+document.addEventListener('click',e=>{
+  const p=document.getElementById('ind-edit-popup');
+  if(p&&p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.act-ind-chip')) closeIndEdit();
+});
+
+// ── Sub-panel resize ────────────────────────────────
+let _rz=null;
+function _startSubResize(e,panelEl) {
+  e.preventDefault();
+  _rz={el:panelEl,startY:e.clientY,startH:panelEl.offsetHeight};
+  document.addEventListener('mousemove',_onSubResize,{passive:true});
+  document.addEventListener('mouseup',_stopSubResize);
+}
+function _onSubResize(e) {
+  if(!_rz) return;
+  const h=Math.max(80,Math.min(450,_rz.startH+(e.clientY-_rz.startY)));
+  _rz.el.style.height=h+'px';
+}
+function _stopSubResize() {
+  _rz=null;
+  document.removeEventListener('mousemove',_onSubResize);
+  document.removeEventListener('mouseup',_stopSubResize);
 }
 
 // ── Line tools submenu ──────────────────────────────
@@ -3149,6 +3293,87 @@ function selectLineMenu(page, tool, el) {
 }
 document.addEventListener('click', e=>{
   if(!e.target.closest('.dt-group')&&!e.target.closest('.dt-submenu')) document.querySelectorAll('.dt-submenu').forEach(m=>m.classList.remove('open'));
+});
+
+// ══════════════════════════════════════════════════════
+// PRICE ALERTS
+// ══════════════════════════════════════════════════════
+const _alerts = { spot:[], futures:[] };
+let _alertPage = null;
+
+function showToast(msg, dur=2800) {
+  const t=document.getElementById('toast'); if(!t) return;
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._tid); t._tid=setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+async function _requestNotifPerm() {
+  if (!('Notification' in window)) return false;
+  if (Notification.permission==='granted') return true;
+  if (Notification.permission==='denied') return false;
+  const p = await Notification.requestPermission();
+  return p==='granted';
+}
+function _notify(title, body) {
+  if (Notification.permission==='granted') {
+    new Notification(title, {body, icon:'', silent:false});
+  }
+  showToast(`🔔 ${title}: ${body}`);
+}
+
+function toggleAlertPopup(page, btn) {
+  _alertPage=page;
+  const popup=document.getElementById('alert-popup');
+  const isOpen=popup.classList.contains('open');
+  if(isOpen&&popup._page===page){popup.classList.remove('open');return;}
+  popup._page=page;
+  popup.classList.add('open');
+  const r=btn.getBoundingClientRect();
+  let left=r.left, top=r.bottom+6;
+  if(left+270>window.innerWidth-8) left=window.innerWidth-278;
+  popup.style.top=top+'px'; popup.style.left=left+'px';
+  // 현재 가격 기본값
+  document.getElementById('alert-price-input').value=S[page].price?S[page].price.toFixed(2):'';
+  renderAlertList();
+  _requestNotifPerm();
+}
+function addAlert() {
+  if(!_alertPage) return;
+  const price=parseFloat(document.getElementById('alert-price-input').value);
+  if(!price||isNaN(price)) return;
+  const dir=price>S[_alertPage].price?'above':'below';
+  _alerts[_alertPage].push({price,dir,sym:S[_alertPage].sym,id:Date.now()});
+  renderAlertList();
+  showToast(`알림 추가: ${S[_alertPage].sym} ${dir==='above'?'▲':'▼'} ${price.toLocaleString()}`);
+}
+function removeAlert(page, id) {
+  _alerts[page]=_alerts[page].filter(a=>a.id!==id);
+  renderAlertList();
+}
+function renderAlertList() {
+  const list=document.getElementById('alert-list'); if(!list) return;
+  const pg=_alertPage||'spot';
+  const items=_alerts[pg];
+  if(!items.length){list.innerHTML='<div style="font-size:11px;color:#4a5568;padding:6px 0">알림 없음</div>';return;}
+  list.innerHTML=items.map(a=>
+    `<div class="alert-row">
+      <span class="alert-row-dir" style="color:${a.dir==='above'?'#0ecb81':'#f6465d'}">${a.dir==='above'?'▲':'▼'}</span>
+      <span class="alert-row-price">${a.sym} ${a.price.toLocaleString()}</span>
+      <button class="alert-row-rm" onclick="removeAlert('${pg}',${a.id})">✕</button>
+    </div>`
+  ).join('');
+}
+function checkAlerts(page) {
+  const curr=S[page].price; if(!curr) return;
+  _alerts[page]=_alerts[page].filter(a=>{
+    const hit=(a.dir==='above'&&curr>=a.price)||(a.dir==='below'&&curr<=a.price);
+    if(hit) _notify(`${a.sym} 가격 알림`,`${a.dir==='above'?'▲':'▼'} ${a.price.toLocaleString()} 도달 (현재: ${curr.toLocaleString()})`);
+    return !hit;
+  });
+}
+document.addEventListener('click',e=>{
+  const p=document.getElementById('alert-popup');
+  if(p&&p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.alert-btn')) p.classList.remove('open');
 });
 
 function toggleIndRow(page) {
@@ -3262,6 +3487,7 @@ function handlePageMsg(page, data) {
       S[page].price = parseFloat(d.lastPrice);
       PRICES[sym] = S[page].price;
       updatePriceUI(page, S[page].price, prev, d);
+      checkAlerts(page);
       // ALL_DATA 실시간 동기화 (다음 renderSidebar 때 반영됨)
       const cat = page === 'spot' ? 'spot' : 'futures';
       const entry = ALL_DATA[cat].find(e => e.sym === sym);
@@ -3311,7 +3537,7 @@ function handlePageMsg(page, data) {
     if (!S[page].candleSeries) return;
     S[page].candleSeries.update({ time: Math.floor(c.time/1000), open: c.open, high: c.high, low: c.low, close: c.close });
     S[page].volSeries.update({ time: Math.floor(c.time/1000), value: c.volume, color: c.close>=c.open?'rgba(14,203,129,0.4)':'rgba(246,70,93,0.4)' });
-    if (isNew) setMaData(page);
+    if (isNew) { setMaData(page); updateAllInds(page); }
   }
 }
 
@@ -4764,6 +4990,27 @@ init();
   <div class="ind-panel-ftr">
     <button class="ipc" onclick="closeIndPanel()">취소</button>
     <button class="ipa" onclick="applyIndPanel()">적용</button>
+  </div>
+</div>
+
+<!-- Price alert popup -->
+<div id="alert-popup" class="alert-popup">
+  <div class="alert-popup-title">🔔 가격 알림 설정</div>
+  <div class="alert-input-row">
+    <input class="alert-price-input" id="alert-price-input" type="number" placeholder="알림 가격 입력" step="any">
+    <button class="alert-add-btn" onclick="addAlert()">추가</button>
+  </div>
+  <div class="alert-list" id="alert-list"></div>
+</div>
+<div id="toast" class="toast"></div>
+
+<!-- Indicator param edit popup -->
+<div id="ind-edit-popup" class="ind-edit-popup">
+  <div class="ind-edit-title" id="ind-edit-title">지표 설정</div>
+  <div id="ind-edit-fields"></div>
+  <div class="ind-edit-ftr">
+    <button class="ind-edit-cancel" onclick="closeIndEdit()">취소</button>
+    <button class="ind-edit-apply" onclick="applyIndEdit()">적용</button>
   </div>
 </div>
 
