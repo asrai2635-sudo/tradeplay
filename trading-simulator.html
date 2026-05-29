@@ -1183,12 +1183,11 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="spot-holdings-wrap">
     <div class="bt-scroll">
       <div class="bt-header">
-        <span style="flex:0 0 100px;font-weight:600">심볼</span>
-        <span style="flex:0 0 100px;text-align:center">수량</span>
-        <span style="flex:0 0 100px;text-align:center">평균단가</span>
+        <span style="flex:0 0 110px;font-weight:600;text-align:center">심볼</span>
+        <span style="flex:1;text-align:center;min-width:110px">평가손익</span>
         <span style="flex:0 0 100px;text-align:center">현재가</span>
-        <span style="flex:0 0 100px;text-align:center">평가금액</span>
-        <span style="flex:1;text-align:center;min-width:100px">평가손익</span>
+        <span style="flex:0 0 100px;text-align:center">평균단가</span>
+        <span style="flex:0 0 80px;text-align:center">수량</span>
         <span style="flex:0 0 160px"></span>
       </div>
       <div class="bt-body" id="spotHoldings"><div class="empty-msg">보유 자산 없음</div></div>
@@ -1460,15 +1459,16 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="fut-positions-wrap">
     <div class="bt-scroll">
       <div class="bt-header">
-        <span style="flex:0 0 75px;text-align:center">방향</span>
-        <span style="flex:0 0 100px;font-weight:600;text-align:center">심볼</span>
-        <span style="flex:1;text-align:center;min-width:110px">미실현손익</span>
-        <span style="flex:0 0 100px;text-align:center">현재가</span>
-        <span style="flex:0 0 100px;text-align:center">진입가</span>
-        <span style="flex:0 0 100px;text-align:center">청산가</span>
+        <span style="flex:0 0 44px;text-align:center">종류</span>
+        <span style="flex:0 0 72px;text-align:center">방향</span>
+        <span style="flex:0 0 90px;font-weight:600;text-align:center">심볼</span>
+        <span style="flex:1;text-align:center;min-width:110px">평가손익</span>
+        <span style="flex:0 0 95px;text-align:center">현재가</span>
+        <span style="flex:0 0 95px;text-align:center">진입가/단가</span>
+        <span style="flex:0 0 95px;text-align:center">청산가</span>
         <span style="flex:0 0 200px"></span>
       </div>
-      <div class="bt-body" id="futPositions"><div class="empty-msg">포지션 없음</div></div>
+      <div class="bt-body" id="futPositions"><div class="empty-msg">보유 포지션 없음</div></div>
     </div>
   </div>
   <!-- 거래내역 테이블 -->
@@ -4474,7 +4474,7 @@ function updatePriceUI(page, price, prev, d) {
   }
   if(page==='spot'){
     updateSpotInfo();
-    if(_now - _uiThrottle.spot > 400){ _uiThrottle.spot=_now; renderSpotHoldings(); }
+    if(_now - _uiThrottle.spot > 400){ _uiThrottle.spot=_now; renderSpotHoldings(); renderFutPositions(); }
     checkSpotLimitOrders();
   }
   updateTopBar();
@@ -4801,7 +4801,7 @@ function execSpot() {
       h.qty+=qty;
       spotHistory.unshift({sym:sym+'/USDT',dir:'buy',price:ep,qty,amount:amt,pnl:null,time:Date.now()});
       toast(`▲ ${sym} ${qty.toFixed(6)}개 매수 @ $${fmt(ep)}`,'var(--green)');
-      updateTopBar();renderSpotHoldings();renderSpotHistory();updateSpotInfo();saveState();checkBroke();updatePriceLines('spot');
+      updateTopBar();renderSpotHoldings();renderFutPositions();renderSpotHistory();updateSpotInfo();saveState();checkBroke();updatePriceLines('spot');
     }
   } else {
     const qty=parseFloat($('sCoinQty').value)||0;
@@ -4820,7 +4820,7 @@ function execSpot() {
       if(h.qty<0.000001) delete holdings[sym];
       spotHistory.unshift({sym:sym+'/USDT',dir:'sell',price:ep,qty,amount:proceeds,pnl,time:Date.now()});
       toast(`▼ ${sym} 매도 ${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))} 손익`,pnl>=0?'var(--green)':'var(--red)');
-      updateTopBar();renderSpotHoldings();renderSpotHistory();updateSpotInfo();saveState();checkBroke();updatePriceLines('spot');
+      updateTopBar();renderSpotHoldings();renderFutPositions();renderSpotHistory();updateSpotInfo();saveState();checkBroke();updatePriceLines('spot');
     }
   }
 }
@@ -4835,7 +4835,7 @@ function sellAllHolding(sym) {
   spotHistory.unshift({sym:sym+'/USDT',dir:'sell',price,qty,amount:proceeds,pnl,time:Date.now()});
   delete holdings[sym];
   toast(`${sym} 시장가 매도 ${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))}`,pnl>=0?'var(--green)':'var(--red)');
-  updateTopBar(); renderSpotHoldings(); renderSpotHistory(); saveState(); checkBroke(); updatePriceLines('spot');
+  updateTopBar(); renderSpotHoldings(); renderFutPositions(); renderSpotHistory(); saveState(); checkBroke(); updatePriceLines('spot');
 }
 
 let _slsSym = null, _slsPct = 100;
@@ -4897,12 +4897,11 @@ function renderSpotHoldings() {
     const pct=price?((price-h.avgPrice)/h.avgPrice*100):null;
     const pnlColor=pnl===null?'var(--text2)':pnl>=0?'var(--green)':'var(--red)';
     return `<div class="bt-row">
-      <span class="btc-sym">${sym}/USDT</span>
-      <span class="btc-num">${h.qty.toFixed(4)}</span>
-      <span class="btc-num">$${fmt(h.avgPrice)}</span>
-      <span class="btc-num" style="color:var(--text)">${price?'$'+fmt(price):'—'}</span>
-      <span class="btc-num">${val!==null?'$'+fmt(val):'—'}</span>
+      <span class="btc-sym" style="flex:0 0 110px;text-align:center">${sym}/USDT</span>
       <span class="btc-pnl" style="color:${pnlColor}">${pnl!==null?(pnl>=0?'+$':'-$')+fmt(Math.abs(pnl))+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)':'—'}</span>
+      <span class="btc-num" style="color:var(--text)">${price?'$'+fmt(price):'—'}</span>
+      <span class="btc-num">$${fmt(h.avgPrice)}</span>
+      <span class="btc-num" style="flex:0 0 80px">${h.qty.toFixed(4)}</span>
       <span style="flex:0 0 160px;text-align:right;display:flex;gap:4px;justify-content:flex-end;align-items:center"><button class="pos-mkt-btn" style="font-size:10px;padding:3px 8px" onclick="sellAllHolding('${sym}')">시장가</button><button class="pos-lmt-btn" style="font-size:10px;padding:3px 8px" onclick="openSpotLimitSell('${sym}')">지정가</button></span>
     </div>`;
   }).join('');
@@ -5046,37 +5045,64 @@ function checkLiquidations() {
 
 function renderFutPositions() {
   const el = $('futPositions');
-  if (!futPositions.length) { el.innerHTML='<div class="empty-msg">포지션 없음</div>'; return; }
-  el.innerHTML = futPositions.map(p => {
-    const price = PRICES[p.sym] || 0;
-    const pnl = price
-      ? (p.dir==='long' ? (price-p.entryPrice)/p.entryPrice : (p.entryPrice-price)/p.entryPrice) * p.margin * p.leverage
-      : 0;
+  const rows = [];
+
+  // ── 현물 보유자산 ──
+  Object.keys(holdings).forEach(sym => {
+    const h = holdings[sym];
+    const price = PRICES[sym+'USDT'] || (S.spot.sym===sym+'USDT' ? S.spot.price : 0) || 0;
+    const pnl = price ? (price - h.avgPrice) * h.qty : null;
+    const pct = price ? ((price - h.avgPrice) / h.avgPrice * 100) : null;
+    const pnlColor = pnl===null ? 'var(--text2)' : pnl>=0 ? 'var(--green)' : 'var(--red)';
+    rows.push(`<div class="bt-row">
+      <span style="flex:0 0 44px;text-align:center"><span class="pos-badge" style="background:rgba(59,130,246,0.12);color:#60a5fa;font-size:9px;padding:2px 5px">현물</span></span>
+      <span style="flex:0 0 72px;text-align:center"><span class="pos-badge badge-long" style="font-size:9px">▲ BUY</span></span>
+      <span class="btc-sym" style="flex:0 0 90px;text-align:center">${sym}</span>
+      <span class="btc-pnl" style="color:${pnlColor}">${pnl!==null?(pnl>=0?'+$':'-$')+fmt(Math.abs(pnl))+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)':'—'}</span>
+      <span class="btc-num" style="flex:0 0 95px;color:var(--text)">${price?'$'+fmt(price):'—'}</span>
+      <span class="btc-num" style="flex:0 0 95px">$${fmt(h.avgPrice)}</span>
+      <span class="btc-liq" style="flex:0 0 95px">—</span>
+      <span style="flex:0 0 200px;display:flex;gap:4px;justify-content:flex-end;align-items:center">
+        <button class="pos-mkt-btn" onclick="sellAllHolding('${sym}')">시장가</button>
+        <button class="pos-lmt-btn" onclick="openSpotLimitSell('${sym}')">지정가</button>
+      </span>
+    </div>`);
+  });
+
+  // ── 선물 포지션 ──
+  futPositions.forEach(p => {
+    const price = PRICES[p.sym] || (S.futures.sym===p.sym ? S.futures.price : p.entryPrice);
+    const pnl = p.dir==='long'
+      ? (price-p.entryPrice)/p.entryPrice*p.margin*p.leverage
+      : (p.entryPrice-price)/p.entryPrice*p.margin*p.leverage;
     const pct = (pnl / p.margin * 100).toFixed(1);
     const pnlColor = pnl >= 0 ? 'var(--green)' : 'var(--red)';
     const los = futLimitOrders.filter(o => o.posId === p.id);
     const tp = los.find(o => o.type === 'tp');
     const sl = los.find(o => o.type === 'sl');
-    const lo = los.find(o => o.type !== 'tp' && o.type !== 'sl'); // legacy limit close
+    const lo = los.find(o => o.type !== 'tp' && o.type !== 'sl');
     const tpslHtml = [
-      tp ? `<span style="font-size:9px;color:var(--green);white-space:nowrap">TP $${fmt(tp.price)}<button onclick="cancelTpSl(${p.id},'tp')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 1px;margin-left:1px" title="TP 취소">✕</button></span>` : '',
-      sl ? `<span style="font-size:9px;color:var(--red);white-space:nowrap">SL $${fmt(sl.price)}<button onclick="cancelTpSl(${p.id},'sl')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 1px;margin-left:1px" title="SL 취소">✕</button></span>` : '',
-      lo  ? `<span style="font-size:9px;color:var(--yellow);white-space:nowrap">📌$${fmt(lo.price)}<button onclick="cancelLimitClose(${p.id})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 1px;margin-left:1px" title="예약 취소">✕</button></span>` : ''
+      tp ? `<span style="font-size:9px;color:var(--green);white-space:nowrap">TP $${fmt(tp.price)}<button onclick="cancelTpSl(${p.id},'tp')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 1px;margin-left:1px">✕</button></span>` : '',
+      sl ? `<span style="font-size:9px;color:var(--red);white-space:nowrap">SL $${fmt(sl.price)}<button onclick="cancelTpSl(${p.id},'sl')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 1px;margin-left:1px">✕</button></span>` : '',
+      lo ? `<span style="font-size:9px;color:var(--yellow);white-space:nowrap">📌$${fmt(lo.price)}<button onclick="cancelLimitClose(${p.id})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 1px;margin-left:1px">✕</button></span>` : ''
     ].filter(Boolean).join('');
-    return `<div class="bt-row">
-      <span style="flex:0 0 75px;text-align:center"><span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}">${p.dir==='long'?'▲ LONG':'▼ SHORT'}</span></span>
-      <span class="btc-sym" style="text-align:center">${p.sym.replace('USDT','')} <span style="color:var(--yellow);font-size:10px">${p.leverage}x</span></span>
+    rows.push(`<div class="bt-row">
+      <span style="flex:0 0 44px;text-align:center"><span class="pos-badge" style="background:rgba(246,70,93,0.12);color:#f87171;font-size:9px;padding:2px 5px">선물</span></span>
+      <span style="flex:0 0 72px;text-align:center"><span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}" style="font-size:9px">${p.dir==='long'?'▲ LONG':'▼ SHORT'}</span></span>
+      <span class="btc-sym" style="flex:0 0 90px;text-align:center">${p.sym.replace('USDT','')} <span style="color:var(--yellow);font-size:10px">${p.leverage}x</span></span>
       <span class="btc-pnl" style="color:${pnlColor}">${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))} <small style="font-weight:400">(${pnl>=0?'+':''}${pct}%)</small></span>
-      <span class="btc-num" style="color:var(--text)">${price?'$'+fmt(price):'—'}</span>
-      <span class="btc-num">$${fmt(p.entryPrice)}</span>
-      <span class="btc-liq">$${fmt(p.liqPrice)}</span>
+      <span class="btc-num" style="flex:0 0 95px;color:var(--text)">${price?'$'+fmt(price):'—'}</span>
+      <span class="btc-num" style="flex:0 0 95px">$${fmt(p.entryPrice)}</span>
+      <span class="btc-liq" style="flex:0 0 95px">$${fmt(p.liqPrice)}</span>
       <span style="flex:0 0 200px;display:flex;gap:4px;justify-content:flex-end;align-items:center;flex-wrap:wrap">
         ${tpslHtml}
         <button class="pos-mkt-btn" onclick="closePosition(${p.id})">시장가 ×</button>
         <button class="pos-lmt-btn" onclick="openLcpModal(${p.id})">지정가</button>
       </span>
-    </div>`;
-  }).join('');
+    </div>`);
+  });
+
+  el.innerHTML = rows.length ? rows.join('') : '<div class="empty-msg">보유 포지션 없음</div>';
 }
 
 // ── 지정가 청산 팝업 ──────────────────────────────────
@@ -5175,7 +5201,7 @@ function checkSpotLimitOrders() {
   });
   if(triggered.length){
     spotLimitOrders=spotLimitOrders.filter(o=>!triggered.includes(o));
-    updateTopBar();renderSpotHoldings();renderSpotHistory();saveState();checkBroke();updatePriceLines('spot');renderSpotOrders();
+    updateTopBar();renderSpotHoldings();renderFutPositions();renderSpotHistory();saveState();checkBroke();updatePriceLines('spot');renderSpotOrders();
   }
 }
 function checkFutEntryOrders() {
