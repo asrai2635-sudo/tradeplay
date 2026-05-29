@@ -1676,8 +1676,8 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     <div class="ad-bal" id="adBalMsg">현재 잔고: $0.00</div>
     <div class="ad-desc">광고를 시청하고 시드를 받으세요.</div>
     <div class="ad-btns">
-      <button class="ad-btn" id="adBtn1" onclick="watchAd(50,1)">
-        <div><div class="ad-btn-amt">+$50 USDT 받기</div><div class="ad-btn-label" id="adLabel1">광고 보기 (15초)</div></div>
+      <button class="ad-btn" id="adBtn1" onclick="watchAd(100,1)">
+        <div><div class="ad-btn-amt">+$100 USDT 받기</div><div class="ad-btn-label" id="adLabel1">광고 보기 (15초)</div></div>
         <span style="color:var(--text3)">▶</span>
       </button>
     </div>
@@ -2057,12 +2057,19 @@ function showAdModal() {
   $('adOverlay').style.display = 'flex';
 }
 let _adBusy = false;
-function watchAd(amount, btnId) {
-  if (_adBusy) return;
-  _adBusy = true;
-  const duration = 15000;
+// 보상형 광고 슬롯 ID — AdSense 대시보드에서 "보상형" 유형으로 생성 후 교체
+const REWARDED_AD_SLOT = 'REWARDED_SLOT_ID';
+
+function _grantAdReward(amount) {
+  _adBusy = false;
+  wallet += amount;
+  saveState(); updateTopBar();
+  $('adOverlay').style.display = 'none';
+  toast(`+$${fmt(amount)} 시드 충전 완료! 다시 도전해보세요`, 'var(--green)');
+}
+
+function _runTimerFallback(amount, duration) {
   const btn = $('adBtn1');
-  btn.disabled = true;
   const labelEl = $('adLabel1');
   $('adProgressWrap').style.display = 'block';
   const bar = $('adProgressBar');
@@ -2074,13 +2081,36 @@ function watchAd(amount, btnId) {
   let rem = duration / 1000;
   labelEl.textContent = `광고 시청 중... ${rem}초`;
   const iv = setInterval(()=>{ rem--; if(rem>0) labelEl.textContent=`광고 시청 중... ${rem}초`; else clearInterval(iv); },1000);
-  setTimeout(()=>{
-    _adBusy = false;
-    wallet += amount;
-    saveState(); updateTopBar();
-    $('adOverlay').style.display = 'none';
-    toast(`+$${fmt(amount)} 시드 충전 완료! 다시 도전해보세요`, 'var(--green)');
-  }, duration);
+  setTimeout(()=> _grantAdReward(amount), duration);
+}
+
+function watchAd(amount, btnId) {
+  if (_adBusy) return;
+  _adBusy = true;
+  $('adBtn1').disabled = true;
+
+  // AdSense 보상형 광고 시도 — 슬롯 ID가 실제로 설정된 경우에만 작동
+  if (typeof adsbygoogle !== 'undefined' && REWARDED_AD_SLOT !== 'REWARDED_SLOT_ID') {
+    (adsbygoogle = window.adsbygoogle || []).push({
+      googletag: {
+        cmd: [{
+          type: 'REWARDED',
+          slotId: REWARDED_AD_SLOT,
+          onReward: () => _grantAdReward(amount),
+          onClose: () => {
+            // 광고를 닫기만 하고 끝까지 안 봤을 때
+            _adBusy = false;
+            $('adBtn1').disabled = false;
+            $('adLabel1').textContent = '광고 보기 (15초)';
+          },
+          onError: () => _runTimerFallback(amount, 15000)
+        }]
+      }
+    });
+  } else {
+    // 보상형 슬롯 미설정 시 타이머 방식으로 폴백
+    _runTimerFallback(amount, 15000);
+  }
 }
 
 // ══════════════════════════════════════════════════════
