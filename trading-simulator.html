@@ -510,7 +510,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 .bt-body { flex: 1; overflow-y: auto; min-height: 0; padding-bottom: 26px; }
 .bt-row { display: flex; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--border); font-size: 13px; transition: background 0.1s; }
 .bt-row:hover { background: var(--bg3); }
-.btc-sym { flex: 0 0 100px; font-weight: 600; color: var(--text); }
+.btc-sym { flex: 0 0 100px; font-weight: 600; color: var(--text); text-align: center; }
 .btc-num { flex: 0 0 100px; text-align: center; color: var(--text); }
 .btc-pnl { flex: 1; text-align: center; font-weight: 700; min-width: 100px; }
 .btc-liq { flex: 0 0 100px; text-align: center; color: var(--red); font-size: 13px; }
@@ -991,7 +991,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     <div class="wallet-badge" id="balBadge"><span class="wallet-label">총자산</span><span class="wallet-val" id="topBal">$1,000.00</span></div>
     <div class="unreal-badge" id="unrealBadge"><span style="color:var(--text2);margin-right:5px">미실현</span><span id="topUnreal" style="color:var(--text2)">$0.00</span></div>
     <div class="wallet-badge" id="pnlBadge"><span class="wallet-label">실현손익</span><span class="wallet-val" id="topPnl" style="color:var(--text2)">$0.00</span></div>
-    <button class="rank-btn" onclick="openStats()">📊 통계</button>
+    <button class="rank-btn" onclick="openStats()">📊 자산</button>
     <button class="rank-btn" onclick="openRanking()">🏆 랭킹</button>
   </div>
 </div>
@@ -1438,11 +1438,11 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="fut-positions-wrap">
     <div class="bt-scroll">
       <div class="bt-header">
-        <span style="flex:0 0 75px">방향</span>
-        <span style="flex:0 0 100px;font-weight:600">심볼</span>
-        <span style="flex:0 0 100px;text-align:center">진입가</span>
+        <span style="flex:0 0 75px;text-align:center">방향</span>
+        <span style="flex:0 0 100px;font-weight:600;text-align:center">심볼</span>
+        <span style="flex:1;text-align:center;min-width:110px">미실현손익</span>
         <span style="flex:0 0 100px;text-align:center">현재가</span>
-        <span style="flex:1;text-align:center;min-width:100px">미실현손익</span>
+        <span style="flex:0 0 100px;text-align:center">진입가</span>
         <span style="flex:0 0 100px;text-align:center">청산가</span>
         <span style="flex:0 0 200px"></span>
       </div>
@@ -1739,7 +1739,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 <div class="stats-overlay" id="statsOverlay" style="display:none" onclick="if(event.target===this)closeStats()">
   <div class="stats-modal">
     <div class="stats-header">
-      <span class="stats-title">📊 나의 통계</span>
+      <span class="stats-title">📊 나의 자산</span>
       <button onclick="closeStats()" class="rank-close">✕</button>
     </div>
     <div class="stats-body" id="statsBody"></div>
@@ -5042,11 +5042,11 @@ function renderFutPositions() {
       lo  ? `<span style="font-size:9px;color:var(--yellow);white-space:nowrap">📌$${fmt(lo.price)}<button onclick="cancelLimitClose(${p.id})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 1px;margin-left:1px" title="예약 취소">✕</button></span>` : ''
     ].filter(Boolean).join('');
     return `<div class="bt-row">
-      <span style="flex:0 0 75px"><span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}">${p.dir==='long'?'▲ LONG':'▼ SHORT'}</span></span>
-      <span class="btc-sym">${p.sym.replace('USDT','')} <span style="color:var(--yellow);font-size:10px">${p.leverage}x</span></span>
-      <span class="btc-num">$${fmt(p.entryPrice)}</span>
-      <span class="btc-num" style="color:var(--text)">${price?'$'+fmt(price):'—'}</span>
+      <span style="flex:0 0 75px;text-align:center"><span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}">${p.dir==='long'?'▲ LONG':'▼ SHORT'}</span></span>
+      <span class="btc-sym" style="text-align:center">${p.sym.replace('USDT','')} <span style="color:var(--yellow);font-size:10px">${p.leverage}x</span></span>
       <span class="btc-pnl" style="color:${pnlColor}">${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))} <small style="font-weight:400">(${pnl>=0?'+':''}${pct}%)</small></span>
+      <span class="btc-num" style="color:var(--text)">${price?'$'+fmt(price):'—'}</span>
+      <span class="btc-num">$${fmt(p.entryPrice)}</span>
       <span class="btc-liq">$${fmt(p.liqPrice)}</span>
       <span style="flex:0 0 200px;display:flex;gap:4px;justify-content:flex-end;align-items:center;flex-wrap:wrap">
         ${tpslHtml}
@@ -5461,6 +5461,10 @@ function calcTotalEquity() {
       : (p.entryPrice-price)/p.entryPrice*p.margin*p.leverage;
     eq += p.margin + pnl;
   });
+  // 미체결 선물 진입 예약: 마진+수수료가 wallet에서 차감됐으므로 다시 포함
+  futEntryOrders.forEach(o => { eq += o.margin + o.fee; });
+  // 미체결 현물 매수 예약: amount가 wallet에서 차감됐으므로 다시 포함
+  spotLimitOrders.forEach(o => { if (o.dir === 'buy') eq += o.amount; });
   return Math.max(0, eq);
 }
 function drawEquitySVG(history) {
@@ -5492,21 +5496,25 @@ function openStats() {
 }
 function closeStats() { $('statsOverlay').style.display = 'none'; }
 function renderStats() {
-  const allTrades = [...spotHistory, ...futHistory];
-  const total = allTrades.length;
-  const wins = allTrades.filter(t => t.pnl > 0).length;
+  // 청산 완료된 거래만 집계 (현물 매수 미청산건 제외)
+  const closedTrades = [...spotHistory.filter(t => t.pnl !== null), ...futHistory];
+  const total = closedTrades.length;
+  const wins = closedTrades.filter(t => t.pnl > 0).length;
   const winRate = total ? (wins / total * 100).toFixed(1) : '—';
-  const pnls = allTrades.map(t => t.pnl).filter(p => p !== null && p !== undefined);
+  const pnls = closedTrades.map(t => t.pnl).filter(p => p !== null && p !== undefined);
   const bestPnl = pnls.length ? Math.max(...pnls) : null;
   const worstPnl = pnls.length ? Math.min(...pnls) : null;
   const avgPnl = pnls.length ? pnls.reduce((a,b)=>a+b,0)/pnls.length : null;
-  // Max drawdown from equityHistory
-  let maxDD = 0, peak = 0;
-  equityHistory.forEach(h => {
-    if (h.v > peak) peak = h.v;
-    const dd = peak > 0 ? (peak - h.v) / peak * 100 : 0;
-    if (dd > maxDD) maxDD = dd;
-  });
+  // 최대낙폭: 실제 청산된 거래 기준 (미실현 PnL 변동 제외)
+  let maxDD = 0, peak = startAmount, running = startAmount;
+  closedTrades
+    .slice().sort((a,b)=>(a.closedAt||a.time||0)-(b.closedAt||b.time||0))
+    .forEach(t => {
+      if (t.pnl != null) running += t.pnl;
+      if (running > peak) peak = running;
+      const dd = peak > 0 ? (peak - running) / peak * 100 : 0;
+      if (dd > maxDD) maxDD = dd;
+    });
   const cur = calcTotalEquity();
   const totalReturn = ((cur - startAmount) / startAmount * 100);
 
@@ -5569,7 +5577,7 @@ function renderStats() {
       </div>
       <div class="stats-card">
         <div class="stats-card-label">현물 / 선물 트레이드</div>
-        <div class="stats-card-val" style="font-size:15px">${spotHistory.length} / ${futHistory.length}</div>
+        <div class="stats-card-val" style="font-size:15px">${spotHistory.filter(t=>t.pnl!==null).length} / ${futHistory.length}</div>
       </div>
     </div>`;
 }
