@@ -1,11 +1,346 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=trading-simulator.html">
-  <title>TradePlay</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>TradePlay — 무료 암호화폐 모의투자 시뮬레이터 | 실시간 비트코인·이더리움 코인 모의거래</title>
+<meta name="description" content="가입 없이 즉시 시작하는 무료 암호화폐 모의투자 시뮬레이터. 실시간 Bybit 시세로 비트코인, 이더리움, 솔라나 등 100개 이상 코인을 현물·선물로 안전하게 연습하고 글로벌 랭킹에 도전하세요.">
+<meta name="keywords" content="암호화폐 모의투자, 코인 시뮬레이터, 비트코인 모의거래, 이더리움 모의투자, 가상 선물거래, 코인 연습, 무료 트레이딩, 레버리지 모의거래">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="TradePlay — 무료 암호화폐 모의투자 시뮬레이터">
+<meta property="og:description" content="실시간 시세로 코인 현물·선물 모의투자. 가입 없이 즉시 시작.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tradeplay.pages.dev/">
+<meta property="og:image" content="https://tradeplay.pages.dev/모바일.jpg">
+<link rel="canonical" href="https://tradeplay.pages.dev/">
+<!-- Google AdSense ※ ca-pub-XXXXXXXXXXXXXXXX 을 실제 게시자 ID로 교체 -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0e11;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.7}
+a{text-decoration:none;color:inherit}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:#131720;border-bottom:1px solid #2a3347;position:sticky;top:0;z-index:100}
+.nav-logo{font-size:18px;font-weight:800;letter-spacing:-0.5px}
+.nav-logo span{color:#3b82f6}
+.nav-links{display:flex;align-items:center;gap:20px;font-size:13px;color:#8896ae}
+.nav-links a:hover{color:#e2e8f0}
+.nav-cta{background:#3b82f6;color:#fff;padding:8px 20px;border-radius:6px;font-size:13px;font-weight:600;transition:background 0.2s}
+.nav-cta:hover{background:#2563eb}
+
+/* HERO */
+.hero{text-align:center;padding:80px 24px 60px;max-width:800px;margin:0 auto}
+.hero-badge{display:inline-block;background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;margin-bottom:20px;letter-spacing:0.5px}
+.hero h1{font-size:clamp(28px,5vw,52px);font-weight:800;line-height:1.2;margin-bottom:18px;letter-spacing:-1px}
+.hero h1 em{color:#3b82f6;font-style:normal}
+.hero-sub{font-size:clamp(14px,2vw,18px);color:#8896ae;margin-bottom:36px;max-width:600px;margin-left:auto;margin-right:auto}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:48px}
+.btn-primary{background:#3b82f6;color:#fff;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:700;transition:background 0.2s;display:inline-block}
+.btn-primary:hover{background:#2563eb}
+.btn-secondary{background:#1c2230;color:#e2e8f0;padding:14px 28px;border-radius:8px;font-size:15px;border:1px solid #2a3347;transition:background 0.2s;display:inline-block}
+.btn-secondary:hover{background:#252d3d}
+.hero-stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-num{font-size:22px;font-weight:800;color:#3b82f6}
+.hero-stat-label{font-size:12px;color:#6b7280;margin-top:2px}
+
+/* SECTION */
+.section{padding:64px 24px;max-width:1100px;margin:0 auto}
+.section-title{font-size:clamp(20px,3vw,30px);font-weight:800;text-align:center;margin-bottom:8px}
+.section-sub{text-align:center;color:#8896ae;font-size:14px;margin-bottom:48px}
+
+/* FEATURES */
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.feat-card{background:#131720;border:1px solid #2a3347;border-radius:12px;padding:24px;transition:border-color 0.2s}
+.feat-card:hover{border-color:#3b82f6}
+.feat-icon{font-size:28px;margin-bottom:14px}
+.feat-title{font-size:15px;font-weight:700;margin-bottom:8px;color:#e2e8f0}
+.feat-desc{font-size:13px;color:#8896ae;line-height:1.65}
+
+/* STEPS */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px}
+.step{text-align:center;padding:28px 20px}
+.step-num{width:44px;height:44px;border-radius:50%;background:#3b82f6;color:#fff;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.step-title{font-size:15px;font-weight:700;margin-bottom:8px}
+.step-desc{font-size:13px;color:#8896ae}
+
+/* AD UNIT */
+.ad-section{padding:32px 24px;text-align:center;border-top:1px solid #2a3347;border-bottom:1px solid #2a3347;background:#0f1318}
+.ad-label{font-size:10px;color:#4a5568;letter-spacing:1px;margin-bottom:8px;text-transform:uppercase}
+
+/* COINS */
+.coin-list{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:0 24px 48px}
+.coin-chip{background:#1c2230;border:1px solid #2a3347;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#8896ae}
+
+/* FAQ */
+.faq{max-width:700px;margin:0 auto}
+.faq-item{border-bottom:1px solid #2a3347;padding:20px 0}
+.faq-q{font-size:15px;font-weight:700;color:#e2e8f0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;user-select:none}
+.faq-q::after{content:'▼';font-size:10px;color:#6b7280;flex-shrink:0;transition:transform 0.2s}
+.faq-item.open .faq-q::after{transform:rotate(180deg)}
+.faq-a{font-size:13px;color:#8896ae;margin-top:12px;line-height:1.75;display:none}
+.faq-item.open .faq-a{display:block}
+
+/* CTA BAND */
+.cta-band{background:linear-gradient(135deg,#1e3a5f,#1c2a4a);padding:64px 24px;text-align:center}
+.cta-band h2{font-size:clamp(20px,3vw,32px);font-weight:800;margin-bottom:12px}
+.cta-band p{color:#8896ae;font-size:14px;margin-bottom:28px}
+
+/* FOOTER */
+footer{background:#080b0e;border-top:1px solid #21262d;padding:32px 24px;text-align:center;font-size:12px;color:#4a5568}
+footer a{color:#4a5568;margin:0 10px}
+footer a:hover{color:#8896ae}
+.footer-links{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.footer-copy{color:#374151}
+
+/* MOBILE */
+@media(max-width:600px){
+  .nav-links{display:none}
+  .hero{padding:56px 16px 40px}
+  .section{padding:48px 16px}
+  .hero-stats{gap:24px}
+  .hero-stat-num{font-size:18px}
+  .features{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
-  <script>window.location.replace('trading-simulator.html');</script>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">Trade<span>Play</span></div>
+  <div class="nav-links">
+    <a href="#features">기능</a>
+    <a href="#howto">사용법</a>
+    <a href="#faq">FAQ</a>
+    <a href="privacy.html">개인정보처리방침</a>
+  </div>
+  <a class="nav-cta" href="trading-simulator.html">앱 실행 →</a>
+</nav>
+
+<!-- HERO -->
+<section>
+<div class="hero">
+  <div class="hero-badge">🚀 가입 없이 즉시 시작</div>
+  <h1>실시간 암호화폐<br><em>모의투자 시뮬레이터</em></h1>
+  <p class="hero-sub">진짜 돈은 한 푼도 필요 없습니다. 실시간 Bybit 시세로 비트코인·이더리움·알트코인을 자유롭게 매매하며 트레이딩 실력을 키우세요.</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="trading-simulator.html">지금 바로 시작하기</a>
+    <a class="btn-secondary" href="#howto">사용법 보기</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num">10,000</div>
+      <div class="hero-stat-label">시작 가상자산 (USDT)</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">100+</div>
+      <div class="hero-stat-label">거래 가능 코인</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">125x</div>
+      <div class="hero-stat-label">최대 레버리지</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">실시간</div>
+      <div class="hero-stat-label">Bybit 시세 연동</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <h2 class="section-title">트레이딩 연습에 필요한 모든 것</h2>
+  <p class="section-sub">실제 거래소와 동일한 환경에서 안전하게 연습하세요</p>
+  <div class="features">
+    <div class="feat-card">
+      <div class="feat-icon">📡</div>
+      <div class="feat-title">실시간 시세 연동</div>
+      <div class="feat-desc">Bybit WebSocket API를 통해 실제 거래소와 동일한 실시간 시세를 제공합니다. 비트코인, 이더리움, 솔라나 등 주요 코인의 정확한 가격으로 모의투자를 연습할 수 있습니다.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📈</div>
+      <div class="feat-title">전문 캔들차트 & 기술적 분석</div>
+      <div class="feat-desc">TradingView 방식의 전문 캔들차트를 제공합니다. 이동평균선(MA), 볼린저 밴드, RSI 등 보조지표와 추세선 그리기로 차트 분석 능력을 키울 수 있습니다.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔄</div>
+      <div class="feat-title">현물 · 선물 거래 지원</div>
+      <div class="feat-desc">현물 매수·매도는 물론, 최대 125배 레버리지 선물 거래까지 지원합니다. 시장가·지정가 주문, 손절(SL)·익절(TP) 설정으로 실전과 동일한 경험을 쌓으세요.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🏆</div>
+      <div class="feat-title">글로벌 실시간 랭킹</div>
+      <div class="feat-desc">전 세계 트레이더들과 수익률을 경쟁합니다. Firebase 기반 실시간 랭킹 시스템으로 내 실력이 어느 수준인지 확인하고, 최고의 트레이더를 목표로 도전하세요.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <div class="feat-title">상세한 수익률 통계</div>
+      <div class="feat-desc">총 자산, 실현·미실현 손익, 최대 낙폭(MDD), 승률 등 전문 트레이더가 사용하는 핵심 지표를 한눈에 확인할 수 있습니다. 거래 내역도 모두 기록됩니다.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📱</div>
+      <div class="feat-title">모바일 완전 최적화</div>
+      <div class="feat-desc">스마트폰에서도 PC와 동일한 모의투자 경험을 즐길 수 있습니다. 별도 앱 설치 없이 브라우저에서 바로 이용 가능하며, 터치 제스처로 차트를 편리하게 조작하세요.</div>
+    </div>
+  </div>
+</section>
+
+<!-- COIN LIST -->
+<div style="padding:0 24px 16px;text-align:center;max-width:1100px;margin:0 auto">
+  <p style="font-size:13px;color:#6b7280;margin-bottom:16px">거래 가능한 주요 코인</p>
+</div>
+<div class="coin-list">
+  <span class="coin-chip">₿ BTC</span>
+  <span class="coin-chip">Ξ ETH</span>
+  <span class="coin-chip">◎ SOL</span>
+  <span class="coin-chip">✕ XRP</span>
+  <span class="coin-chip">▲ BNB</span>
+  <span class="coin-chip">● DOGE</span>
+  <span class="coin-chip">◆ ADA</span>
+  <span class="coin-chip">◉ AVAX</span>
+  <span class="coin-chip">⬡ LINK</span>
+  <span class="coin-chip">◈ DOT</span>
+  <span class="coin-chip">⬣ MATIC</span>
+  <span class="coin-chip">✦ LTC</span>
+  <span class="coin-chip">⟠ UNI</span>
+  <span class="coin-chip">⬡ ATOM</span>
+  <span class="coin-chip">+ 100개 이상</span>
+</div>
+
+<!-- AD UNIT (랜딩 페이지 중간) -->
+<div class="ad-section">
+  <div class="ad-label">Advertisement</div>
+  <ins class="adsbygoogle"
+       style="display:block;min-height:90px"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="SLOT_ID_3"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<!-- HOW TO USE -->
+<section class="section" id="howto">
+  <h2 class="section-title">3단계로 시작하는 모의투자</h2>
+  <p class="section-sub">복잡한 가입 절차 없이 30초 안에 시작할 수 있습니다</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">닉네임 입력</div>
+      <div class="step-desc">이메일·비밀번호 가입 없이 닉네임만 입력하면 끝. 10,000 USDT 가상 자산이 즉시 지급됩니다.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">차트 분석 & 매매</div>
+      <div class="step-desc">실시간 캔들차트를 분석하고 원하는 코인을 현물 또는 선물로 매수·매도하세요. 시장가·지정가·레버리지 모두 지원합니다.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">수익률 확인 & 랭킹 도전</div>
+      <div class="step-desc">거래 결과를 통계로 확인하고 글로벌 랭킹에 도전하세요. 최고 수익률 달성을 목표로 전략을 개선해 나가세요.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT / DESCRIPTION (SEO & AdSense 콘텐츠) -->
+<section class="section" style="border-top:1px solid #2a3347;padding-top:64px">
+  <h2 class="section-title">TradePlay란?</h2>
+  <p class="section-sub">암호화폐 트레이딩을 배우는 가장 안전한 방법</p>
+  <div style="max-width:720px;margin:0 auto;font-size:14px;color:#8896ae;line-height:1.9;display:grid;gap:20px">
+    <p>TradePlay는 실제 돈을 투자하지 않고도 암호화폐 거래를 연습할 수 있는 <strong style="color:#e2e8f0">무료 모의투자 시뮬레이터</strong>입니다. 암호화폐 시장은 24시간 365일 열려 있으며, 높은 변동성 때문에 초보자가 실제 돈으로 바로 투자하기에는 위험이 따릅니다. TradePlay는 이러한 위험 없이 실전과 동일한 환경에서 매매 전략을 익힐 수 있도록 설계되었습니다.</p>
+    <p>Bybit WebSocket API를 통해 수신하는 <strong style="color:#e2e8f0">실시간 시세 데이터</strong>를 바탕으로, 비트코인(BTC), 이더리움(ETH), 솔라나(SOL) 등 100개 이상의 코인을 현물 및 선물로 거래할 수 있습니다. 지정가 주문, 손절·익절 자동 설정, 레버리지 조절 등 실제 거래소에서 사용하는 모든 기능을 그대로 경험할 수 있습니다.</p>
+    <p>트레이딩에서 가장 중요한 것은 <strong style="color:#e2e8f0">감정 관리와 전략적 사고</strong>입니다. 모의투자를 통해 손절의 중요성, 레버리지의 위험성, 포지션 크기 관리 등을 몸소 체험하면 실제 투자 시 더 현명한 결정을 내릴 수 있습니다. TradePlay의 상세한 수익률 통계와 최대 낙폭(MDD) 분석을 통해 자신의 투자 패턴을 객관적으로 파악하세요.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq" style="border-top:1px solid #2a3347">
+  <h2 class="section-title">자주 묻는 질문</h2>
+  <p class="section-sub">궁금한 점이 있으시면 아래에서 확인하세요</p>
+  <div class="faq">
+    <div class="faq-item open">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">실제 돈이 필요한가요?</div>
+      <div class="faq-a">전혀 필요하지 않습니다. TradePlay는 완전 무료이며, 가상의 10,000 USDT로 시작합니다. 잔액이 소진되면 광고 시청 또는 초기화를 통해 다시 시작할 수 있습니다.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">시세는 실제 거래소와 동일한가요?</div>
+      <div class="faq-a">네. Bybit의 실시간 WebSocket API를 통해 실제 시세를 수신하기 때문에 실제 거래소와 동일한 가격으로 거래됩니다. 단, 실제 자산의 이동은 없습니다.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">앱 설치가 필요한가요?</div>
+      <div class="faq-a">필요하지 않습니다. 크롬, 사파리, 파이어폭스 등 모든 주요 브라우저에서 바로 이용 가능합니다. iOS와 안드로이드 스마트폰에서도 웹 브라우저로 접속하면 모바일 최적화 화면이 제공됩니다.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">수수료는 어떻게 되나요?</div>
+      <div class="faq-a">현물 거래는 0.1%, 선물 거래는 Taker 기준 0.06%의 수수료가 부과됩니다. 실제 Bybit 거래소와 동일한 수수료 구조로 시뮬레이션하여 최대한 실전에 가까운 환경을 제공합니다.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">내 거래 데이터는 저장되나요?</div>
+      <div class="faq-a">거래 데이터(보유 자산, 거래 내역, 잔고 등)는 브라우저 로컬 스토리지에 저장됩니다. 랭킹 데이터(닉네임, 수익률)만 Google Firebase에 저장됩니다. 개인정보 보호에 대한 자세한 내용은 개인정보처리방침을 확인하세요.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">선물 거래에서 레버리지란 무엇인가요?</div>
+      <div class="faq-a">레버리지는 보유 자산 대비 몇 배 규모로 거래할 수 있는지를 나타냅니다. 예를 들어 10배 레버리지를 사용하면 100 USDT의 마진으로 1,000 USDT 규모의 포지션을 열 수 있습니다. 수익도 10배이지만 손실도 10배이므로, 모의투자를 통해 충분히 연습 후 실거래에 활용하는 것을 권장합니다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <h2>지금 바로 트레이딩을 시작하세요</h2>
+  <p>가입 없이, 리스크 없이 — 실시간 시세로 코인 투자를 연습하세요</p>
+  <a class="btn-primary" href="trading-simulator.html" style="font-size:16px;padding:16px 40px">무료로 시작하기 →</a>
+</div>
+
+<!-- FOOTER AD -->
+<div class="ad-section" style="border-top:none">
+  <div class="ad-label">Advertisement</div>
+  <ins class="adsbygoogle"
+       style="display:block;min-height:90px"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="SLOT_ID_4"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="trading-simulator.html">트레이딩 앱</a>
+    <a href="privacy.html">개인정보처리방침</a>
+    <a href="terms.html">이용약관</a>
+    <a href="mailto:asrai2635@gmail.com">문의하기</a>
+  </div>
+  <div class="footer-copy">© 2025 TradePlay · 본 서비스는 교육 목적의 모의투자 시뮬레이터입니다 · 실제 투자를 권유하지 않습니다</div>
+</footer>
+
+<!-- FAQ 토글 스크립트 -->
+<script>
+// 쿠키 동의 배너
+(function(){
+  if (!localStorage.getItem('cookie_ok')) {
+    var bar = document.getElementById('cookieBanner');
+    if (bar) bar.style.display = 'flex';
+  }
+})();
+function acceptCookie(){
+  localStorage.setItem('cookie_ok','1');
+  var b=document.getElementById('cookieBanner');
+  if(b)b.style.display='none';
+}
+</script>
+
+<!-- 쿠키 동의 배너 -->
+<div id="cookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#131720;border-top:1px solid #2a3347;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:9999;gap:16px;flex-wrap:wrap">
+  <span style="font-size:12px;color:#8896ae">이 사이트는 서비스 개선 및 광고 게재를 위해 쿠키를 사용합니다. 계속 이용 시 동의한 것으로 간주됩니다. <a href="privacy.html" style="color:#3b82f6">개인정보처리방침</a></span>
+  <button onclick="acceptCookie()" style="background:#3b82f6;border:none;color:#fff;padding:6px 18px;border-radius:5px;cursor:pointer;font-size:12px;white-space:nowrap;font-family:inherit">확인</button>
+</div>
+
 </body>
 </html>
