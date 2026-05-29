@@ -518,7 +518,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 .section-label { font-size: 10px; color: var(--text3); letter-spacing: 1px; padding: 6px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
 
 /* TOAST */
-.toast { position: fixed; top: 58px; right: 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 9999; max-width: 280px; width: max-content; border-left: 3px solid var(--blue); white-space: nowrap; box-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+.toast { position: fixed; top: 58px; left: calc((100vw - 270px) / 2); transform: translateX(-50%); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 9999; max-width: 320px; width: max-content; border-left: 3px solid var(--blue); white-space: nowrap; box-shadow: 0 2px 12px rgba(0,0,0,0.4); }
 .toast.show { opacity: 1; }
 
 /* LIQUIDATION FLASH */
@@ -933,7 +933,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   /* ── 모달: 바텀시트 스타일 ── */
   .stats-modal   { width: 96vw; max-height: 93vh; }
   .rank-modal    { width: 95vw; }
-  .toast         { font-size: 12px; max-width: 240px; border-radius: 8px; }
+  .toast         { font-size: 12px; max-width: 240px; border-radius: 8px; left: auto !important; right: 14px !important; transform: none !important; }
 
   /* 모든 팝업 → 바텀시트 공통 */
   .sls-overlay, .lcp-overlay, .funding-overlay, .ad-overlay {
@@ -1160,7 +1160,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 <!-- SPOT BOTTOM PANEL -->
 <div class="bottom-panel" id="spot-bottom">
   <div class="bp-tabs">
-    <div class="bp-tab active" onclick="setBottomTab('spot','holdings',this)">보유자산</div>
+    <div class="bp-tab active" onclick="setBottomTab('spot','holdings',this)">포지션</div>
     <div class="bp-tab" onclick="setBottomTab('spot','history',this)">거래내역</div>
     <div class="bp-tab" onclick="setBottomTab('spot','orders',this)">미체결</div>
   </div>
@@ -1168,14 +1168,17 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="spot-holdings-wrap">
     <div class="bt-scroll">
       <div class="bt-header">
-        <span style="flex:0 0 110px;font-weight:600;text-align:center">심볼</span>
-        <span style="flex:1;text-align:center;min-width:110px">평가손익</span>
-        <span style="flex:0 0 100px;text-align:center">현재가</span>
-        <span style="flex:0 0 100px;text-align:center">평균단가</span>
+        <span style="flex:0 0 44px;text-align:center">종류</span>
+        <span style="flex:0 0 72px;text-align:center">방향</span>
+        <span style="flex:0 0 90px;font-weight:600;text-align:center">심볼</span>
         <span style="flex:0 0 80px;text-align:center">수량</span>
-        <span style="flex:0 0 160px"></span>
+        <span style="flex:0 0 95px;text-align:center">진입가</span>
+        <span style="flex:0 0 95px;text-align:center">현재가</span>
+        <span style="flex:0 0 95px;text-align:center">청산가</span>
+        <span style="flex:1;text-align:center;min-width:120px">미실현P&L(ROI)</span>
+        <span style="flex:0 0 180px;text-align:right">청산</span>
       </div>
-      <div class="bt-body" id="spotHoldings"><div class="empty-msg">보유 자산 없음</div></div>
+      <div class="bt-body" id="spotHoldings"><div class="empty-msg">보유 포지션 없음</div></div>
     </div>
   </div>
   <!-- 거래내역 테이블 -->
@@ -5094,7 +5097,9 @@ function renderFutPositions() {
     </div>`);
   });
 
-  el.innerHTML = rows.length ? rows.join('') : '<div class="empty-msg">보유 포지션 없음</div>';
+  const html = rows.length ? rows.join('') : '<div class="empty-msg">보유 포지션 없음</div>';
+  el.innerHTML = html;
+  const spotEl = $('spotHoldings'); if (spotEl) spotEl.innerHTML = html;
 }
 
 // ── 지정가 청산 팝업 ──────────────────────────────────
