@@ -505,6 +505,8 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 
 /* BOTTOM TABLE (Bybit style) */
 .bt-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+@keyframes bpFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.bt-wrap-active { animation: bpFadeIn 0.15s ease; }
 .bt-scroll { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
 .bt-header { display: flex; align-items: center; padding: 5px 14px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text2); flex-shrink: 0; background: var(--bg3); user-select: none; }
 .bt-body { flex: 1; overflow-y: auto; min-height: 0; padding-bottom: 26px; }
@@ -4204,6 +4206,30 @@ function setObMode(page, mode, btn) {
     if (bidsEl) bidsEl.style.display = '';
   }
 }
+function _patchObRows(container, rows, isAsk, maxTot, dispDec, dec) {
+  const kids = container.children;
+  rows.forEach(([p, q, t], i) => {
+    const barW = (t / maxTot * 100).toFixed(1);
+    const qStr = _fmtObQty(q);
+    const tStr = _fmtObQty(t);
+    if (kids[i]) {
+      kids[i].dataset.price = p.toFixed(dec);
+      kids[i].children[0].style.width = barW + '%';
+      kids[i].children[1].textContent = p.toFixed(dispDec);
+      kids[i].children[2].textContent = qStr;
+      kids[i].children[3].textContent = tStr;
+    } else {
+      const div = document.createElement('div');
+      div.className = 'ob-row ' + (isAsk ? 'ob-ask-row' : 'ob-bid-row');
+      div.dataset.price = p.toFixed(dec);
+      div.innerHTML = `<div class="ob-bar ${isAsk?'ob-ask-bar':'ob-bid-bar'}" style="width:${barW}%"></div>` +
+        `<span class="ob-p ${isAsk?'dn':'up'}">${p.toFixed(dispDec)}</span>` +
+        `<span class="ob-q">${qStr}</span><span class="ob-t">${tStr}</span>`;
+      container.appendChild(div);
+    }
+  });
+  while (kids.length > rows.length) container.removeChild(container.lastChild);
+}
 function renderOB(page) {
   if (_obPending[page]) return;
   _obPending[page] = true;
@@ -4276,18 +4302,7 @@ function _doRenderOB(page) {
   const maxTot = Math.max(askTot, bidTot, 1);
 
   // ── ASKS 렌더: 높은 가격(top) → 낮은 가격(bottom, 현재가 바로 위) ──
-  if (asksEl) {
-    asksEl.innerHTML = [...asksWithT].reverse().map(([p, q, t]) => {
-      const barW = (t / maxTot * 100).toFixed(1);
-      const qStr = _fmtObQty(q);
-      const tStr = _fmtObQty(t);
-      return `<div class="ob-row ob-ask-row" data-price="${p.toFixed(dec)}">` +
-        `<div class="ob-bar ob-ask-bar" style="width:${barW}%"></div>` +
-        `<span class="ob-p dn">${p.toFixed(dispDec)}</span>` +
-        `<span class="ob-q">${qStr}</span>` +
-        `<span class="ob-t">${tStr}</span></div>`;
-    }).join('');
-  }
+  if (asksEl) _patchObRows(asksEl, [...asksWithT].reverse(), true, maxTot, dispDec, dec);
 
   // ── MID 가격 ──
   $(pfx+'-mid-price').textContent = price ? '$' + fmt(price, dec) : '—';
@@ -4303,18 +4318,7 @@ function _doRenderOB(page) {
 
   // ── BIDS 렌더: 높은 가격(top, 현재가 바로 아래) → 낮은 가격(bottom) ──
   const bidsEl = $(pfx+'-bids');
-  if (bidsEl) {
-    bidsEl.innerHTML = bidsWithT.map(([p, q, t]) => {
-      const barW = (t / maxTot * 100).toFixed(1);
-      const qStr = _fmtObQty(q);
-      const tStr = _fmtObQty(t);
-      return `<div class="ob-row ob-bid-row" data-price="${p.toFixed(dec)}">` +
-        `<div class="ob-bar ob-bid-bar" style="width:${barW}%"></div>` +
-        `<span class="ob-p up">${p.toFixed(dispDec)}</span>` +
-        `<span class="ob-q">${qStr}</span>` +
-        `<span class="ob-t">${tStr}</span></div>`;
-    }).join('');
-  }
+  if (bidsEl) _patchObRows(bidsEl, bidsWithT, false, maxTot, dispDec, dec);
 
   // ── 매수/매도 비율 바 ──
   const total = askTot + bidTot;
@@ -4322,10 +4326,17 @@ function _doRenderOB(page) {
     const bPct = Math.round(bidTot / total * 100);
     const aPct = 100 - bPct;
     const ratioEl = $(pfx+'-ratio');
-    if (ratioEl) ratioEl.innerHTML =
-      `<span class="ob-ratio-b">B ${bPct}%</span>` +
-      `<div class="ob-ratio-bar"><div class="ob-ratio-bid" style="width:${bPct}%"></div></div>` +
-      `<span class="ob-ratio-s">S ${aPct}%</span>`;
+    if (ratioEl) {
+      if (!ratioEl.querySelector('.ob-ratio-b')) {
+        ratioEl.innerHTML = `<span class="ob-ratio-b">B ${bPct}%</span>` +
+          `<div class="ob-ratio-bar"><div class="ob-ratio-bid" style="width:${bPct}%"></div></div>` +
+          `<span class="ob-ratio-s">S ${aPct}%</span>`;
+      } else {
+        ratioEl.querySelector('.ob-ratio-b').textContent = `B ${bPct}%`;
+        ratioEl.querySelector('.ob-ratio-bid').style.width = bPct + '%';
+        ratioEl.querySelector('.ob-ratio-s').textContent = `S ${aPct}%`;
+      }
+    }
   }
 
   // 뎁스차트 탭이 열려있으면 재렌더
@@ -5330,18 +5341,25 @@ function setFutTab(tab, btn) {
 function setBottomTab(page, tab, btn) {
   btn.closest('.bp-tabs').querySelectorAll('.bp-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+  const spotWraps = { holdings:'spot-holdings-wrap', history:'spot-history-wrap', orders:'spot-orders-wrap' };
+  const futWraps  = { positions:'fut-positions-wrap', history:'fut-history-wrap', orders:'fut-orders-wrap', assets:'fut-assets-wrap', pnl:'fut-pnl-wrap' };
+  const wraps = page === 'spot' ? spotWraps : futWraps;
+  const blockTabs = new Set(['assets','pnl']);
+  Object.entries(wraps).forEach(([t, id]) => {
+    const el = $(id); if (!el) return;
+    el.classList.remove('bt-wrap-active');
+    if (t === tab) {
+      el.style.display = blockTabs.has(t) ? 'block' : 'flex';
+      void el.offsetWidth;
+      el.classList.add('bt-wrap-active');
+    } else {
+      el.style.display = 'none';
+    }
+  });
   if (page === 'spot') {
-    $('spot-holdings-wrap').style.display = tab === 'holdings' ? 'flex' : 'none';
-    $('spot-history-wrap').style.display  = tab === 'history'  ? 'flex' : 'none';
-    $('spot-orders-wrap').style.display   = tab === 'orders'   ? 'flex' : 'none';
     if (tab === 'history') renderSpotHistory();
     if (tab === 'orders')  renderSpotOrders();
   } else {
-    $('fut-positions-wrap').style.display = tab === 'positions' ? 'flex' : 'none';
-    $('fut-history-wrap').style.display   = tab === 'history'   ? 'flex' : 'none';
-    $('fut-orders-wrap').style.display    = tab === 'orders'    ? 'flex' : 'none';
-    $('fut-assets-wrap').style.display    = tab === 'assets'    ? 'block' : 'none';
-    $('fut-pnl-wrap').style.display       = tab === 'pnl'       ? 'block' : 'none';
     if (tab === 'history') renderFutHistory();
     if (tab === 'orders')  renderFutOrders();
     if (tab === 'assets')  renderAssetsTab();
@@ -5897,11 +5915,11 @@ async function init() {
   });
   updateTopBar();
   _initDrawTooltips();
-  if (hasState) { renderSpotHoldings(); renderSpotHistory(); renderFutPositions(); renderFutHistory(); }
+  if (hasState) { renderSpotHistory(); renderFutPositions(); renderFutHistory(); }
   let _tick = 0;
   setInterval(() => {
     _tick++;
-    renderFutPositions(); renderSpotHoldings();
+    renderFutPositions();
     if (_tick % 2 === 0) { updateAiPlayers(); if ($('rankOverlay')?.style.display !== 'none') renderRanking(); }
     if (_tick % 7 === 0) refreshAllPrices();
   }, 1500);
