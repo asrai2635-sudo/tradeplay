@@ -2244,9 +2244,10 @@ function setMobTab(page, tab, btn) {
 // ══════════════════════════════════════════════════════
 async function loadAllSymbols() {
   try {
+    const _f = url => fetch(url).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
     const [sr, fr] = await Promise.all([
-      fetch('https://api.bybit.com/v5/market/tickers?category=spot').then(r=>r.json()),
-      fetch('https://api.bybit.com/v5/market/tickers?category=linear').then(r=>r.json())
+      _f('https://api.bybit.com/v5/market/tickers?category=spot'),
+      _f('https://api.bybit.com/v5/market/tickers?category=linear')
     ]);
     const parse = list => list
       .filter(t => t.symbol.endsWith('USDT') && parseFloat(t.lastPrice) > 0)
@@ -2265,10 +2266,10 @@ async function loadAllSymbols() {
       ALL_DATA.futures.forEach(t => { if (t.price) PRICES[t.sym] = t.price; });
     }
   } catch(e) {
-    // 네트워크 오류 시 하드코딩 폴백
     const mk = syms => syms.map(sym => ({ sym, price: PRICES[sym]||0, chgPct:0, vol:0 }));
     if (!ALL_DATA.spot.length)    ALL_DATA.spot    = mk(SPOT_SYMS);
     if (!ALL_DATA.futures.length) ALL_DATA.futures = mk(FUT_SYMS);
+    toast('시세 로드 실패 — 잠시 후 자동 재시도합니다', 'var(--yellow)');
   }
   renderSidebar('spot');
   renderSidebar('futures');
@@ -2277,9 +2278,10 @@ async function loadAllSymbols() {
 
 async function refreshAllPrices() {
   try {
+    const _f = url => fetch(url).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
     const [sr, fr] = await Promise.all([
-      fetch('https://api.bybit.com/v5/market/tickers?category=spot').then(r=>r.json()),
-      fetch('https://api.bybit.com/v5/market/tickers?category=linear').then(r=>r.json())
+      _f('https://api.bybit.com/v5/market/tickers?category=spot'),
+      _f('https://api.bybit.com/v5/market/tickers?category=linear')
     ]);
     const update = (allData, list) => {
       const map = new Map(list.map(t=>[t.symbol,t]));
@@ -6004,7 +6006,6 @@ async function init() {
   let _tick = 0;
   setInterval(() => {
     _tick++;
-    renderFutPositions();
     if (_tick % 2 === 0) { updateAiPlayers(); }
     if (_tick % 20 === 0 && $('rankOverlay')?.style.display !== 'none') renderRanking();
     if (_tick % 7 === 0) refreshAllPrices();
