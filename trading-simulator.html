@@ -4930,27 +4930,7 @@ function confirmSpotLimitSell() {
   saveState(); updatePriceLines('spot'); renderSpotOrders();
   closeSpotLimitSell();
 }
-function renderSpotHoldings() {
-  const el=$('spotHoldings');
-  const syms=Object.keys(holdings);
-  if(!syms.length){el.innerHTML='<div class="empty-msg">보유 자산 없음</div>';return;}
-  el.innerHTML=syms.map(sym=>{
-    const h=holdings[sym];
-    const price=PRICES[sym+'USDT']||(S.spot.sym===sym+'USDT'?S.spot.price:0)||0;
-    const val=price?h.qty*price:null;
-    const pnl=price?(price-h.avgPrice)*h.qty:null;
-    const pct=price?((price-h.avgPrice)/h.avgPrice*100):null;
-    const pnlColor=pnl===null?'var(--text2)':pnl>=0?'var(--green)':'var(--red)';
-    return `<div class="bt-row">
-      <span class="btc-sym" style="flex:0 0 110px;text-align:center">${sym}/USDT</span>
-      <span class="btc-pnl" style="color:${pnlColor}">${pnl!==null?(pnl>=0?'+$':'-$')+fmt(Math.abs(pnl))+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)':'—'}</span>
-      <span class="btc-num" style="color:var(--text)">${price?'$'+fmt(price):'—'}</span>
-      <span class="btc-num">$${fmt(h.avgPrice)}</span>
-      <span class="btc-num" style="flex:0 0 80px">${h.qty.toFixed(4)}</span>
-      <span style="flex:0 0 160px;text-align:right;display:flex;gap:4px;justify-content:flex-end;align-items:center"><button class="pos-mkt-btn" style="font-size:10px;padding:3px 8px" onclick="sellAllHolding('${sym}')">시장가</button><button class="pos-lmt-btn" style="font-size:10px;padding:3px 8px" onclick="openSpotLimitSell('${sym}')">지정가</button></span>
-    </div>`;
-  }).join('');
-}
+function renderSpotHoldings() { renderFutPositions(); }
 
 function renderSpotHistory() {
   const el=$('spotHistoryEl'); if(!el) return;
@@ -5150,7 +5130,7 @@ function renderFutPositions() {
   });
 
   const html = rows.length ? rows.join('') : '<div class="empty-msg">보유 포지션 없음</div>';
-  el.innerHTML = html;
+  if (el) el.innerHTML = html;
   const spotEl = $('spotHoldings'); if (spotEl) spotEl.innerHTML = html;
 }
 
