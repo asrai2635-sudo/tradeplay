@@ -1815,7 +1815,19 @@ const _db   = firebase.firestore();
 let _uid = null;
 
 _auth.signInAnonymously()
-  .then(cred => { _uid = cred.user.uid; _uploadRanking(); })
+  .then(cred => {
+    _uid = cred.user.uid;
+    _uploadRanking();
+    // localStorage에 닉네임 없으면 Firebase에서 복원 시도
+    if (!localStorage.getItem('tp_nickname')) {
+      _db.collection('rankings').doc(_uid).get().then(doc => {
+        if (doc.exists && doc.data().nickname) {
+          localStorage.setItem('tp_nickname', doc.data().nickname);
+          _lockNicknameInput();
+        }
+      }).catch(() => {});
+    }
+  })
   .catch(()=>{});
 
 // 5초 디바운스 업로드 (거래 후 과다 호출 방지)
