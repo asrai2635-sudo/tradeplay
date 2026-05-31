@@ -1857,7 +1857,17 @@ _auth.onAuthStateChanged(user => {
 
 async function googleLogin() {
   try { await _auth.signInWithPopup(_googleProvider); }
-  catch(e) { if (e.code !== 'auth/popup-closed-by-user') console.error(e); }
+  catch(e) {
+    if (e.code === 'auth/popup-closed-by-user') return;
+    if (e.code === 'auth/unauthorized-domain') {
+      toast('Firebase Console에서 tradeplay.pages.dev 도메인을 승인해주세요', 'var(--red)');
+    } else if (e.code === 'auth/operation-not-allowed') {
+      toast('Firebase Console에서 Google 로그인을 활성화해주세요', 'var(--red)');
+    } else {
+      toast('로그인 실패: ' + (e.message || e.code), 'var(--red)');
+    }
+    console.error(e);
+  }
 }
 async function googleLogout() {
   await _auth.signOut();
