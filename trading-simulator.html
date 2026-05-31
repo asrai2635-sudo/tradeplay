@@ -5675,7 +5675,9 @@ async function renderRanking() {
   const myEquity = calcTotalEquity();
   const myRoi    = (myEquity / startAmount - 1) * 100;
 
-  $('rankTable').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text3);font-size:13px">🔄 랭킹 불러오는 중...</div>';
+  if (!$('rankTable').children.length) {
+    $('rankTable').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text3);font-size:13px">🔄 랭킹 불러오는 중...</div>';
+  }
 
   if (_uid) {
     try {
