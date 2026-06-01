@@ -1226,15 +1226,15 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="spot-holdings-wrap">
     <div class="bt-scroll">
       <div class="bt-header">
-        <span style="flex:0 0 50px;text-align:center">종류</span>
-        <span style="flex:0 0 82px;text-align:center">방향</span>
-        <span style="flex:0 0 96px;font-weight:600;text-align:center">심볼</span>
-        <span style="flex:0 0 88px;text-align:center">수량</span>
-        <span style="flex:0 0 104px;text-align:center">진입가</span>
-        <span style="flex:0 0 104px;text-align:center">현재가</span>
-        <span style="flex:0 0 100px;text-align:center">청산가</span>
-        <span style="flex:0 0 140px;text-align:center">미실현P&L(ROI)</span>
-        <span style="flex:0 0 180px;text-align:right">청산</span>
+        <span style="flex:0 0 130px">계약</span>
+        <span style="flex:0 0 85px;text-align:right">수량</span>
+        <span style="flex:0 0 90px;text-align:right">가치(USDT)</span>
+        <span style="flex:0 0 95px;text-align:right">진입가</span>
+        <span style="flex:0 0 95px;text-align:right">마크가</span>
+        <span style="flex:0 0 90px;text-align:right">청산가</span>
+        <span style="flex:0 0 155px;text-align:right">미실현 손익(ROI)</span>
+        <span style="flex:0 0 100px;text-align:center">TP/SL</span>
+        <span style="flex:0 0 130px;text-align:right">청산</span>
       </div>
       <div class="bt-body" id="spotHoldings"><div class="empty-msg">보유 포지션 없음</div></div>
     </div>
@@ -1516,15 +1516,15 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="fut-positions-wrap">
     <div class="bt-scroll">
       <div class="bt-header">
-        <span style="flex:0 0 50px;text-align:center">종류</span>
-        <span style="flex:0 0 82px;text-align:center">방향</span>
-        <span style="flex:0 0 96px;font-weight:600;text-align:center">심볼</span>
-        <span style="flex:0 0 88px;text-align:center">수량</span>
-        <span style="flex:0 0 104px;text-align:center">진입가</span>
-        <span style="flex:0 0 104px;text-align:center">현재가</span>
-        <span style="flex:0 0 100px;text-align:center">청산가</span>
-        <span style="flex:0 0 140px;text-align:center">미실현P&L(ROI)</span>
-        <span style="flex:0 0 180px;text-align:right">청산</span>
+        <span style="flex:0 0 130px">계약</span>
+        <span style="flex:0 0 85px;text-align:right">수량</span>
+        <span style="flex:0 0 90px;text-align:right">가치(USDT)</span>
+        <span style="flex:0 0 95px;text-align:right">진입가</span>
+        <span style="flex:0 0 95px;text-align:right">마크가</span>
+        <span style="flex:0 0 90px;text-align:right">청산가</span>
+        <span style="flex:0 0 155px;text-align:right">미실현 손익(ROI)</span>
+        <span style="flex:0 0 100px;text-align:center">TP/SL</span>
+        <span style="flex:0 0 130px;text-align:right">청산</span>
       </div>
       <div class="bt-body" id="futPositions"><div class="empty-msg">보유 포지션 없음</div></div>
     </div>
@@ -5271,8 +5271,12 @@ function _posUpdateLive(container) {
     const pnlColor = pnl===null?'var(--text2)':pnl>=0?'var(--green)':'var(--red)';
     const pe = container.querySelector(`[data-lp="s${sym}"]`);
     const ne = container.querySelector(`[data-ln="s${sym}"]`);
+    const ve = container.querySelector(`[data-lv="s${sym}"]`);
     if (pe) pe.textContent = price ? '$'+fmt(price) : '—';
-    if (ne) { ne.textContent = pnl!==null?(pnl>=0?'+$':'-$')+fmt(Math.abs(pnl))+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)':'—'; ne.style.color=pnlColor; }
+    if (ve) ve.textContent = price ? (h.qty*price).toFixed(2) : '—';
+    if (ne) ne.innerHTML = pnl!==null
+      ? `<div style="font-size:12px;color:${pnlColor}">${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))}</div><div style="font-size:10px;color:${pnlColor}">${pct>=0?'+':''}${pct.toFixed(2)}%</div>`
+      : '<div style="color:var(--text2)">—</div>';
   });
   futPositions.forEach(p => {
     const price = PRICES[p.sym] || (S.futures.sym===p.sym ? S.futures.price : p.entryPrice);
@@ -5283,8 +5287,10 @@ function _posUpdateLive(container) {
     const pnlColor = pnl>=0?'var(--green)':'var(--red)';
     const pe = container.querySelector(`[data-lp="f${p.id}"]`);
     const ne = container.querySelector(`[data-ln="f${p.id}"]`);
+    const ve = container.querySelector(`[data-lv="f${p.id}"]`);
     if (pe) pe.textContent = '$'+fmt(price);
-    if (ne) { ne.textContent = (pnl>=0?'+$':'-$')+fmt(Math.abs(pnl))+' ('+(pnl>=0?'+':'')+pct+'%)'; ne.style.color=pnlColor; }
+    if (ve) ve.textContent = fmt(p.qty*price);
+    if (ne) ne.innerHTML = `<div style="font-size:12px;color:${pnlColor}">${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))}</div><div style="font-size:10px;color:${pnlColor}">${pnl>=0?'+':''}${pct}%</div>`;
   });
 }
 function renderFutPositions() {
@@ -5311,17 +5317,26 @@ function renderFutPositions() {
     const pct = price ? ((price - h.avgPrice) / h.avgPrice * 100) : null;
     const pnlColor = pnl===null ? 'var(--text2)' : pnl>=0 ? 'var(--green)' : 'var(--red)';
     rows.push(`<div class="bt-row">
-      <span style="flex:0 0 50px;text-align:center"><span class="pos-badge" style="background:rgba(59,130,246,0.12);color:#60a5fa;font-size:11px;padding:2px 6px">현물</span></span>
-      <span style="flex:0 0 82px;text-align:center"><span class="pos-badge badge-long" style="font-size:11px">▲ BUY</span></span>
-      <span class="btc-sym" style="flex:0 0 96px;text-align:center;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px" data-goto-page="spot" data-goto-sym="${sym}USDT" title="차트로 이동">${sym}</span>
-      <span class="btc-num" style="flex:0 0 88px">${h.qty.toFixed(4)}</span>
-      <span class="btc-num" style="flex:0 0 104px">$${fmt(h.avgPrice)}</span>
-      <span class="btc-num" style="flex:0 0 104px;color:var(--text)" data-lp="s${sym}">${price?'$'+fmt(price):'—'}</span>
-      <span class="btc-liq" style="flex:0 0 100px">—</span>
-      <span class="btc-pnl" style="flex:0 0 140px;color:${pnlColor}" data-ln="s${sym}">${pnl!==null?(pnl>=0?'+$':'-$')+fmt(Math.abs(pnl))+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)':'—'}</span>
-      <span style="flex:0 0 180px;display:flex;gap:4px;justify-content:flex-end;align-items:center">
-        <button class="pos-mkt-btn" onclick="sellAllHolding('${sym}')">시장가</button>
-        <button class="pos-lmt-btn" onclick="openSpotLimitSell('${sym}')">지정가</button>
+      <span style="flex:0 0 130px;cursor:pointer" data-goto-page="spot" data-goto-sym="${sym}USDT">
+        <div style="font-weight:600;font-size:13px;color:var(--text)">${sym}/USDT</div>
+        <div style="font-size:10px;color:var(--text3)">Spot · Cash</div>
+      </span>
+      <span style="flex:0 0 85px;text-align:right">
+        <div style="color:var(--green);font-size:12px">+${h.qty.toFixed(4)}</div>
+        <div style="font-size:10px;color:var(--text3)">${sym}</div>
+      </span>
+      <span style="flex:0 0 90px;text-align:right;font-size:12px;color:var(--text)" data-lv="s${sym}">${price?(h.qty*price).toFixed(2):'—'}</span>
+      <span style="flex:0 0 95px;text-align:right;font-size:12px;color:var(--text)">$${fmt(h.avgPrice)}</span>
+      <span style="flex:0 0 95px;text-align:right;font-size:12px;color:var(--text)" data-lp="s${sym}">${price?'$'+fmt(price):'—'}</span>
+      <span style="flex:0 0 90px;text-align:right;color:#f97316;font-size:12px">—</span>
+      <span style="flex:0 0 155px;text-align:right" data-ln="s${sym}">
+        <div style="font-size:12px;color:${pnlColor}">${pnl!==null?(pnl>=0?'+$':'-$')+fmt(Math.abs(pnl)):'—'}</div>
+        <div style="font-size:10px;color:${pnlColor}">${pct!==null?(pct>=0?'+':'')+pct.toFixed(2)+'%':''}</div>
+      </span>
+      <span style="flex:0 0 100px;text-align:center;font-size:11px;color:var(--text3)">—</span>
+      <span style="flex:0 0 130px;display:flex;gap:4px;justify-content:flex-end;align-items:center">
+        <button class="pos-mkt-btn" onclick="sellAllHolding('${sym}')">Market</button>
+        <button class="pos-lmt-btn" onclick="openSpotLimitSell('${sym}')">Limit</button>
       </span>
     </div>`);
   });
@@ -5338,24 +5353,32 @@ function renderFutPositions() {
     const tp = los.find(o => o.type === 'tp');
     const sl = los.find(o => o.type === 'sl');
     const lo = los.find(o => o.type !== 'tp' && o.type !== 'sl');
-    const tpslBadges = [
-      tp ? `<span style="font-size:9px;color:var(--green);white-space:nowrap">TP $${fmt(tp.price)}<button onclick="cancelTpSl(${p.id},'tp')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 1px;margin-left:1px">✕</button></span>` : '',
-      sl ? `<span style="font-size:9px;color:var(--red);white-space:nowrap">SL $${fmt(sl.price)}<button onclick="cancelTpSl(${p.id},'sl')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 1px;margin-left:1px">✕</button></span>` : '',
-      lo ? `<span style="font-size:9px;color:var(--yellow);white-space:nowrap">📌$${fmt(lo.price)}<button onclick="cancelLimitClose(${p.id})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 1px;margin-left:1px">✕</button></span>` : ''
-    ].filter(Boolean).join(' ');
     rows.push(`<div class="bt-row">
-      <span style="flex:0 0 50px;text-align:center"><span class="pos-badge" style="background:rgba(246,70,93,0.12);color:#f87171;font-size:11px;padding:2px 6px">선물</span></span>
-      <span style="flex:0 0 82px;text-align:center"><span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}" style="font-size:11px">${p.dir==='long'?'▲ LONG':'▼ SHORT'}</span></span>
-      <span class="btc-sym" style="flex:0 0 96px;text-align:center;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px" data-goto-page="futures" data-goto-sym="${p.sym}" title="차트로 이동">${p.sym.replace('USDT','')} <span style="color:var(--yellow);font-size:12px">${p.leverage}x</span></span>
-      <span class="btc-num" style="flex:0 0 88px">${p.qty.toFixed(4)}</span>
-      <span class="btc-num" style="flex:0 0 104px">$${fmt(p.entryPrice)}</span>
-      <span class="btc-num" style="flex:0 0 104px;color:var(--text)" data-lp="f${p.id}">${price?'$'+fmt(price):'—'}</span>
-      <span class="btc-liq" style="flex:0 0 100px">$${fmt(p.liqPrice)}</span>
-      <span class="btc-pnl" style="flex:0 0 140px;color:${pnlColor}" data-ln="f${p.id}">${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))} <small style="font-weight:400">(${pnl>=0?'+':''}${pct}%)</small></span>
-      <span style="flex:0 0 180px;display:flex;gap:3px;justify-content:flex-end;align-items:center;flex-wrap:wrap">
-        ${tpslBadges}
-        <button class="pos-mkt-btn" onclick="closePosition(${p.id})">시장가×</button>
-        <button class="pos-lmt-btn" onclick="openLcpModal(${p.id})">지정가</button>
+      <span style="flex:0 0 130px;cursor:pointer" data-goto-page="futures" data-goto-sym="${p.sym}">
+        <div style="font-weight:600;font-size:13px;color:var(--text);display:flex;align-items:center;gap:4px">${p.sym.replace('USDT','')}<span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}" style="font-size:10px">${p.dir==='long'?'Long':'Short'}</span></div>
+        <div style="font-size:10px;color:var(--text3)">Perp · Isolated ${p.leverage}x</div>
+      </span>
+      <span style="flex:0 0 85px;text-align:right">
+        <div style="color:${p.dir==='long'?'var(--green)':'var(--red)'};font-size:12px">${p.dir==='long'?'+':'−'}${p.qty.toFixed(4)}</div>
+        <div style="font-size:10px;color:var(--text3)">${p.sym.replace('USDT','')}</div>
+      </span>
+      <span style="flex:0 0 90px;text-align:right;font-size:12px;color:var(--text)" data-lv="f${p.id}">${fmt(p.qty*price)}</span>
+      <span style="flex:0 0 95px;text-align:right;font-size:12px;color:var(--text)">$${fmt(p.entryPrice)}</span>
+      <span style="flex:0 0 95px;text-align:right;font-size:12px;color:var(--text)" data-lp="f${p.id}">${price?'$'+fmt(price):'—'}</span>
+      <span style="flex:0 0 90px;text-align:right;color:#f97316;font-size:12px">$${fmt(p.liqPrice)}</span>
+      <span style="flex:0 0 155px;text-align:right" data-ln="f${p.id}">
+        <div style="font-size:12px;color:${pnlColor}">${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))}</div>
+        <div style="font-size:10px;color:${pnlColor}">${pnl>=0?'+':''}${pct}%</div>
+      </span>
+      <span style="flex:0 0 100px;text-align:center;font-size:10px;line-height:1.6">
+        ${tp?`<div style="color:var(--green);white-space:nowrap">TP $${fmt(tp.price)}<button onclick="cancelTpSl(${p.id},'tp')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 2px">✕</button></div>`:''}
+        ${sl?`<div style="color:var(--red);white-space:nowrap">SL $${fmt(sl.price)}<button onclick="cancelTpSl(${p.id},'sl')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 2px">✕</button></div>`:''}
+        ${!tp&&!sl?`<span style="color:var(--text3)">—</span>`:''}
+      </span>
+      <span style="flex:0 0 130px;display:flex;gap:3px;justify-content:flex-end;align-items:center">
+        ${lo?`<span style="font-size:9px;color:var(--yellow);white-space:nowrap">📌$${fmt(lo.price)}<button onclick="cancelLimitClose(${p.id})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 1px;margin-left:1px">✕</button></span>`:''}
+        <button class="pos-mkt-btn" onclick="closePosition(${p.id})">Market</button>
+        <button class="pos-lmt-btn" onclick="openLcpModal(${p.id})">Limit</button>
       </span>
     </div>`);
   });
