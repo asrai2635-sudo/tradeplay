@@ -631,6 +631,43 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 .stats-card-val { font-size:18px; font-weight:700; }
 .stats-section-title { font-size:12px; font-weight:700; color:var(--text3); letter-spacing:0.5px; text-transform:uppercase; margin:16px 0 8px; }
 
+/* SHARE BUTTON */
+.share-btn { background:rgba(14,203,129,0.12); border:1px solid var(--green); color:var(--green); border-radius:5px; padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; }
+.share-btn:hover { background:rgba(14,203,129,0.22); }
+
+/* JOURNAL MODAL */
+.journal-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.85); z-index:2500; display:flex; align-items:center; justify-content:center; }
+.journal-modal { background:var(--bg2); border:1px solid var(--border); border-radius:10px; width:600px; max-width:95vw; max-height:88vh; overflow:hidden; display:flex; flex-direction:column; }
+.journal-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+.journal-body { flex:1; overflow-y:auto; padding:12px 16px; }
+.journal-trade { background:var(--bg3); border-radius:7px; padding:10px 12px; margin-bottom:8px; }
+.journal-trade-top { display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+.journal-sym { font-size:13px; font-weight:700; }
+.journal-dir { font-size:11px; padding:2px 6px; border-radius:3px; font-weight:700; }
+.journal-dir.jbuy { background:rgba(14,203,129,0.15); color:var(--green); }
+.journal-dir.jsell { background:rgba(246,70,93,0.15); color:var(--red); }
+.journal-pnl { margin-left:auto; font-size:13px; font-weight:700; }
+.journal-meta { font-size:10px; color:var(--text3); margin-bottom:6px; }
+.journal-note { width:100%; background:#131820; border:1px solid var(--border); border-radius:4px; color:var(--text); font-family:inherit; font-size:12px; padding:5px 8px; resize:none; box-sizing:border-box; }
+.journal-note:focus { outline:none; border-color:var(--blue); }
+
+/* CHALLENGE MODAL */
+.challenge-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.85); z-index:2500; display:flex; align-items:center; justify-content:center; }
+.challenge-modal { background:var(--bg2); border:1px solid var(--border); border-radius:10px; width:480px; max-width:95vw; max-height:88vh; overflow-y:auto; }
+.challenge-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:var(--bg2); z-index:1; }
+.challenge-body { padding:16px 18px; }
+.challenge-card { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin-bottom:10px; cursor:pointer; transition:all 0.15s; }
+.challenge-card:hover { border-color:var(--blue); }
+.challenge-card.active { border-color:#f3ba2f; background:rgba(243,186,47,0.05); }
+.challenge-card-top { display:flex; align-items:center; gap:10px; margin-bottom:5px; }
+.challenge-icon { font-size:20px; }
+.challenge-name { font-size:14px; font-weight:700; }
+.challenge-desc { font-size:12px; color:var(--text2); margin-bottom:8px; }
+.challenge-prog-bar { height:6px; background:#131820; border-radius:3px; overflow:hidden; }
+.challenge-prog-fill { height:100%; border-radius:3px; transition:width 0.4s; }
+.challenge-prog-label { font-size:10px; color:var(--text3); margin-top:3px; display:flex; justify-content:space-between; }
+.chal-badge { background:rgba(243,186,47,0.12); border:1px solid #f3ba2f; color:#f3ba2f; border-radius:5px; padding:4px 9px; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; }
+
 /* RANKING MODAL */
 .rank-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.85); z-index:2500; display:flex; align-items:center; justify-content:center; }
 .rank-modal { background:var(--bg2); border:1px solid var(--border); border-radius:10px; width:420px; max-width:95vw; max-height:80vh; overflow:hidden; display:flex; flex-direction:column; }
@@ -680,6 +717,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   .logo { font-size: 15px; }
   .main-tab { padding: 0 12px; font-size: 13px; height: 44px; }
   #unrealBadge, #pnlBadge { display: none; }
+  .rank-btn[onclick="openJournal()"], .rank-btn[onclick="openChallenge()"] { display: none; }
   #balBadge .wallet-label { display: none; }
   #balBadge { padding: 4px 9px; border-radius: 6px; }
   .wallet-val { font-size: 12px; font-weight: 700; }
@@ -1010,6 +1048,9 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     <div class="wallet-badge" id="balBadge"><span class="wallet-label">총자산</span><span class="wallet-val" id="topBal">$1,000.00</span></div>
     <div class="unreal-badge" id="unrealBadge"><span style="color:var(--text2);margin-right:5px">미실현</span><span id="topUnreal" style="color:var(--text2)">$0.00</span></div>
     <div class="wallet-badge" id="pnlBadge"><span class="wallet-label">실현손익</span><span class="wallet-val" id="topPnl" style="color:var(--text2)">$0.00</span></div>
+    <span id="chalBadge" class="chal-badge" onclick="openChallenge()" style="display:none">🎯 <span id="chalBadgeText">챌린지</span></span>
+    <button class="rank-btn" onclick="openJournal()">📔 일지</button>
+    <button class="rank-btn" onclick="openChallenge()">🎯 챌린지</button>
     <button class="rank-btn" onclick="openStats()">📊 자산</button>
     <button class="rank-btn" onclick="openRanking()">🏆 랭킹</button>
     <div class="profile-chip" id="profileChip" style="display:none">
@@ -1806,9 +1847,34 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="stats-modal">
     <div class="stats-header">
       <span class="stats-title">📊 나의 자산</span>
-      <button onclick="closeStats()" class="rank-close">✕</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="share-btn" onclick="generateShareCard()">📤 공유</button>
+        <button onclick="closeStats()" class="rank-close">✕</button>
+      </div>
     </div>
     <div class="stats-body" id="statsBody"></div>
+  </div>
+</div>
+
+<!-- JOURNAL MODAL -->
+<div class="journal-overlay" id="journalOverlay" style="display:none" onclick="if(event.target===this)closeJournal()">
+  <div class="journal-modal">
+    <div class="journal-header">
+      <span style="font-size:16px;font-weight:700">📔 거래 일지</span>
+      <button onclick="closeJournal()" class="rank-close">✕</button>
+    </div>
+    <div class="journal-body" id="journalBody"></div>
+  </div>
+</div>
+
+<!-- CHALLENGE MODAL -->
+<div class="challenge-overlay" id="challengeOverlay" style="display:none" onclick="if(event.target===this)closeChallenge()">
+  <div class="challenge-modal">
+    <div class="challenge-header">
+      <span style="font-size:16px;font-weight:700">🎯 챌린지 모드</span>
+      <button onclick="closeChallenge()" class="rank-close">✕</button>
+    </div>
+    <div class="challenge-body" id="challengeBody"></div>
   </div>
 </div>
 
@@ -2111,6 +2177,8 @@ function loadState() {
   });
   const savedCtr = parseInt(localStorage.getItem('tp_ind_ctr')||'0');
   if (savedCtr > _indIdCtr) _indIdCtr = savedCtr;
+  loadChallenge();
+  loadJournalNotes();
   return true;
 }
 
@@ -2132,6 +2200,7 @@ function resetGame() {
   ['tp_wallet','tp_holdings','tp_positions','tp_realized','tp_start','tp_limitorders','tp_spot_lo','tp_fut_eo','tp_equity','tp_spot_history','tp_fut_history'].forEach(k=>localStorage.removeItem(k));
   wallet = 1000; startAmount = 1000; realizedPnl = 0;
   holdings = {}; futPositions = []; futHistory = []; futLimitOrders = []; spotLimitOrders = []; futEntryOrders = []; equityHistory = []; spotHistory = [];
+  activeChallenge = null; challengeStreak = 0; saveChallenge(); updateChalBadge();
   $('adOverlay').style.display = 'none';
   _lockNicknameInput(); // 닉네임 잠금 상태 유지
   $('startOverlay').style.display = 'flex';
@@ -4975,8 +5044,10 @@ function execSpot() {
       wallet+=proceeds;realizedPnl+=pnl;
       h.qty-=qty;
       if(h.qty<0.000001) delete holdings[sym];
-      spotHistory.unshift({sym:sym+'/USDT',dir:'sell',price:ep,qty,amount:proceeds,pnl,time:Date.now()});
+      const _strade={sym:sym+'/USDT',dir:'sell',price:ep,qty,amount:proceeds,pnl,time:Date.now()};
+      spotHistory.unshift(_strade);
       toast(`▼ ${sym} 매도 ${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))} 손익`,pnl>=0?'var(--green)':'var(--red)');
+      checkChallengeProgress(_strade);
       updateTopBar();renderSpotHoldings();renderFutPositions();renderSpotHistory();updateSpotInfo();saveState();checkBroke();updatePriceLines('spot');
     }
   }
@@ -5122,7 +5193,9 @@ function closePositionPartial(id, closePrice, fraction) {
     : (p.entryPrice - closePrice) / p.entryPrice * closeMargin * p.leverage;
   pnl -= closePrice * closeQty * 0.0006; // 수수료
   wallet += closeMargin + pnl; realizedPnl += pnl;
-  futHistory.unshift({...p, qty: closeQty, margin: closeMargin, closePrice, pnl, closedAt: Date.now()});
+  const _ftrade = {...p, qty: closeQty, margin: closeMargin, closePrice, pnl, closedAt: Date.now()};
+  futHistory.unshift(_ftrade);
+  checkChallengeProgress(_ftrade);
   if (frac >= 1 - 1e-9) {
     futPositions.splice(idx, 1);
     futLimitOrders = futLimitOrders.filter(o => o.posId !== id);
@@ -5782,6 +5855,264 @@ function renderStats() {
     </div>`;
 }
 
+// ══════════════════════════════════════════════════════
+// SHARE CARD
+// ══════════════════════════════════════════════════════
+function generateShareCard() {
+  const W = 600, H = 320;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#0b0e11';
+  ctx.fillRect(0, 0, W, H);
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, 'rgba(41,98,255,0.08)');
+  grad.addColorStop(1, 'rgba(14,203,129,0.06)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = '#2a3347';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, 0.5, W-1, H-1);
+
+  const closedTrades = [...spotHistory.filter(t => t.pnl !== null), ...futHistory];
+  const total = closedTrades.length;
+  const wins = closedTrades.filter(t => t.pnl > 0).length;
+  const winRate = total ? (wins / total * 100).toFixed(1) : '—';
+  const cur = calcTotalEquity();
+  const roi = ((cur - startAmount) / startAmount * 100);
+  const nick = localStorage.getItem('tp_nickname') || 'Trader';
+  const pnls = closedTrades.map(t => t.pnl).filter(p => p != null);
+  const bestPnl = pnls.length ? Math.max(...pnls) : null;
+  const roiColor = roi >= 0 ? '#0ecb81' : '#f6465d';
+
+  ctx.font = 'bold 18px -apple-system,sans-serif';
+  ctx.fillStyle = '#d1d4dc'; ctx.textAlign = 'left';
+  ctx.fillText('Trade', 24, 38);
+  const tw = ctx.measureText('Trade').width;
+  ctx.fillStyle = '#2962ff';
+  ctx.fillText('Play', 24 + tw, 38);
+
+  ctx.font = '13px -apple-system,sans-serif';
+  ctx.fillStyle = '#8896ae';
+  ctx.fillText('@' + nick, 24, 60);
+
+  ctx.font = 'bold 58px -apple-system,sans-serif';
+  ctx.fillStyle = roiColor;
+  ctx.textAlign = 'center';
+  ctx.fillText((roi >= 0 ? '+' : '') + roi.toFixed(2) + '%', W/2, 145);
+
+  ctx.font = '13px -apple-system,sans-serif';
+  ctx.fillStyle = '#8896ae';
+  ctx.fillText('총 수익률', W/2, 168);
+
+  ctx.strokeStyle = '#2a3347'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(24, 195); ctx.lineTo(W-24, 195); ctx.stroke();
+
+  const stats = [
+    { label:'총자산', val:'$'+fmt(cur) },
+    { label:'승률', val: total ? winRate+'%' : '—' },
+    { label:'트레이드', val: total+'회' },
+    { label:'최고수익', val: bestPnl !== null ? (bestPnl>=0?'+$':'-$')+fmt(Math.abs(bestPnl)) : '—' }
+  ];
+  const colW = W / stats.length;
+  stats.forEach((s, i) => {
+    const x = colW * i + colW / 2;
+    ctx.font = 'bold 16px -apple-system,sans-serif';
+    ctx.fillStyle = '#d1d4dc';
+    ctx.fillText(s.val, x, 232);
+    ctx.font = '11px -apple-system,sans-serif';
+    ctx.fillStyle = '#8896ae';
+    ctx.fillText(s.label, x, 250);
+  });
+
+  ctx.font = '11px monospace';
+  ctx.fillStyle = '#4a5568';
+  ctx.fillText('tradeplay.pages.dev', W/2, H-14);
+  ctx.textAlign = 'left';
+
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'tradeplay-result.png';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }, 'image/png');
+  toast('결과 카드 저장됨 📸', 'var(--green)');
+}
+
+// ══════════════════════════════════════════════════════
+// TRADE JOURNAL
+// ══════════════════════════════════════════════════════
+let journalNotes = {};
+function loadJournalNotes() {
+  try { journalNotes = JSON.parse(localStorage.getItem('tp_journal') || '{}'); } catch(e) { journalNotes = {}; }
+}
+function saveJournalNote(key, val) {
+  journalNotes[key] = val;
+  localStorage.setItem('tp_journal', JSON.stringify(journalNotes));
+}
+function openJournal() {
+  loadJournalNotes();
+  $('journalOverlay').style.display = 'flex';
+  renderJournal();
+}
+function closeJournal() { $('journalOverlay').style.display = 'none'; }
+function renderJournal() {
+  const all = [
+    ...spotHistory.filter(t => t.pnl !== null).map(t => ({...t, _type:'현물'})),
+    ...futHistory.map(t => ({...t, _type:'선물'}))
+  ].sort((a,b) => (b.closedAt||b.time||0) - (a.closedAt||a.time||0));
+
+  if (!all.length) {
+    $('journalBody').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);font-size:13px">아직 청산된 거래가 없습니다</div>';
+    return;
+  }
+  $('journalBody').innerHTML = all.map(t => {
+    const key = String(t.time || 0);
+    const pnl = t.pnl;
+    const pnlColor = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+    const pnlText = (pnl >= 0 ? '+$' : '-$') + fmt(Math.abs(pnl));
+    const dirLabel = t.dir === 'buy' ? '매수' : t.dir === 'sell' ? '매도' : t.dir === 'long' ? 'LONG' : 'SHORT';
+    const dirClass = (t.dir === 'buy' || t.dir === 'long') ? 'jbuy' : 'jsell';
+    const ts = t.closedAt || t.time || 0;
+    const timeStr = new Date(ts).toLocaleString('ko-KR', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const note = journalNotes[key] || '';
+    return `<div class="journal-trade">
+      <div class="journal-trade-top">
+        <span class="journal-sym">${t.sym||''}</span>
+        <span class="journal-dir ${dirClass}">${dirLabel}</span>
+        <span style="font-size:10px;color:var(--text3)">${t._type}${t.leverage ? ' · '+t.leverage+'x' : ''}</span>
+        <span class="journal-pnl" style="color:${pnlColor}">${pnlText}</span>
+      </div>
+      <div class="journal-meta">${timeStr}</div>
+      <textarea class="journal-note" rows="2" placeholder="메모 (전략, 이유, 감정 등)" onchange="saveJournalNote('${key}',this.value)">${note}</textarea>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// CHALLENGE MODE
+// ══════════════════════════════════════════════════════
+const CHALLENGES = [
+  { id:'double',   icon:'🚀', name:'자산 2배 달성',   desc:'시작 자산 기준 수익률 +100% 달성',        color:'#f3ba2f' },
+  { id:'fifty',    icon:'💰', name:'수익률 +50%',     desc:'시작 자산 기준 수익률 +50% 달성',         color:'#0ecb81' },
+  { id:'ten_wins', icon:'🔥', name:'10연승',          desc:'10번 연속으로 수익 거래 달성',             color:'#f6465d' },
+  { id:'no_loss',  icon:'🛡️', name:'무손절 20트레이드', desc:'손절 없이 20번 거래를 완료하며 흑자 유지', color:'#2962ff' }
+];
+let activeChallenge = null;
+let challengeStreak = 0;
+
+function loadChallenge() {
+  try {
+    const s = JSON.parse(localStorage.getItem('tp_challenge') || 'null');
+    if (s) { activeChallenge = s; challengeStreak = s.streak || 0; }
+  } catch(e) {}
+}
+function saveChallenge() {
+  if (activeChallenge) localStorage.setItem('tp_challenge', JSON.stringify({...activeChallenge, streak: challengeStreak}));
+  else localStorage.removeItem('tp_challenge');
+}
+function openChallenge() {
+  $('challengeOverlay').style.display = 'flex';
+  renderChallengeModal();
+}
+function closeChallenge() { $('challengeOverlay').style.display = 'none'; }
+function startChallenge(id) {
+  if (activeChallenge) return;
+  const c = CHALLENGES.find(x => x.id === id);
+  if (!c) return;
+  activeChallenge = { id, startEquity: calcTotalEquity(), startTime: Date.now() };
+  challengeStreak = 0;
+  saveChallenge();
+  updateChalBadge();
+  renderChallengeModal();
+  toast('챌린지 시작: ' + c.name, '#f3ba2f');
+}
+function cancelChallenge() {
+  activeChallenge = null; challengeStreak = 0;
+  saveChallenge(); updateChalBadge(); renderChallengeModal();
+}
+function getChallengeProgress() {
+  if (!activeChallenge) return null;
+  const c = CHALLENGES.find(x => x.id === activeChallenge.id);
+  if (!c) return null;
+  const cur = calcTotalEquity();
+  const start = activeChallenge.startEquity;
+  if (activeChallenge.id === 'double') {
+    const prog = Math.min(100, Math.max(0, ((cur - start) / start) * 100));
+    return { c, prog, label: (((cur-start)/start*100).toFixed(1))+'% / 100%', done: cur >= start * 2 };
+  }
+  if (activeChallenge.id === 'fifty') {
+    const prog = Math.min(100, Math.max(0, ((cur - start) / start) * 200));
+    return { c, prog, label: (((cur-start)/start*100).toFixed(1))+'% / 50%', done: cur >= start * 1.5 };
+  }
+  if (activeChallenge.id === 'ten_wins') {
+    const prog = Math.min(100, challengeStreak * 10);
+    return { c, prog, label: challengeStreak+' / 10 연승', done: challengeStreak >= 10 };
+  }
+  if (activeChallenge.id === 'no_loss') {
+    const trades = [...spotHistory.filter(t=>t.pnl!==null), ...futHistory].filter(t=>(t.closedAt||t.time||0)>=activeChallenge.startTime);
+    const prog = Math.min(100, trades.length * 5);
+    return { c, prog, label: trades.length+' / 20 거래 완료', done: trades.length >= 20 && realizedPnl >= 0 };
+  }
+  return null;
+}
+function checkChallengeProgress(lastTrade) {
+  if (!activeChallenge) return;
+  if (activeChallenge.id === 'ten_wins' && lastTrade) {
+    if (lastTrade.pnl > 0) { challengeStreak++; }
+    else { challengeStreak = 0; toast('연승 기록 초기화 😢', 'var(--red)'); }
+    saveChallenge();
+  }
+  if (activeChallenge.id === 'no_loss' && lastTrade && lastTrade.pnl < 0) {
+    toast('무손절 챌린지 실패! 💀', 'var(--red)');
+    cancelChallenge(); return;
+  }
+  const result = getChallengeProgress();
+  if (result && result.done) {
+    toast('🏆 챌린지 달성! ' + result.c.name, '#f3ba2f');
+    activeChallenge = null; challengeStreak = 0;
+    saveChallenge();
+  }
+  updateChalBadge();
+}
+function updateChalBadge() {
+  const badge = $('chalBadge');
+  if (!badge) return;
+  if (!activeChallenge) { badge.style.display = 'none'; return; }
+  const result = getChallengeProgress();
+  badge.style.display = '';
+  if ($('chalBadgeText')) $('chalBadgeText').textContent = result ? result.label : '챌린지';
+}
+function renderChallengeModal() {
+  const body = $('challengeBody');
+  const result = getChallengeProgress();
+  let html = '';
+  if (activeChallenge && result) {
+    html += `<div style="background:rgba(243,186,47,0.08);border:1px solid #f3ba2f;border-radius:8px;padding:14px 16px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:700;color:#f3ba2f;margin-bottom:8px">${result.c.icon} 진행 중: ${result.c.name}</div>
+      <div class="challenge-prog-bar"><div class="challenge-prog-fill" style="width:${result.prog}%;background:${result.c.color}"></div></div>
+      <div class="challenge-prog-label"><span>${result.label}</span><span>${result.prog.toFixed(0)}%</span></div>
+      <button onclick="cancelChallenge()" style="margin-top:10px;background:rgba(246,70,93,0.1);border:1px solid var(--red);color:var(--red);border-radius:4px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:inherit">챌린지 포기</button>
+    </div>`;
+  }
+  html += `<div style="font-size:12px;color:var(--text3);margin-bottom:12px">도전할 챌린지를 선택하세요</div>`;
+  CHALLENGES.forEach(c => {
+    const isActive = activeChallenge?.id === c.id;
+    const disabled = activeChallenge && !isActive;
+    html += `<div class="challenge-card${isActive?' active':''}" onclick="${disabled ? '' : `startChallenge('${c.id}')`}" style="${disabled ? 'opacity:0.45;cursor:not-allowed' : ''}">
+      <div class="challenge-card-top">
+        <span class="challenge-icon">${c.icon}</span>
+        <span class="challenge-name">${c.name}</span>
+        ${isActive ? '<span style="margin-left:auto;font-size:11px;color:#f3ba2f;font-weight:700">진행중</span>' : ''}
+      </div>
+      <div class="challenge-desc">${c.desc}</div>
+    </div>`;
+  });
+  body.innerHTML = html;
+}
+
 function openRanking() {
   $('rankOverlay').style.display = 'flex';
   renderRanking();
@@ -6003,6 +6334,7 @@ async function init() {
     }
   });
   updateTopBar();
+  updateChalBadge();
   _initDrawTooltips();
   if (hasState) { renderSpotHistory(); renderFutPositions(); renderFutHistory(); }
   let _tick = 0;
