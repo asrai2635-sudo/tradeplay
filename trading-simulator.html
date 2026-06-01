@@ -1226,14 +1226,14 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="spot-holdings-wrap">
     <div class="bt-scroll">
       <div class="bt-header">
-        <span style="flex:0 0 44px;text-align:center">종류</span>
-        <span style="flex:0 0 72px;text-align:center">방향</span>
-        <span style="flex:0 0 90px;font-weight:600;text-align:center">심볼</span>
-        <span style="flex:0 0 80px;text-align:center">수량</span>
-        <span style="flex:0 0 95px;text-align:center">진입가</span>
-        <span style="flex:0 0 95px;text-align:center">현재가</span>
-        <span style="flex:0 0 95px;text-align:center">청산가</span>
-        <span style="flex:1;text-align:center;min-width:120px">미실현P&L(ROI)</span>
+        <span style="flex:0 0 50px;text-align:center">종류</span>
+        <span style="flex:0 0 82px;text-align:center">방향</span>
+        <span style="flex:0 0 96px;font-weight:600;text-align:center">심볼</span>
+        <span style="flex:0 0 88px;text-align:center">수량</span>
+        <span style="flex:0 0 104px;text-align:center">진입가</span>
+        <span style="flex:0 0 104px;text-align:center">현재가</span>
+        <span style="flex:0 0 100px;text-align:center">청산가</span>
+        <span style="flex:0 0 140px;text-align:center">미실현P&L(ROI)</span>
         <span style="flex:0 0 180px;text-align:right">청산</span>
       </div>
       <div class="bt-body" id="spotHoldings"><div class="empty-msg">보유 포지션 없음</div></div>
@@ -1516,14 +1516,14 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="fut-positions-wrap">
     <div class="bt-scroll">
       <div class="bt-header">
-        <span style="flex:0 0 44px;text-align:center">종류</span>
-        <span style="flex:0 0 72px;text-align:center">방향</span>
-        <span style="flex:0 0 90px;font-weight:600;text-align:center">심볼</span>
-        <span style="flex:0 0 80px;text-align:center">수량</span>
-        <span style="flex:0 0 95px;text-align:center">진입가</span>
-        <span style="flex:0 0 95px;text-align:center">현재가</span>
-        <span style="flex:0 0 95px;text-align:center">청산가</span>
-        <span style="flex:1;text-align:center;min-width:120px">미실현P&L(ROI)</span>
+        <span style="flex:0 0 50px;text-align:center">종류</span>
+        <span style="flex:0 0 82px;text-align:center">방향</span>
+        <span style="flex:0 0 96px;font-weight:600;text-align:center">심볼</span>
+        <span style="flex:0 0 88px;text-align:center">수량</span>
+        <span style="flex:0 0 104px;text-align:center">진입가</span>
+        <span style="flex:0 0 104px;text-align:center">현재가</span>
+        <span style="flex:0 0 100px;text-align:center">청산가</span>
+        <span style="flex:0 0 140px;text-align:center">미실현P&L(ROI)</span>
         <span style="flex:0 0 180px;text-align:right">청산</span>
       </div>
       <div class="bt-body" id="futPositions"><div class="empty-msg">보유 포지션 없음</div></div>
@@ -5318,7 +5318,7 @@ function renderFutPositions() {
       <span class="btc-num" style="flex:0 0 104px">$${fmt(h.avgPrice)}</span>
       <span class="btc-num" style="flex:0 0 104px;color:var(--text)" data-lp="s${sym}">${price?'$'+fmt(price):'—'}</span>
       <span class="btc-liq" style="flex:0 0 100px">—</span>
-      <span class="btc-pnl" style="flex:0 0 155px;color:${pnlColor}" data-ln="s${sym}">${pnl!==null?(pnl>=0?'+$':'-$')+fmt(Math.abs(pnl))+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)':'—'}</span>
+      <span class="btc-pnl" style="flex:0 0 140px;color:${pnlColor}" data-ln="s${sym}">${pnl!==null?(pnl>=0?'+$':'-$')+fmt(Math.abs(pnl))+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)':'—'}</span>
       <span style="flex:0 0 180px;display:flex;gap:4px;justify-content:flex-end;align-items:center">
         <button class="pos-mkt-btn" onclick="sellAllHolding('${sym}')">시장가</button>
         <button class="pos-lmt-btn" onclick="openSpotLimitSell('${sym}')">지정가</button>
@@ -5351,7 +5351,7 @@ function renderFutPositions() {
       <span class="btc-num" style="flex:0 0 104px">$${fmt(p.entryPrice)}</span>
       <span class="btc-num" style="flex:0 0 104px;color:var(--text)" data-lp="f${p.id}">${price?'$'+fmt(price):'—'}</span>
       <span class="btc-liq" style="flex:0 0 100px">$${fmt(p.liqPrice)}</span>
-      <span class="btc-pnl" style="flex:0 0 155px;color:${pnlColor}" data-ln="f${p.id}">${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))} <small style="font-weight:400">(${pnl>=0?'+':''}${pct}%)</small></span>
+      <span class="btc-pnl" style="flex:0 0 140px;color:${pnlColor}" data-ln="f${p.id}">${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))} <small style="font-weight:400">(${pnl>=0?'+':''}${pct}%)</small></span>
       <span style="flex:0 0 180px;display:flex;gap:3px;justify-content:flex-end;align-items:center;flex-wrap:wrap">
         ${tpslBadges}
         <button class="pos-mkt-btn" onclick="closePosition(${p.id})">시장가×</button>
