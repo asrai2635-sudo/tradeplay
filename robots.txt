@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /trading-simulator-v0.6.html
+Disallow: /trading-simulator-v0.8-backup.html
+Disallow: /trading-simulator-v0.9-backup.html
+Disallow: /trading-simulator-v1.0-backup.html
+Disallow: /trading-simulator-v1.1-backup.html
+Disallow: /trading-simulator-v1.2-backup.html
+
+Sitemap: https://tradeplay.pages.dev/sitemap.xml
