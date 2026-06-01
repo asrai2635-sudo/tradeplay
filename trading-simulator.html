@@ -4769,7 +4769,9 @@ function setPct(page, pct) {
     }
     updateSpotInfo();
   } else {
-    $('fMargin').value = Math.max(0, Math.floor(wallet * ratio)).toString();
+    const lev = parseInt($('fLevSlider').value) || 1;
+    const maxMargin = wallet / (1 + lev * 0.0006);
+    $('fMargin').value = Math.max(0, Math.floor(maxMargin * ratio)).toString();
     updateFutInfo();
   }
 }
