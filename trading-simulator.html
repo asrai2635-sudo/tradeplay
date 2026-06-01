@@ -5311,8 +5311,8 @@ function renderFutPositions() {
     const pct = price ? ((price - h.avgPrice) / h.avgPrice * 100) : null;
     const pnlColor = pnl===null ? 'var(--text2)' : pnl>=0 ? 'var(--green)' : 'var(--red)';
     rows.push(`<div class="bt-row">
-      <span style="flex:0 0 44px;text-align:center"><span class="pos-badge" style="background:rgba(59,130,246,0.12);color:#60a5fa;font-size:9px;padding:2px 5px">현물</span></span>
-      <span style="flex:0 0 72px;text-align:center"><span class="pos-badge badge-long" style="font-size:9px">▲ BUY</span></span>
+      <span style="flex:0 0 44px;text-align:center"><span class="pos-badge" style="background:rgba(59,130,246,0.12);color:#60a5fa;font-size:11px;padding:2px 6px">현물</span></span>
+      <span style="flex:0 0 72px;text-align:center"><span class="pos-badge badge-long" style="font-size:11px">▲ BUY</span></span>
       <span class="btc-sym" style="flex:0 0 90px;text-align:center;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px" data-goto-page="spot" data-goto-sym="${sym}USDT" title="차트로 이동">${sym}</span>
       <span class="btc-num" style="flex:0 0 80px">${h.qty.toFixed(4)}</span>
       <span class="btc-num" style="flex:0 0 95px">$${fmt(h.avgPrice)}</span>
@@ -5344,9 +5344,9 @@ function renderFutPositions() {
       lo ? `<span style="font-size:9px;color:var(--yellow);white-space:nowrap">📌$${fmt(lo.price)}<button onclick="cancelLimitClose(${p.id})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0 1px;margin-left:1px">✕</button></span>` : ''
     ].filter(Boolean).join(' ');
     rows.push(`<div class="bt-row">
-      <span style="flex:0 0 44px;text-align:center"><span class="pos-badge" style="background:rgba(246,70,93,0.12);color:#f87171;font-size:9px;padding:2px 5px">선물</span></span>
-      <span style="flex:0 0 72px;text-align:center"><span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}" style="font-size:9px">${p.dir==='long'?'▲ LONG':'▼ SHORT'}</span></span>
-      <span class="btc-sym" style="flex:0 0 90px;text-align:center;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px" data-goto-page="futures" data-goto-sym="${p.sym}" title="차트로 이동">${p.sym.replace('USDT','')} <span style="color:var(--yellow);font-size:10px">${p.leverage}x</span></span>
+      <span style="flex:0 0 44px;text-align:center"><span class="pos-badge" style="background:rgba(246,70,93,0.12);color:#f87171;font-size:11px;padding:2px 6px">선물</span></span>
+      <span style="flex:0 0 72px;text-align:center"><span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}" style="font-size:11px">${p.dir==='long'?'▲ LONG':'▼ SHORT'}</span></span>
+      <span class="btc-sym" style="flex:0 0 90px;text-align:center;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px" data-goto-page="futures" data-goto-sym="${p.sym}" title="차트로 이동">${p.sym.replace('USDT','')} <span style="color:var(--yellow);font-size:12px">${p.leverage}x</span></span>
       <span class="btc-num" style="flex:0 0 80px">${p.qty.toFixed(4)}</span>
       <span class="btc-num" style="flex:0 0 95px">$${fmt(p.entryPrice)}</span>
       <span class="btc-num" style="flex:0 0 95px;color:var(--text)" data-lp="f${p.id}">${price?'$'+fmt(price):'—'}</span>
