@@ -1226,15 +1226,15 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="spot-holdings-wrap">
     <div class="bt-scroll">
       <div class="bt-header">
-        <span style="flex:0 0 130px">계약</span>
-        <span style="flex:0 0 85px;text-align:right">수량</span>
-        <span style="flex:0 0 90px;text-align:right">가치(USDT)</span>
-        <span style="flex:0 0 95px;text-align:right">진입가</span>
-        <span style="flex:0 0 95px;text-align:right">마크가</span>
-        <span style="flex:0 0 90px;text-align:right">청산가</span>
-        <span style="flex:0 0 155px;text-align:right">미실현 손익(ROI)</span>
-        <span style="flex:0 0 100px;text-align:center">TP/SL</span>
-        <span style="flex:0 0 130px;text-align:right">청산</span>
+        <span style="flex:2 1 130px">계약</span>
+        <span style="flex:1 1 85px;text-align:right">수량</span>
+        <span style="flex:1 1 90px;text-align:right">가치(USDT)</span>
+        <span style="flex:1 1 95px;text-align:right">진입가</span>
+        <span style="flex:1 1 95px;text-align:right">마크가</span>
+        <span style="flex:1 1 90px;text-align:right">청산가</span>
+        <span style="flex:1.5 1 155px;text-align:right">미실현 손익(ROI)</span>
+        <span style="flex:1 1 100px;text-align:center">TP/SL</span>
+        <span style="flex:1.2 1 130px;text-align:right">청산</span>
       </div>
       <div class="bt-body" id="spotHoldings"><div class="empty-msg">보유 포지션 없음</div></div>
     </div>
@@ -1516,15 +1516,15 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="fut-positions-wrap">
     <div class="bt-scroll">
       <div class="bt-header">
-        <span style="flex:0 0 130px">계약</span>
-        <span style="flex:0 0 85px;text-align:right">수량</span>
-        <span style="flex:0 0 90px;text-align:right">가치(USDT)</span>
-        <span style="flex:0 0 95px;text-align:right">진입가</span>
-        <span style="flex:0 0 95px;text-align:right">마크가</span>
-        <span style="flex:0 0 90px;text-align:right">청산가</span>
-        <span style="flex:0 0 155px;text-align:right">미실현 손익(ROI)</span>
-        <span style="flex:0 0 100px;text-align:center">TP/SL</span>
-        <span style="flex:0 0 130px;text-align:right">청산</span>
+        <span style="flex:2 1 130px">계약</span>
+        <span style="flex:1 1 85px;text-align:right">수량</span>
+        <span style="flex:1 1 90px;text-align:right">가치(USDT)</span>
+        <span style="flex:1 1 95px;text-align:right">진입가</span>
+        <span style="flex:1 1 95px;text-align:right">마크가</span>
+        <span style="flex:1 1 90px;text-align:right">청산가</span>
+        <span style="flex:1.5 1 155px;text-align:right">미실현 손익(ROI)</span>
+        <span style="flex:1 1 100px;text-align:center">TP/SL</span>
+        <span style="flex:1.2 1 130px;text-align:right">청산</span>
       </div>
       <div class="bt-body" id="futPositions"><div class="empty-msg">보유 포지션 없음</div></div>
     </div>
@@ -5317,24 +5317,24 @@ function renderFutPositions() {
     const pct = price ? ((price - h.avgPrice) / h.avgPrice * 100) : null;
     const pnlColor = pnl===null ? 'var(--text2)' : pnl>=0 ? 'var(--green)' : 'var(--red)';
     rows.push(`<div class="bt-row">
-      <span style="flex:0 0 130px;cursor:pointer" data-goto-page="spot" data-goto-sym="${sym}USDT">
+      <span style="flex:2 1 130px;cursor:pointer;min-width:0" data-goto-page="spot" data-goto-sym="${sym}USDT">
         <div style="font-weight:600;font-size:13px;color:var(--text)">${sym}/USDT</div>
         <div style="font-size:10px;color:var(--text3)">Spot · Cash</div>
       </span>
-      <span style="flex:0 0 85px;text-align:right">
+      <span style="flex:1 1 85px;text-align:right;min-width:0">
         <div style="color:var(--green);font-size:12px">+${h.qty.toFixed(4)}</div>
         <div style="font-size:10px;color:var(--text3)">${sym}</div>
       </span>
-      <span style="flex:0 0 90px;text-align:right;font-size:12px;color:var(--text)" data-lv="s${sym}">${price?(h.qty*price).toFixed(2):'—'}</span>
-      <span style="flex:0 0 95px;text-align:right;font-size:12px;color:var(--text)">$${fmt(h.avgPrice)}</span>
-      <span style="flex:0 0 95px;text-align:right;font-size:12px;color:var(--text)" data-lp="s${sym}">${price?'$'+fmt(price):'—'}</span>
-      <span style="flex:0 0 90px;text-align:right;color:#f97316;font-size:12px">—</span>
-      <span style="flex:0 0 155px;text-align:right" data-ln="s${sym}">
+      <span style="flex:1 1 90px;text-align:right;font-size:12px;color:var(--text);min-width:0" data-lv="s${sym}">${price?(h.qty*price).toFixed(2):'—'}</span>
+      <span style="flex:1 1 95px;text-align:right;font-size:12px;color:var(--text);min-width:0">$${fmt(h.avgPrice)}</span>
+      <span style="flex:1 1 95px;text-align:right;font-size:12px;color:var(--text);min-width:0" data-lp="s${sym}">${price?'$'+fmt(price):'—'}</span>
+      <span style="flex:1 1 90px;text-align:right;color:#f97316;font-size:12px;min-width:0">—</span>
+      <span style="flex:1.5 1 155px;text-align:right;min-width:0" data-ln="s${sym}">
         <div style="font-size:12px;color:${pnlColor}">${pnl!==null?(pnl>=0?'+$':'-$')+fmt(Math.abs(pnl)):'—'}</div>
         <div style="font-size:10px;color:${pnlColor}">${pct!==null?(pct>=0?'+':'')+pct.toFixed(2)+'%':''}</div>
       </span>
-      <span style="flex:0 0 100px;text-align:center;font-size:11px;color:var(--text3)">—</span>
-      <span style="flex:0 0 130px;display:flex;gap:4px;justify-content:flex-end;align-items:center">
+      <span style="flex:1 1 100px;text-align:center;font-size:11px;color:var(--text3);min-width:0">—</span>
+      <span style="flex:1.2 1 130px;display:flex;gap:4px;justify-content:flex-end;align-items:center;min-width:0">
         <button class="pos-mkt-btn" onclick="sellAllHolding('${sym}')">Market</button>
         <button class="pos-lmt-btn" onclick="openSpotLimitSell('${sym}')">Limit</button>
       </span>
@@ -5354,28 +5354,28 @@ function renderFutPositions() {
     const sl = los.find(o => o.type === 'sl');
     const lo = los.find(o => o.type !== 'tp' && o.type !== 'sl');
     rows.push(`<div class="bt-row">
-      <span style="flex:0 0 130px;cursor:pointer" data-goto-page="futures" data-goto-sym="${p.sym}">
+      <span style="flex:2 1 130px;cursor:pointer;min-width:0" data-goto-page="futures" data-goto-sym="${p.sym}">
         <div style="font-weight:600;font-size:13px;color:var(--text);display:flex;align-items:center;gap:4px">${p.sym.replace('USDT','')}<span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}" style="font-size:10px">${p.dir==='long'?'Long':'Short'}</span></div>
         <div style="font-size:10px;color:var(--text3)">Perp · Isolated ${p.leverage}x</div>
       </span>
-      <span style="flex:0 0 85px;text-align:right">
+      <span style="flex:1 1 85px;text-align:right;min-width:0">
         <div style="color:${p.dir==='long'?'var(--green)':'var(--red)'};font-size:12px">${p.dir==='long'?'+':'−'}${p.qty.toFixed(4)}</div>
         <div style="font-size:10px;color:var(--text3)">${p.sym.replace('USDT','')}</div>
       </span>
-      <span style="flex:0 0 90px;text-align:right;font-size:12px;color:var(--text)" data-lv="f${p.id}">${fmt(p.qty*price)}</span>
-      <span style="flex:0 0 95px;text-align:right;font-size:12px;color:var(--text)">$${fmt(p.entryPrice)}</span>
-      <span style="flex:0 0 95px;text-align:right;font-size:12px;color:var(--text)" data-lp="f${p.id}">${price?'$'+fmt(price):'—'}</span>
-      <span style="flex:0 0 90px;text-align:right;color:#f97316;font-size:12px">$${fmt(p.liqPrice)}</span>
-      <span style="flex:0 0 155px;text-align:right" data-ln="f${p.id}">
+      <span style="flex:1 1 90px;text-align:right;font-size:12px;color:var(--text);min-width:0" data-lv="f${p.id}">${fmt(p.qty*price)}</span>
+      <span style="flex:1 1 95px;text-align:right;font-size:12px;color:var(--text);min-width:0">$${fmt(p.entryPrice)}</span>
+      <span style="flex:1 1 95px;text-align:right;font-size:12px;color:var(--text);min-width:0" data-lp="f${p.id}">${price?'$'+fmt(price):'—'}</span>
+      <span style="flex:1 1 90px;text-align:right;color:#f97316;font-size:12px;min-width:0">$${fmt(p.liqPrice)}</span>
+      <span style="flex:1.5 1 155px;text-align:right;min-width:0" data-ln="f${p.id}">
         <div style="font-size:12px;color:${pnlColor}">${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))}</div>
         <div style="font-size:10px;color:${pnlColor}">${pnl>=0?'+':''}${pct}%</div>
       </span>
-      <span style="flex:0 0 100px;text-align:center;font-size:10px;line-height:1.6">
+      <span style="flex:1 1 100px;text-align:center;font-size:10px;line-height:1.6;min-width:0">
         ${tp?`<div style="color:var(--green);white-space:nowrap">TP $${fmt(tp.price)}<button onclick="cancelTpSl(${p.id},'tp')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 2px">✕</button></div>`:''}
         ${sl?`<div style="color:var(--red);white-space:nowrap">SL $${fmt(sl.price)}<button onclick="cancelTpSl(${p.id},'sl')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 2px">✕</button></div>`:''}
         ${!tp&&!sl?`<span style="color:var(--text3)">—</span>`:''}
       </span>
-      <span style="flex:0 0 130px;display:flex;gap:3px;justify-content:flex-end;align-items:center">
+      <span style="flex:1.2 1 130px;display:flex;gap:3px;justify-content:flex-end;align-items:center;min-width:0">
         ${lo?`<span style="font-size:9px;color:var(--yellow);white-space:nowrap">📌$${fmt(lo.price)}<button onclick="cancelLimitClose(${p.id})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 1px;margin-left:1px">✕</button></span>`:''}
         <button class="pos-mkt-btn" onclick="closePosition(${p.id})">Market</button>
         <button class="pos-lmt-btn" onclick="openLcpModal(${p.id})">Limit</button>
