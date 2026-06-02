@@ -4404,6 +4404,8 @@ const _obPriceTier = { spot: -999, futures: -999 };
 const _obRowCount = { spot: 20, futures: 20 };
 const _obRowLastMeasure = { spot: 0, futures: 0 };
 let _obIsMobile = window.innerWidth <= 768;
+const _obAskMap = { spot: new Map(), futures: new Map() };
+const _obBidMap = { spot: new Map(), futures: new Map() };
 
 function _priceToTier(p) {
   if (p > 10000) return 7;
@@ -4562,6 +4564,12 @@ function renderOB(page) {
   requestAnimationFrame(() => { _obPending[page] = false; _doRenderOB(page); });
 }
 function _doRenderOB(page) {
+  // 로그인 화면이거나 비활성 페이지이면 스킵
+  const startOv = document.getElementById('startOverlay');
+  if (startOv && startOv.style.display !== 'none') return;
+  const pageEl = document.getElementById('page-' + page);
+  if (pageEl && !pageEl.classList.contains('active')) return;
+
   const pfx = page === 'spot' ? 's' : 'f';
   const ob = S[page].ob;
   if (!ob.asks.size && !ob.bids.size) return;
@@ -4578,16 +4586,16 @@ function _doRenderOB(page) {
   const group = obGrouping[page];
   const dispDec = _dispDecForGroup(group);
 
-  // ── Apply price grouping ──
-  // asks: ceil to group boundary (higher price), aggregate qty
-  const askMap = new Map();
+  // ── Apply price grouping (Map 재사용으로 GC 절감) ──
+  const askMap = _obAskMap[page];
+  const bidMap = _obBidMap[page];
+  askMap.clear();
+  bidMap.clear();
   ob.asks.forEach((qty, p) => {
     const fp = parseFloat(p);
     const gp = parseFloat((Math.ceil(fp / group) * group).toFixed(8));
     askMap.set(gp, (askMap.get(gp) || 0) + qty);
   });
-  // bids: floor to group boundary (lower price), aggregate qty
-  const bidMap = new Map();
   ob.bids.forEach((qty, p) => {
     const fp = parseFloat(p);
     const gp = parseFloat((Math.floor(fp / group) * group).toFixed(8));
