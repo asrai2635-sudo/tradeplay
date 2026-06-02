@@ -596,6 +596,59 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 .pos-mkt-btn:hover { background:rgba(246,70,93,0.12); border-color:var(--red); color:var(--red); }
 .pos-lmt-btn { font-size:13px; padding:6px 14px; border-radius:4px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-family:inherit; transition:all 0.1s; white-space:nowrap; flex-shrink:0; }
 .pos-lmt-btn:hover { background:rgba(245,158,11,0.12); border-color:var(--yellow); color:var(--yellow); }
+/* TP/SL MODAL */
+.tpsl-ov { position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:3100;display:flex;align-items:center;justify-content:center; }
+.tpsl-box { background:#131720;border:1px solid #2a3347;border-radius:12px;width:460px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 12px 48px rgba(0,0,0,0.85); }
+.tpsl-hd { display:flex;justify-content:space-between;align-items:center;padding:16px 20px 12px;border-bottom:1px solid #2a3347; }
+.tpsl-hd-title { font-size:15px;font-weight:700;color:#e2e8f0; }
+.tpsl-hd-close { background:none;border:none;color:#8896ae;cursor:pointer;font-size:20px;line-height:1;padding:0 2px; }
+.tpsl-hd-close:hover { color:#e2e8f0; }
+.tpsl-inforow { display:grid;grid-template-columns:repeat(4,1fr);padding:12px 20px;background:#0d111a;gap:4px; }
+.tpsl-ic { display:flex;flex-direction:column;gap:3px; }
+.tpsl-ic+.tpsl-ic { border-left:1px solid #1f2937;padding-left:12px; }
+.tpsl-il { font-size:10px;color:#6b7280; }
+.tpsl-iv { font-size:12px;font-weight:700;color:#e2e8f0; }
+.tpsl-tabs { display:flex;border-bottom:1px solid #2a3347;padding:0 20px; }
+.tpsl-tab { background:none;border:none;border-bottom:2px solid transparent;padding:10px 0;margin-right:22px;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit;transition:all 0.15s; }
+.tpsl-tab.active { color:#e2e8f0;border-bottom-color:#f59e0b; }
+.tpsl-body { padding:16px 20px;display:flex;flex-direction:column;gap:14px; }
+.tpsl-partial-bar { display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid #2a3347; }
+.tpsl-partial-label { font-size:11px;color:#8896ae;white-space:nowrap; }
+.tpsl-partial-inp { flex:1;background:#0d111a;border:1px solid #2a3347;border-radius:5px;color:#e2e8f0;font-size:12px;padding:6px 9px;font-family:inherit;outline:none; }
+.tpsl-partial-inp:focus { border-color:#f59e0b; }
+.tpsl-sect { display:flex;flex-direction:column;gap:7px; }
+.tpsl-sect-lbl { font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px; }
+.tpsl-row { display:grid;grid-template-columns:1fr 88px;gap:8px; }
+.tpsl-pricewrap { display:flex;background:#0d111a;border:1px solid #2a3347;border-radius:6px;overflow:hidden;align-items:center; }
+.tpsl-pricewrap:focus-within { border-color:#3b82f6; }
+.tpsl-pinp { flex:1;background:none;border:none;color:#e2e8f0;font-size:13px;padding:9px 10px;font-family:inherit;outline:none;min-width:0; }
+.tpsl-pinp::placeholder { color:#374151; }
+.tpsl-adjbtns { display:flex;align-items:center;border-left:1px solid #2a3347;flex-shrink:0; }
+.tpsl-adj { background:none;border:none;color:#8896ae;cursor:pointer;font-size:15px;padding:0 8px;height:36px;font-family:inherit; }
+.tpsl-adj:hover { color:#e2e8f0; }
+.tpsl-adiv { color:#2a3347;font-size:11px; }
+.tpsl-typesel { background:#1a2030;border:none;border-left:1px solid #2a3347;color:#8896ae;font-size:11px;padding:0 7px;height:36px;cursor:pointer;font-family:inherit;flex-shrink:0; }
+.tpsl-roiwrap { display:flex;background:#0d111a;border:1px solid #2a3347;border-radius:6px;overflow:hidden;align-items:center; }
+.tpsl-roiwrap:focus-within { border-color:#3b82f6; }
+.tpsl-rinp { flex:1;background:none;border:none;color:#e2e8f0;font-size:13px;padding:9px 8px;font-family:inherit;outline:none;min-width:0;text-align:right; }
+.tpsl-rinp::placeholder { color:#374151; }
+.tpsl-rpct { color:#6b7280;font-size:12px;padding-right:9px;flex-shrink:0; }
+.tpsl-slider { width:100%;height:3px;margin:2px 0;cursor:pointer;border-radius:2px; }
+.tpsl-slider-tp { accent-color:#0ecb81; }
+.tpsl-slider-sl { accent-color:#f6465d; }
+.tpsl-slrange { display:flex;justify-content:space-between;font-size:10px;color:#4b5563; }
+.tpsl-descbox { background:#1c2538;border:1px solid #253044;border-radius:6px;padding:10px 12px;font-size:11px;line-height:1.65;color:#8896ae; }
+.tpsl-btnrow { display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 20px 20px; }
+.tpsl-ok { background:#f59e0b;border:none;border-radius:20px;color:#000;font-size:13px;font-weight:700;padding:12px;cursor:pointer;font-family:inherit;transition:background 0.15s; }
+.tpsl-ok:hover { background:#d97706; }
+.tpsl-no { background:#1a2030;border:1px solid #2a3347;border-radius:20px;color:#8896ae;font-size:13px;font-weight:600;padding:12px;cursor:pointer;font-family:inherit;transition:all 0.15s; }
+.tpsl-no:hover { color:#e2e8f0;border-color:#4b5563; }
+@media(max-width:768px){
+  .tpsl-ov { align-items:flex-end!important; }
+  .tpsl-box { width:100%!important;max-width:100%!important;border-radius:14px 14px 0 0!important;max-height:90vh; }
+  .tpsl-inforow { grid-template-columns:repeat(2,1fr);gap:10px; }
+  .tpsl-ic+.tpsl-ic:nth-child(odd) { border-left:none;padding-left:0; }
+}
 /* LIMIT CLOSE POPUP */
 .lcp-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.55); z-index:3000; display:flex; align-items:center; justify-content:center; padding:0; }
 .lcp-modal { background:var(--bg2); border:1px solid var(--border); border-radius:12px; width:400px; padding:20px 22px; box-shadow:0 8px 40px rgba(0,0,0,0.7); }
@@ -1839,6 +1892,81 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
       <span id="lcp-pnl" style="font-weight:700">—</span>
     </div>
     <button class="lcp-confirm-btn" onclick="confirmLimitClose()">청산 예약</button>
+  </div>
+</div>
+
+<!-- TP/SL MODAL -->
+<div class="tpsl-ov" id="tpslOverlay" style="display:none" onclick="if(event.target===this)closeTpSlModal()">
+  <div class="tpsl-box">
+    <div class="tpsl-hd">
+      <span class="tpsl-hd-title">Add TP/SL</span>
+      <button class="tpsl-hd-close" onclick="closeTpSlModal()">✕</button>
+    </div>
+    <div class="tpsl-inforow">
+      <div class="tpsl-ic"><span class="tpsl-il">Entry Price</span><span class="tpsl-iv" id="tpsl-entry">—</span></div>
+      <div class="tpsl-ic"><span class="tpsl-il">Quantity</span><span class="tpsl-iv" id="tpsl-qty-val">—</span></div>
+      <div class="tpsl-ic"><span class="tpsl-il">Last Traded Price</span><span class="tpsl-iv" id="tpsl-mark">—</span></div>
+      <div class="tpsl-ic"><span class="tpsl-il">Liq. Price</span><span class="tpsl-iv" id="tpsl-liq" style="color:#f97316">—</span></div>
+    </div>
+    <div class="tpsl-tabs">
+      <button class="tpsl-tab active" data-tab="entire" onclick="setTpslTab('entire',this)">Entire Position</button>
+      <button class="tpsl-tab" data-tab="partial" onclick="setTpslTab('partial',this)">Partial Position</button>
+    </div>
+    <div class="tpsl-body">
+      <div class="tpsl-partial-bar" id="tpsl-partial-bar" style="display:none">
+        <span class="tpsl-partial-label">수량</span>
+        <input class="tpsl-partial-inp" id="tpsl-partial-qty" type="number" min="0" step="any" oninput="onTpslPartialQtyInput()">
+        <span class="tpsl-partial-label" id="tpsl-partial-max" style="color:#6b7280"></span>
+      </div>
+      <!-- TP -->
+      <div class="tpsl-sect">
+        <div class="tpsl-sect-lbl" style="color:#0ecb81">TP (by ROI) ▾</div>
+        <div class="tpsl-row">
+          <div class="tpsl-pricewrap">
+            <input class="tpsl-pinp" id="tpsl-tp-price" type="number" placeholder="Trigger Price" step="any" oninput="onTpPriceInput()">
+            <div class="tpsl-adjbtns">
+              <button class="tpsl-adj" onclick="adjTpSlPrice('tp',-1)">−</button>
+              <span class="tpsl-adiv">|</span>
+              <button class="tpsl-adj" onclick="adjTpSlPrice('tp',+1)">+</button>
+              <select class="tpsl-typesel" id="tpsl-tp-type"><option value="last">Last</option><option value="mark">Mark</option></select>
+            </div>
+          </div>
+          <div class="tpsl-roiwrap">
+            <input class="tpsl-rinp" id="tpsl-tp-roi" type="number" placeholder="ROI" step="any" oninput="onTpRoiInput()">
+            <span class="tpsl-rpct">%</span>
+          </div>
+        </div>
+        <input type="range" class="tpsl-slider tpsl-slider-tp" id="tpsl-tp-slider" min="0" max="500" step="1" value="0" oninput="onTpSliderInput()">
+        <div class="tpsl-slrange"><span>0</span><span>500%</span></div>
+        <div class="tpsl-descbox" id="tpsl-tp-desc" style="display:none"></div>
+      </div>
+      <!-- SL -->
+      <div class="tpsl-sect">
+        <div class="tpsl-sect-lbl" style="color:#f6465d">SL (by ROI) ▾</div>
+        <div class="tpsl-row">
+          <div class="tpsl-pricewrap">
+            <input class="tpsl-pinp" id="tpsl-sl-price" type="number" placeholder="Trigger Price" step="any" oninput="onSlPriceInput()">
+            <div class="tpsl-adjbtns">
+              <button class="tpsl-adj" onclick="adjTpSlPrice('sl',-1)">−</button>
+              <span class="tpsl-adiv">|</span>
+              <button class="tpsl-adj" onclick="adjTpSlPrice('sl',+1)">+</button>
+              <select class="tpsl-typesel" id="tpsl-sl-type"><option value="last">Last</option><option value="mark">Mark</option></select>
+            </div>
+          </div>
+          <div class="tpsl-roiwrap">
+            <input class="tpsl-rinp" id="tpsl-sl-roi" type="number" placeholder="ROI" step="any" oninput="onSlRoiInput()">
+            <span class="tpsl-rpct">%</span>
+          </div>
+        </div>
+        <input type="range" class="tpsl-slider tpsl-slider-sl" id="tpsl-sl-slider" min="0" max="100" step="1" value="0" oninput="onSlSliderInput()">
+        <div class="tpsl-slrange"><span>0</span><span id="tpsl-sl-slmax">100%</span></div>
+        <div class="tpsl-descbox" id="tpsl-sl-desc" style="display:none"></div>
+      </div>
+    </div>
+    <div class="tpsl-btnrow">
+      <button class="tpsl-ok" onclick="confirmTpSl()">Confirm</button>
+      <button class="tpsl-no" onclick="closeTpSlModal()">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -5390,7 +5518,7 @@ function renderFutPositions() {
       <span style="flex:1 1 100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0">
         ${tp?`<div style="color:var(--green);white-space:nowrap;font-size:10px">TP $${fmt(tp.price)}<button onclick="cancelTpSl(${p.id},'tp')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 2px">✕</button></div>`:''}
         ${sl?`<div style="color:var(--red);white-space:nowrap;font-size:10px">SL $${fmt(sl.price)}<button onclick="cancelTpSl(${p.id},'sl')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 2px">✕</button></div>`:''}
-        <button onclick="openLcpModal(${p.id})" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;border-radius:5px;cursor:pointer;font-size:12px;padding:5px 12px;font-family:inherit;white-space:nowrap;font-weight:600">TP/SL</button>
+        <button onclick="openTpSlModal(${p.id})" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;border-radius:5px;cursor:pointer;font-size:12px;padding:5px 12px;font-family:inherit;white-space:nowrap;font-weight:600">TP/SL</button>
       </span>
       <span style="flex:1.2 1 130px;display:flex;gap:3px;justify-content:center;align-items:center;min-width:0">
         ${lo?`<span style="font-size:9px;color:var(--yellow);white-space:nowrap">📌$${fmt(lo.price)}<button onclick="cancelLimitClose(${p.id})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 1px;margin-left:1px">✕</button></span>`:''}
@@ -5429,6 +5557,175 @@ function setLcpType(type, btn) {
   document.querySelectorAll('.lcp-type-btn').forEach(b => b.classList.toggle('active', b === btn));
 }
 function closeLcpModal() { $('lcpOverlay').style.display = 'none'; }
+
+// ── TP/SL 전용 모달 ──────────────────────────────────────
+let _tpslPosId = null, _tpslTab = 'entire';
+
+function openTpSlModal(posId) {
+  const p = futPositions.find(x => x.id === posId); if (!p) return;
+  _tpslPosId = posId; _tpslTab = 'entire';
+  const price = PRICES[p.sym] || S.futures.price || p.entryPrice;
+  $('tpsl-entry').textContent = '$' + fmt(p.entryPrice);
+  $('tpsl-qty-val').textContent = p.qty.toFixed(4) + ' ' + p.sym.replace('USDT','');
+  $('tpsl-mark').textContent = '$' + fmt(price);
+  $('tpsl-liq').textContent = '$' + fmt(p.liqPrice);
+  document.querySelectorAll('.tpsl-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === 'entire'));
+  $('tpsl-partial-bar').style.display = 'none';
+  // SL 슬라이더 max = 100 * leverage (청산 = 100% 손실)
+  const slMax = Math.min(100 * p.leverage, 300);
+  $('tpsl-sl-slider').max = slMax;
+  $('tpsl-sl-slmax').textContent = slMax + '%';
+  // 기존 TP/SL 불러오기
+  const los = futLimitOrders.filter(o => o.posId === posId);
+  const tp = los.find(o => o.type === 'tp');
+  const sl = los.find(o => o.type === 'sl');
+  const dp = _tpslDp(p.entryPrice);
+  $('tpsl-tp-price').value = tp ? tp.price.toFixed(dp) : '';
+  $('tpsl-sl-price').value = sl ? sl.price.toFixed(dp) : '';
+  _syncTpRoi(); _syncSlRoi();
+  _syncTpSlider(); _syncSlSlider();
+  _updateTpDesc(); _updateSlDesc();
+  $('tpslOverlay').style.display = 'flex';
+}
+function closeTpSlModal() { $('tpslOverlay').style.display = 'none'; }
+function setTpslTab(tab, btn) {
+  _tpslTab = tab;
+  document.querySelectorAll('.tpsl-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  $('tpsl-partial-bar').style.display = tab === 'partial' ? 'flex' : 'none';
+  if (tab === 'partial') {
+    const p = futPositions.find(x => x.id === _tpslPosId); if (!p) return;
+    $('tpsl-partial-qty').value = p.qty.toFixed(4);
+    $('tpsl-partial-max').textContent = '/ ' + p.qty.toFixed(4);
+  }
+  _updateTpDesc(); _updateSlDesc();
+}
+function onTpslPartialQtyInput() { _updateTpDesc(); _updateSlDesc(); }
+
+function _tpslDp(price) { return price>10000?1:price>100?2:price>1?4:6; }
+function _tpslPos() { return futPositions.find(x => x.id === _tpslPosId); }
+function _calcRoi(targetPrice, p) {
+  if (!p || !targetPrice) return 0;
+  return p.dir === 'long'
+    ? (targetPrice - p.entryPrice) / p.entryPrice * p.leverage * 100
+    : (p.entryPrice - targetPrice) / p.entryPrice * p.leverage * 100;
+}
+function _roiToPrice(roi, p) {
+  if (!p) return 0;
+  return p.dir === 'long'
+    ? p.entryPrice * (1 + roi / p.leverage / 100)
+    : p.entryPrice * (1 - roi / p.leverage / 100);
+}
+function _syncTpRoi() {
+  const p = _tpslPos(); if (!p) return;
+  const v = parseFloat($('tpsl-tp-price').value);
+  $('tpsl-tp-roi').value = v ? _calcRoi(v, p).toFixed(1) : '';
+}
+function _syncTpPrice() {
+  const p = _tpslPos(); if (!p) return;
+  const v = parseFloat($('tpsl-tp-roi').value);
+  if (!v && v !== 0) { $('tpsl-tp-price').value = ''; return; }
+  $('tpsl-tp-price').value = _roiToPrice(v, p).toFixed(_tpslDp(p.entryPrice));
+}
+function _syncSlRoi() {
+  const p = _tpslPos(); if (!p) return;
+  const v = parseFloat($('tpsl-sl-price').value);
+  $('tpsl-sl-roi').value = v ? _calcRoi(v, p).toFixed(1) : '';
+}
+function _syncSlPrice() {
+  const p = _tpslPos(); if (!p) return;
+  const v = parseFloat($('tpsl-sl-roi').value);
+  if (!v && v !== 0) { $('tpsl-sl-price').value = ''; return; }
+  $('tpsl-sl-price').value = _roiToPrice(v, p).toFixed(_tpslDp(p.entryPrice));
+}
+function _syncTpSlider() {
+  const roi = parseFloat($('tpsl-tp-roi').value) || 0;
+  $('tpsl-tp-slider').value = Math.min(Math.max(roi, 0), parseFloat($('tpsl-tp-slider').max));
+}
+function _syncSlSlider() {
+  const roi = parseFloat($('tpsl-sl-roi').value) || 0;
+  $('tpsl-sl-slider').value = Math.min(Math.max(-roi, 0), parseFloat($('tpsl-sl-slider').max));
+}
+function onTpPriceInput()  { _syncTpRoi();  _syncTpSlider(); _updateTpDesc(); }
+function onTpRoiInput()    { _syncTpPrice(); _syncTpSlider(); _updateTpDesc(); }
+function onTpSliderInput() {
+  const p = _tpslPos(); if (!p) return;
+  $('tpsl-tp-roi').value = parseFloat($('tpsl-tp-slider').value).toFixed(1);
+  _syncTpPrice(); _updateTpDesc();
+}
+function onSlPriceInput()  { _syncSlRoi();  _syncSlSlider(); _updateSlDesc(); }
+function onSlRoiInput()    { _syncSlPrice(); _syncSlSlider(); _updateSlDesc(); }
+function onSlSliderInput() {
+  const p = _tpslPos(); if (!p) return;
+  $('tpsl-sl-roi').value = (-parseFloat($('tpsl-sl-slider').value)).toFixed(1);
+  _syncSlPrice(); _updateSlDesc();
+}
+function adjTpSlPrice(type, dir) {
+  const p = _tpslPos(); if (!p) return;
+  const dp = _tpslDp(p.entryPrice);
+  const step = p.entryPrice>10000?1:p.entryPrice>100?0.01:p.entryPrice>1?0.0001:0.000001;
+  const id = type === 'tp' ? 'tpsl-tp-price' : 'tpsl-sl-price';
+  const cur = parseFloat($(id).value) || (PRICES[p.sym] || p.entryPrice);
+  $(id).value = Math.max(0, cur + dir * step).toFixed(dp);
+  if (type === 'tp') onTpPriceInput(); else onSlPriceInput();
+}
+function _tpslGetQty(p) {
+  if (_tpslTab === 'entire') return p.qty;
+  return Math.min(Math.max(parseFloat($('tpsl-partial-qty').value) || 0, 0), p.qty);
+}
+function _updateTpDesc() {
+  const p = _tpslPos(); const box = $('tpsl-tp-desc'); if (!p) return;
+  const tpPrice = parseFloat($('tpsl-tp-price').value);
+  if (!tpPrice) { box.style.display = 'none'; return; }
+  const qty = _tpslGetQty(p);
+  const frac = qty / p.qty;
+  const margin = p.margin * frac;
+  const roi = _calcRoi(tpPrice, p);
+  let pnl = p.dir === 'long'
+    ? (tpPrice - p.entryPrice) / p.entryPrice * margin * p.leverage
+    : (p.entryPrice - tpPrice) / p.entryPrice * margin * p.leverage;
+  pnl -= tpPrice * qty * 0.0006;
+  box.style.display = 'block';
+  box.innerHTML = `When the Last Traded Price reaches <strong style="color:#e2e8f0">${fmt(tpPrice)} USDT</strong>, a Take Profit will be placed. Estimated P&L: profit <span style="color:#0ecb81">${fmt(Math.abs(pnl))} USDT (ROI: ${roi.toFixed(2)}%)</span>`;
+}
+function _updateSlDesc() {
+  const p = _tpslPos(); const box = $('tpsl-sl-desc'); if (!p) return;
+  const slPrice = parseFloat($('tpsl-sl-price').value);
+  if (!slPrice) { box.style.display = 'none'; return; }
+  const qty = _tpslGetQty(p);
+  const frac = qty / p.qty;
+  const margin = p.margin * frac;
+  const roi = _calcRoi(slPrice, p);
+  let pnl = p.dir === 'long'
+    ? (slPrice - p.entryPrice) / p.entryPrice * margin * p.leverage
+    : (p.entryPrice - slPrice) / p.entryPrice * margin * p.leverage;
+  pnl -= slPrice * qty * 0.0006;
+  box.style.display = 'block';
+  box.innerHTML = `When the Last Traded Price reaches <strong style="color:#e2e8f0">${fmt(slPrice)} USDT</strong>, a Market Stop Loss will be placed. Estimated P&L: loss <span style="color:#f6465d">${fmt(Math.abs(pnl))} USDT (ROI: <span style="color:#f6465d">${roi.toFixed(2)}%</span>)</span>`;
+}
+function confirmTpSl() {
+  const p = _tpslPos(); if (!p) return;
+  const tpPrice = parseFloat($('tpsl-tp-price').value) || 0;
+  const slPrice = parseFloat($('tpsl-sl-price').value) || 0;
+  if (!tpPrice && !slPrice) { toast('TP 또는 SL 가격을 입력하세요', 'var(--yellow)'); return; }
+  const qty = _tpslGetQty(p);
+  if (qty <= 0) { toast('수량을 확인하세요', 'var(--yellow)'); return; }
+  const fraction = Math.min(qty / p.qty, 1);
+  if (tpPrice > 0) {
+    futLimitOrders = futLimitOrders.filter(o => !(o.posId === p.id && o.type === 'tp'));
+    futLimitOrders.push({ id: Date.now(), posId: p.id, sym: p.sym, price: tpPrice, fraction, type: 'tp' });
+  }
+  if (slPrice > 0) {
+    futLimitOrders = futLimitOrders.filter(o => !(o.posId === p.id && o.type === 'sl'));
+    futLimitOrders.push({ id: Date.now() + 1, posId: p.id, sym: p.sym, price: slPrice, fraction, type: 'sl' });
+  }
+  const parts = [];
+  if (tpPrice > 0) parts.push('✅ TP $' + fmt(tpPrice));
+  if (slPrice > 0) parts.push('🛑 SL $' + fmt(slPrice));
+  toast(parts.join(' / ') + ' 설정', 'var(--green)');
+  saveState(); updatePriceLines('futures'); renderFutPositions();
+  closeTpSlModal();
+}
+
 function setLcpPct(pct) {
   const p = futPositions.find(pos => pos.id === lcpState.posId); if (!p) return;
   $('lcp-qty').value = (p.qty * pct / 100).toFixed(4);
