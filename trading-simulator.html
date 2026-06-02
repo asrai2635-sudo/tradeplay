@@ -1991,12 +1991,15 @@ function _uploadRanking() {
   _uploadTimer = setTimeout(() => {
     const equity = calcTotalEquity();
     const roi    = (equity / startAmount - 1) * 100;
-    _db.collection('rankings').doc(_uid).set({
+    const data   = {
       nickname  : nick,
       equity    : Math.round(equity * 100) / 100,
       roi       : Math.round(roi * 100) / 100,
       updatedAt : firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(()=>{});
+    };
+    _db.collection('rankings').doc(_uid).set(data).catch(() => {
+      setTimeout(() => _db.collection('rankings').doc(_uid).set(data).catch(() => {}), 3000);
+    });
   }, 5000);
 }
 
@@ -5151,20 +5154,26 @@ function execFutures() {
   wallet-=(margin+fee);
 
   if(isLimit){
-    futEntryOrders.push({id:Date.now(),sym:S.futures.sym,dir,price:ep,qty,margin,leverage:lev,fee,liqPrice:liqP,time:Date.now()});
-    toast(`📌 ${dir==='long'?'▲ LONG':'▼ SHORT'} 예약 @ $${fmt(ep)} (${lev}x)`,dir==='long'?'var(--green)':'var(--red)');
+    const tpRaw=parseFloat($('fTpPrice').value)||0;
+    const slRaw=parseFloat($('fSlPrice').value)||0;
+    futEntryOrders.push({id:Date.now(),sym:S.futures.sym,dir,price:ep,qty,margin,leverage:lev,fee,liqPrice:liqP,time:Date.now(),tp:tpRaw||null,sl:slRaw||null});
+    const tpslNote=(tpRaw||slRaw)?` | ${tpRaw?'TP $'+fmt(tpRaw):''}${(tpRaw&&slRaw)?' ':' '}${slRaw?'SL $'+fmt(slRaw):''}`:'' ;
+    toast(`📌 ${dir==='long'?'▲ LONG':'▼ SHORT'} 예약 @ $${fmt(ep)} (${lev}x)${tpslNote}`,dir==='long'?'var(--green)':'var(--red)');
     saveState();updateTopBar();updatePriceLines('futures');renderFutOrders();
   } else {
     // 물타기: 동일 심볼+방향 포지션이 있으면 평균 진입가로 통합
     const existing=futPositions.find(p=>p.sym===S.futures.sym&&p.dir===dir);
     if(existing){
       const newTotalQty=existing.qty+qty;
+      const newTotalMargin=existing.margin+margin;
       const avgEntry=(existing.entryPrice*existing.qty+ep*qty)/newTotalQty;
+      const avgLev=Math.round((existing.leverage*existing.margin+lev*margin)/newTotalMargin);
       existing.qty=newTotalQty;
-      existing.margin+=margin;
+      existing.margin=newTotalMargin;
       existing.entryPrice=avgEntry;
-      existing.liqPrice=dir==='long'?avgEntry*(1-1/existing.leverage+0.005):avgEntry*(1+1/existing.leverage-0.005);
-      toast(`물타기 ${dir==='long'?'▲ LONG':'▼ SHORT'} ${S.futures.sym.replace('USDT','')} 평균 $${fmt(avgEntry)} (${existing.leverage}x)`,dir==='long'?'var(--green)':'var(--red)');
+      existing.leverage=avgLev;
+      existing.liqPrice=dir==='long'?avgEntry*(1-1/avgLev+0.005):avgEntry*(1+1/avgLev-0.005);
+      toast(`물타기 ${dir==='long'?'▲ LONG':'▼ SHORT'} ${S.futures.sym.replace('USDT','')} 평균 $${fmt(avgEntry)} (${avgLev}x)`,dir==='long'?'var(--green)':'var(--red)');
     } else {
       const pos={id:Date.now(),sym:S.futures.sym,dir,entryPrice:ep,qty,leverage:lev,margin,liqPrice:liqP,fee};
       futPositions.push(pos);
@@ -5442,7 +5451,7 @@ function confirmLimitClose() {
   if (!qty || qty <= 0) { toast('수량을 확인하세요', 'var(--yellow)'); return; }
   const fraction = Math.min(qty / p.qty, 1);
   const type = document.querySelector('.lcp-type-btn.active')?.dataset.type || 'tp';
-  futLimitOrders = futLimitOrders.filter(o => o.posId !== lcpState.posId);
+  futLimitOrders = futLimitOrders.filter(o => !(o.posId === lcpState.posId && o.type === type));
   futLimitOrders.push({ id:Date.now(), posId:lcpState.posId, sym:p.sym, price:limitPrice, fraction, type });
   const typeLabel = type === 'sl' ? '🛑 SL' : '✅ TP';
   toast(`${typeLabel} ${p.sym.replace('USDT','')} ${(fraction*100).toFixed(0)}% @ $${fmt(limitPrice)} 예약`, type==='sl'?'var(--red)':'var(--green)');
@@ -5501,15 +5510,22 @@ function checkFutEntryOrders() {
     const existing=futPositions.find(p=>p.sym===o.sym&&p.dir===o.dir);
     if(existing){
       const newTotalQty=existing.qty+o.qty;
+      const newTotalMargin=existing.margin+o.margin;
       const avgEntry=(existing.entryPrice*existing.qty+o.price*o.qty)/newTotalQty;
+      const avgLev=Math.round((existing.leverage*existing.margin+o.leverage*o.margin)/newTotalMargin);
       existing.qty=newTotalQty;
-      existing.margin+=o.margin;
+      existing.margin=newTotalMargin;
       existing.entryPrice=avgEntry;
-      existing.liqPrice=o.dir==='long'?avgEntry*(1-1/existing.leverage+0.005):avgEntry*(1+1/existing.leverage-0.005);
-      toast(`✅ 물타기 체결 ${o.sym.replace('USDT','')} @ $${fmt(o.price)}`,o.dir==='long'?'var(--green)':'var(--red)');
+      existing.leverage=avgLev;
+      existing.liqPrice=o.dir==='long'?avgEntry*(1-1/avgLev+0.005):avgEntry*(1+1/avgLev-0.005);
+      toast(`✅ 물타기 체결 ${o.sym.replace('USDT','')} @ $${fmt(o.price)} (${avgLev}x)`,o.dir==='long'?'var(--green)':'var(--red)');
     } else {
-      futPositions.push({id:Date.now(),sym:o.sym,dir:o.dir,entryPrice:o.price,qty:o.qty,leverage:o.leverage,margin:o.margin,liqPrice:o.liqPrice,fee:o.fee});
-      toast(`✅ ${o.dir==='long'?'▲ LONG':'▼ SHORT'} 체결 ${o.sym.replace('USDT','')} @ $${fmt(o.price)} (${o.leverage}x)`,o.dir==='long'?'var(--green)':'var(--red)');
+      const pos={id:Date.now(),sym:o.sym,dir:o.dir,entryPrice:o.price,qty:o.qty,leverage:o.leverage,margin:o.margin,liqPrice:o.liqPrice,fee:o.fee};
+      futPositions.push(pos);
+      if(o.tp>0) futLimitOrders.push({posId:pos.id,type:'tp',price:o.tp,fraction:1});
+      if(o.sl>0) futLimitOrders.push({posId:pos.id,type:'sl',price:o.sl,fraction:1});
+      const tpslNote=(o.tp||o.sl)?` | ${o.tp?'TP $'+fmt(o.tp):''}${(o.tp&&o.sl)?' ':' '}${o.sl?'SL $'+fmt(o.sl):''}`:'' ;
+      toast(`✅ ${o.dir==='long'?'▲ LONG':'▼ SHORT'} 체결 ${o.sym.replace('USDT','')} @ $${fmt(o.price)} (${o.leverage}x)${tpslNote}`,o.dir==='long'?'var(--green)':'var(--red)');
     }
   });
   if(triggered.length){
