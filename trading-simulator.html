@@ -144,6 +144,14 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 .chart-container { flex: 1; display: flex; flex-direction: row; min-height: 0; background: var(--bg); }
 .lc-wrap { flex: 1; position: relative; min-height: 0; overflow: hidden; }
 
+/* PRICE LINE OVERLAY BUTTONS */
+.pl-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 4; overflow: hidden; }
+.pl-pill { position: absolute; right: 72px; display: flex; align-items: center; gap: 3px; pointer-events: auto; }
+.pl-btn { height: 18px; padding: 0 6px; border-radius: 3px; border: none; cursor: pointer; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; opacity: 0.7; transition: opacity 0.12s; line-height: 1; font-family: inherit; white-space: nowrap; }
+.pl-btn:hover { opacity: 1; }
+.pl-cancel-btn { background: rgba(246,70,93,0.22); color: #f6465d; min-width: 18px; font-size: 13px; padding: 0 4px; }
+.pl-sell-btn { background: rgba(14,203,129,0.18); color: #0ecb81; font-size: 10px; }
+
 /* DRAWING TOOLBAR — TradingView style */
 .draw-toolbar { width: 46px; background: #131722; border-right: 1px solid #2a2e39; display: flex; flex-direction: column; align-items: center; padding: 8px 0 6px; gap: 2px; flex-shrink: 0; overflow-y: auto; scrollbar-width: none; }
 .draw-toolbar::-webkit-scrollbar { display: none; }
@@ -2727,12 +2735,23 @@ function initCharts(page) {
   dc.className = 'draw-canvas';
   wrap.appendChild(dc);
 
+  // 가격선 액션 오버레이
+  const plOv = document.createElement('div');
+  plOv.id = pfx2 + '-pl-overlay';
+  plOv.className = 'pl-overlay';
+  wrap.appendChild(plOv);
+
+  // 차트 스크롤/줌 시 오버레이 위치 재계산
+  chart.timeScale().subscribeVisibleLogicalRangeChange(() => updatePriceLineOverlay(page));
+  chart.priceScale('right').subscribeVisiblePriceRangeChange(() => updatePriceLineOverlay(page));
+
   // 크기 자동 반응
   const ro = new ResizeObserver(() => {
     if (S[page].lchart) {
       chart.resize(wrap.clientWidth, wrap.clientHeight);
       const dcc = document.getElementById(pfx2+'-draw-canvas');
       if (dcc) { dcc.width=wrap.clientWidth; dcc.height=wrap.clientHeight; renderDrawings(page); }
+      updatePriceLineOverlay(page);
     }
   });
   ro.observe(wrap);
@@ -4878,6 +4897,65 @@ function updatePriceLines(page) {
             title: `${isSL ? '🛑 SL' : '✅ TP'} $${fmt(o.price)}` });
     });
   }
+  updatePriceLineOverlay(page);
+}
+
+function updatePriceLineOverlay(page) {
+  const pfx = page === 'spot' ? 's' : 'f';
+  const overlay = document.getElementById(pfx + '-pl-overlay');
+  if (!overlay || !S[page].candleSeries) { if (overlay) overlay.innerHTML = ''; return; }
+  overlay.innerHTML = '';
+  const series = S[page].candleSeries;
+  const sym = S[page].sym;
+
+  function addPill(price, onCancel, onMarket) {
+    const y = series.priceToCoordinate(price);
+    if (y === null) return;
+    const pill = document.createElement('div');
+    pill.className = 'pl-pill';
+    pill.style.top = Math.round(y - 9) + 'px';
+    if (onMarket) {
+      const mb = document.createElement('button');
+      mb.className = 'pl-btn pl-sell-btn';
+      mb.textContent = '시장가';
+      mb.title = '지금 시장가로 즉시 매도';
+      mb.onclick = onMarket;
+      pill.appendChild(mb);
+    }
+    if (onCancel) {
+      const cb = document.createElement('button');
+      cb.className = 'pl-btn pl-cancel-btn';
+      cb.textContent = '×';
+      cb.title = '주문 취소';
+      cb.onclick = onCancel;
+      pill.appendChild(cb);
+    }
+    overlay.appendChild(pill);
+  }
+
+  if (page === 'spot') {
+    const key = sym.replace('USDT', '');
+    const h = holdings[key];
+    if (h && h.qty > 0.000001) {
+      addPill(h.avgPrice, null, () => sellAllHolding(key));
+    }
+    spotLimitOrders.filter(o => o.sym === sym).forEach(o => {
+      addPill(o.price, () => cancelSpotOrder(o.id));
+    });
+  } else {
+    futEntryOrders.filter(o => o.sym === sym).forEach(o => {
+      addPill(o.price, () => cancelFutEntryOrder(o.id));
+    });
+    futLimitOrders.filter(o => o.sym === sym).forEach(o => {
+      if (o.type === 'tp') {
+        addPill(o.price, () => cancelTpSl(o.posId, 'tp'));
+      } else if (o.type === 'sl') {
+        addPill(o.price, () => cancelTpSl(o.posId, 'sl'));
+      } else {
+        addPill(o.price, () => cancelLimitClose(o.posId));
+      }
+    });
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -5571,9 +5649,10 @@ function openTpSlModal(posId) {
   $('tpsl-liq').textContent = '$' + fmt(p.liqPrice);
   document.querySelectorAll('.tpsl-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === 'entire'));
   $('tpsl-partial-bar').style.display = 'none';
-  // SL 슬라이더 max = 100 * leverage (청산 = 100% 손실)
-  $('tpsl-sl-slider').max = 100;
-  $('tpsl-sl-slmax').textContent = '100%';
+  // SL 슬라이더 max = 청산 ROI (예: 100x → 50%, 10x → 95%)
+  const liqRoi = Math.max(1, Math.floor(100 - 0.5 * p.leverage));
+  $('tpsl-sl-slider').max = liqRoi;
+  $('tpsl-sl-slmax').textContent = liqRoi + '%';
   // 기존 TP/SL 불러오기
   const los = futLimitOrders.filter(o => o.posId === posId);
   const tp = los.find(o => o.type === 'tp');
@@ -5690,6 +5769,7 @@ function _updateSlDesc() {
   const p = _tpslPos(); const box = $('tpsl-sl-desc'); if (!p) return;
   const slPrice = parseFloat($('tpsl-sl-price').value);
   if (!slPrice) { box.style.display = 'none'; return; }
+  const beyondLiq = p.dir === 'long' ? slPrice <= p.liqPrice : slPrice >= p.liqPrice;
   const qty = _tpslGetQty(p);
   const frac = qty / p.qty;
   const margin = p.margin * frac;
@@ -5699,7 +5779,15 @@ function _updateSlDesc() {
     : (p.entryPrice - slPrice) / p.entryPrice * margin * p.leverage;
   pnl -= slPrice * qty * 0.0006;
   box.style.display = 'block';
-  box.innerHTML = `현재가가 <strong style="color:#f1f5f9">${fmt(slPrice)} USDT</strong>에 도달하면 시장가 손절이 실행됩니다. 예상 손익: 손실 <span style="color:#f6465d">${fmt(Math.abs(pnl))} USDT (ROI: ${roi.toFixed(2)}%)</span>`;
+  if (beyondLiq) {
+    box.style.border = '1px solid #f97316';
+    box.style.background = 'rgba(249,115,22,0.12)';
+    box.innerHTML = `⚠️ <strong style="color:#f97316">강제청산 구간</strong> — SL 가격 <strong style="color:#f1f5f9">${fmt(slPrice)} USDT</strong>가 청산가 <strong style="color:#f97316">${fmt(p.liqPrice)} USDT</strong>에 해당합니다. SL 대신 강제청산이 먼저 발생합니다.`;
+  } else {
+    box.style.border = '';
+    box.style.background = '';
+    box.innerHTML = `현재가가 <strong style="color:#f1f5f9">${fmt(slPrice)} USDT</strong>에 도달하면 시장가 손절이 실행됩니다. 예상 손익: 손실 <span style="color:#f6465d">${fmt(Math.abs(pnl))} USDT (ROI: ${roi.toFixed(2)}%)</span>`;
+  }
 }
 function confirmTpSl() {
   const p = _tpslPos(); if (!p) return;
@@ -5714,6 +5802,8 @@ function confirmTpSl() {
     futLimitOrders.push({ id: Date.now(), posId: p.id, sym: p.sym, price: tpPrice, fraction, type: 'tp' });
   }
   if (slPrice > 0) {
+    const beyondLiq = p.dir === 'long' ? slPrice <= p.liqPrice : slPrice >= p.liqPrice;
+    if (beyondLiq) { toast('⚠️ SL 가격이 청산가에 해당합니다. 강제청산이 먼저 발생합니다.', '#f97316'); return; }
     futLimitOrders = futLimitOrders.filter(o => !(o.posId === p.id && o.type === 'sl'));
     futLimitOrders.push({ id: Date.now() + 1, posId: p.id, sym: p.sym, price: slPrice, fraction, type: 'sl' });
   }
