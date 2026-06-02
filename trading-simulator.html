@@ -597,25 +597,25 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
 .pos-lmt-btn { font-size:13px; padding:6px 14px; border-radius:4px; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; font-family:inherit; transition:all 0.1s; white-space:nowrap; flex-shrink:0; }
 .pos-lmt-btn:hover { background:rgba(245,158,11,0.12); border-color:var(--yellow); color:var(--yellow); }
 /* LIMIT CLOSE POPUP */
-.lcp-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.55); z-index:3000; display:flex; align-items:flex-start; justify-content:flex-end; padding:58px 14px 0 0; }
-.lcp-modal { background:var(--bg2); border:1px solid var(--border); border-radius:10px; width:250px; padding:12px 14px; box-shadow:0 4px 24px rgba(0,0,0,0.6); }
+.lcp-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.55); z-index:3000; display:flex; align-items:center; justify-content:center; padding:0; }
+.lcp-modal { background:var(--bg2); border:1px solid var(--border); border-radius:12px; width:400px; padding:20px 22px; box-shadow:0 8px 40px rgba(0,0,0,0.7); }
 .lcp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-.lcp-title { font-size:13px; font-weight:700; }
-.lcp-close-btn { background:none; border:none; color:var(--text2); cursor:pointer; font-size:15px; font-family:inherit; line-height:1; }
-.lcp-info { font-size:11px; color:var(--text2); margin-bottom:8px; padding:5px 8px; background:var(--bg3); border-radius:5px; display:flex; gap:10px; flex-wrap:wrap; }
-.lcp-pct-row { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-bottom:7px; }
-.lcp-pct-btn { padding:4px 2px; background:var(--bg3); border:1px solid var(--border); border-radius:3px; color:var(--text2); font-family:inherit; font-size:11px; cursor:pointer; transition:all 0.1s; text-align:center; }
+.lcp-title { font-size:15px; font-weight:700; }
+.lcp-close-btn { background:none; border:none; color:var(--text2); cursor:pointer; font-size:18px; font-family:inherit; line-height:1; }
+.lcp-info { font-size:12px; color:var(--text2); margin-bottom:10px; padding:8px 12px; background:var(--bg3); border-radius:6px; display:flex; gap:12px; flex-wrap:wrap; }
+.lcp-pct-row { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-bottom:9px; }
+.lcp-pct-btn { padding:6px 2px; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text2); font-family:inherit; font-size:12px; cursor:pointer; transition:all 0.1s; text-align:center; }
 .lcp-pct-btn:hover { background:var(--bg4); color:var(--text); }
 .lcp-pct-btn.active { background:rgba(59,130,246,0.15); border-color:var(--blue); color:var(--blue); }
-.lcp-type-row { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:8px; }
-.lcp-type-btn { padding:5px 4px; border-radius:4px; border:1px solid var(--border); background:var(--bg3); color:var(--text2); font-size:11px; font-weight:600; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+.lcp-type-row { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px; }
+.lcp-type-btn { padding:8px 4px; border-radius:5px; border:1px solid var(--border); background:var(--bg3); color:var(--text2); font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:all 0.15s; }
 .lcp-type-btn[data-type="tp"].active { background:rgba(14,203,129,0.15); border-color:var(--green); color:var(--green); }
 .lcp-type-btn[data-type="sl"].active { background:rgba(246,70,93,0.15); border-color:var(--red); color:var(--red); }
-.lcp-pnl-row { display:flex; justify-content:space-between; font-size:11px; padding:5px 0; border-top:1px solid var(--border); margin-top:4px; }
-.lcp-confirm-btn { width:100%; padding:8px; border:none; border-radius:5px; background:var(--yellow); color:#000; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:7px; transition:opacity 0.15s; }
+.lcp-pnl-row { display:flex; justify-content:space-between; font-size:13px; padding:8px 0; border-top:1px solid var(--border); margin-top:6px; }
+.lcp-confirm-btn { width:100%; padding:11px; border:none; border-radius:6px; background:var(--yellow); color:#000; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:10px; transition:opacity 0.15s; }
 .lcp-confirm-btn:hover { opacity:0.85; }
-.lcp-modal .form-label { font-size:11px; }
-.lcp-modal .form-input { font-size:12px; padding:5px 8px; }
+.lcp-modal .form-label { font-size:12px; }
+.lcp-modal .form-input { font-size:13px; padding:7px 10px; }
 
 /* STATS MODAL */
 .stats-overlay { position:fixed; inset:0; background:rgba(11,14,17,0.85); z-index:2500; display:flex; align-items:center; justify-content:center; }
@@ -1226,15 +1226,15 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="spot-holdings-wrap">
     <div class="bt-scroll">
       <div class="bt-header">
-        <span style="flex:2 1 130px">계약</span>
+        <span style="flex:2 1 130px;padding-left:6px">계약</span>
         <span style="flex:1 1 85px;display:flex;justify-content:flex-end">수량</span>
         <span style="flex:1 1 90px;display:flex;justify-content:flex-end">가치(USDT)</span>
         <span style="flex:1 1 95px;display:flex;justify-content:flex-end">진입가</span>
         <span style="flex:1 1 95px;display:flex;justify-content:flex-end">마크가</span>
         <span style="flex:1 1 90px;display:flex;justify-content:flex-end">청산가</span>
-        <span style="flex:1.5 1 155px;display:flex;justify-content:flex-end">미실현 손익(ROI)</span>
+        <span style="flex:1.5 1 155px;display:flex;justify-content:center">미실현 손익(ROI)</span>
         <span style="flex:1 1 100px;display:flex;justify-content:center">TP/SL</span>
-        <span style="flex:1.2 1 130px;display:flex;justify-content:flex-end">청산</span>
+        <span style="flex:1.2 1 130px;display:flex;justify-content:center">청산</span>
       </div>
       <div class="bt-body" id="spotHoldings"><div class="empty-msg">보유 포지션 없음</div></div>
     </div>
@@ -1516,15 +1516,15 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   <div class="bt-wrap" id="fut-positions-wrap">
     <div class="bt-scroll">
       <div class="bt-header">
-        <span style="flex:2 1 130px">계약</span>
+        <span style="flex:2 1 130px;padding-left:6px">계약</span>
         <span style="flex:1 1 85px;display:flex;justify-content:flex-end">수량</span>
         <span style="flex:1 1 90px;display:flex;justify-content:flex-end">가치(USDT)</span>
         <span style="flex:1 1 95px;display:flex;justify-content:flex-end">진입가</span>
         <span style="flex:1 1 95px;display:flex;justify-content:flex-end">마크가</span>
         <span style="flex:1 1 90px;display:flex;justify-content:flex-end">청산가</span>
-        <span style="flex:1.5 1 155px;display:flex;justify-content:flex-end">미실현 손익(ROI)</span>
+        <span style="flex:1.5 1 155px;display:flex;justify-content:center">미실현 손익(ROI)</span>
         <span style="flex:1 1 100px;display:flex;justify-content:center">TP/SL</span>
-        <span style="flex:1.2 1 130px;display:flex;justify-content:flex-end">청산</span>
+        <span style="flex:1.2 1 130px;display:flex;justify-content:center">청산</span>
       </div>
       <div class="bt-body" id="futPositions"><div class="empty-msg">보유 포지션 없음</div></div>
     </div>
@@ -5354,8 +5354,8 @@ function renderFutPositions() {
     const sl = los.find(o => o.type === 'sl');
     const lo = los.find(o => o.type !== 'tp' && o.type !== 'sl');
     rows.push(`<div class="bt-row">
-      <span style="flex:2 1 130px;cursor:pointer;min-width:0" data-goto-page="futures" data-goto-sym="${p.sym}">
-        <div style="font-weight:600;font-size:13px;color:var(--text);display:flex;align-items:center;gap:4px">${p.sym.replace('USDT','')}<span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}" style="font-size:10px">${p.dir==='long'?'Long':'Short'}</span></div>
+      <span style="flex:2 1 130px;cursor:pointer;min-width:0;padding-left:6px" data-goto-page="futures" data-goto-sym="${p.sym}">
+        <div style="font-weight:600;font-size:15px;color:var(--text);display:flex;align-items:center;gap:5px">${p.sym.replace('USDT','')}<span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}" style="font-size:11px">${p.dir==='long'?'Long':'Short'}</span></div>
         <div style="font-size:10px;color:var(--text3)">Perp · Isolated ${p.leverage}x</div>
       </span>
       <span style="flex:1 1 85px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0">
@@ -5366,16 +5366,16 @@ function renderFutPositions() {
       <span style="flex:1 1 95px;display:flex;justify-content:flex-end;align-items:center;font-size:12px;color:var(--text);min-width:0">$${fmt(p.entryPrice)}</span>
       <span style="flex:1 1 95px;display:flex;justify-content:flex-end;align-items:center;font-size:12px;color:var(--text);min-width:0" data-lp="f${p.id}">${price?'$'+fmt(price):'—'}</span>
       <span style="flex:1 1 90px;display:flex;justify-content:flex-end;align-items:center;color:#f97316;font-size:12px;min-width:0">$${fmt(p.liqPrice)}</span>
-      <span style="flex:1.5 1 155px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0" data-ln="f${p.id}">
+      <span style="flex:1.5 1 155px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0" data-ln="f${p.id}">
         <div style="font-size:12px;color:${pnlColor}">${pnl>=0?'+$':'-$'}${fmt(Math.abs(pnl))}</div>
         <div style="font-size:10px;color:${pnlColor}">${pnl>=0?'+':''}${pct}%</div>
       </span>
       <span style="flex:1 1 100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0">
         ${tp?`<div style="color:var(--green);white-space:nowrap;font-size:10px">TP $${fmt(tp.price)}<button onclick="cancelTpSl(${p.id},'tp')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 2px">✕</button></div>`:''}
         ${sl?`<div style="color:var(--red);white-space:nowrap;font-size:10px">SL $${fmt(sl.price)}<button onclick="cancelTpSl(${p.id},'sl')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 2px">✕</button></div>`:''}
-        <button onclick="openLcpModal(${p.id})" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;border-radius:4px;cursor:pointer;font-size:9px;padding:2px 5px;font-family:inherit;white-space:nowrap">TP/SL</button>
+        <button onclick="openLcpModal(${p.id})" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;border-radius:5px;cursor:pointer;font-size:12px;padding:5px 12px;font-family:inherit;white-space:nowrap;font-weight:600">TP/SL</button>
       </span>
-      <span style="flex:1.2 1 130px;display:flex;gap:3px;justify-content:flex-end;align-items:center;min-width:0">
+      <span style="flex:1.2 1 130px;display:flex;gap:3px;justify-content:center;align-items:center;min-width:0">
         ${lo?`<span style="font-size:9px;color:var(--yellow);white-space:nowrap">📌$${fmt(lo.price)}<button onclick="cancelLimitClose(${p.id})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:9px;padding:0 1px;margin-left:1px">✕</button></span>`:''}
         <button class="pos-mkt-btn" onclick="closePosition(${p.id})">Market</button>
         <button class="pos-lmt-btn" onclick="openLcpModal(${p.id})">Limit</button>
