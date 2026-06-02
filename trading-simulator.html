@@ -2742,9 +2742,9 @@ function initCharts(page) {
   plOv.className = 'pl-overlay';
   wrap.appendChild(plOv);
 
-  // 차트 스크롤/줌 시 오버레이 위치 재계산
-  try { chart.timeScale().subscribeVisibleLogicalRangeChange(() => updatePriceLineOverlay(page)); } catch(e) {}
-  try { chart.priceScale('right').subscribeVisiblePriceRangeChange(() => updatePriceLineOverlay(page)); } catch(e) {}
+  // 차트 스크롤/줌 시 → 위치만 업데이트 (DOM 재생성 없음)
+  try { chart.timeScale().subscribeVisibleLogicalRangeChange(() => repositionPriceLineOverlay(page)); } catch(e) {}
+  try { chart.priceScale('right').subscribeVisiblePriceRangeChange(() => repositionPriceLineOverlay(page)); } catch(e) {}
 
   // 크기 자동 반응
   const ro = new ResizeObserver(() => {
@@ -2752,7 +2752,7 @@ function initCharts(page) {
       chart.resize(wrap.clientWidth, wrap.clientHeight);
       const dcc = document.getElementById(pfx2+'-draw-canvas');
       if (dcc) { dcc.width=wrap.clientWidth; dcc.height=wrap.clientHeight; renderDrawings(page); }
-      try { updatePriceLineOverlay(page); } catch(e) {}
+      try { repositionPriceLineOverlay(page); } catch(e) {}
     }
   });
   ro.observe(wrap);
@@ -4901,17 +4901,32 @@ function updatePriceLines(page) {
   try { updatePriceLineOverlay(page); } catch(e) {}
 }
 
+// pill 메타데이터 저장 (price → DOM 재활용)
+const _plPills = { spot: [], futures: [] };
 const _plRaf = {};
-function updatePriceLineOverlay(page) {
+
+// 스크롤/줌 시: DOM 재생성 없이 top만 업데이트
+function repositionPriceLineOverlay(page) {
   if (_plRaf[page]) cancelAnimationFrame(_plRaf[page]);
-  _plRaf[page] = requestAnimationFrame(() => _doUpdatePriceLineOverlay(page));
+  _plRaf[page] = requestAnimationFrame(() => {
+    try {
+      const series = S[page].candleSeries; if (!series) return;
+      _plPills[page].forEach(({ el, price }) => {
+        const y = series.priceToCoordinate(price);
+        if (y !== null && y !== undefined) el.style.top = Math.round(y - 9) + 'px';
+      });
+    } catch(e) {}
+  });
 }
-function _doUpdatePriceLineOverlay(page) {
+
+// 주문 데이터 변경 시: DOM 전체 재생성
+function updatePriceLineOverlay(page) {
   try {
   const pfx = page === 'spot' ? 's' : 'f';
   const overlay = document.getElementById(pfx + '-pl-overlay');
-  if (!overlay || !S[page].candleSeries) { if (overlay) overlay.innerHTML = ''; return; }
+  if (!overlay || !S[page].candleSeries) { if (overlay) overlay.innerHTML = ''; _plPills[page] = []; return; }
   overlay.innerHTML = '';
+  _plPills[page] = [];
   const series = S[page].candleSeries;
   const sym = S[page].sym;
 
@@ -4931,7 +4946,6 @@ function _doUpdatePriceLineOverlay(page) {
       const mb = document.createElement('button');
       mb.className = 'pl-btn pl-sell-btn';
       mb.textContent = '시장가';
-      mb.title = '지금 시장가로 즉시 매도';
       mb.onclick = onMarket;
       pill.appendChild(mb);
     }
@@ -4939,11 +4953,11 @@ function _doUpdatePriceLineOverlay(page) {
       const cb = document.createElement('button');
       cb.className = 'pl-btn pl-cancel-btn';
       cb.textContent = '×';
-      cb.title = '주문 취소';
       cb.onclick = onCancel;
       pill.appendChild(cb);
     }
     overlay.appendChild(pill);
+    _plPills[page].push({ el: pill, price });
   }
 
   if (page === 'spot') {
