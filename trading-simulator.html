@@ -5233,12 +5233,14 @@ function cancelTpSl(posId, type) {
   toast(`${type === 'tp' ? 'TP' : 'SL'} 취소`, 'var(--text2)');
 }
 function checkLiquidations() {
-  const price = S.futures.price; if (!price) return;
-  // 지정청산 체크
+  if (!futPositions.length && !futLimitOrders.length) return;
+  // 지정청산 체크 — 각 포지션 심볼의 실제 가격 사용
   const triggered = [];
   futLimitOrders.forEach(o => {
     const pos = futPositions.find(p => p.id === o.posId);
     if (!pos) { triggered.push(o); return; }
+    const price = PRICES[pos.sym] || (S.futures.sym === pos.sym ? S.futures.price : 0);
+    if (!price) return;
     const isSL = o.type === 'sl';
     const hit = isSL
       ? (pos.dir==='long'?price<=o.price:price>=o.price)
@@ -5249,9 +5251,14 @@ function checkLiquidations() {
     }
   });
   if (triggered.length) { futLimitOrders=futLimitOrders.filter(o=>!triggered.includes(o)); updatePriceLines('futures'); }
-  // 강제청산 체크
-  const toLiq = futPositions.filter(p=>(p.dir==='long'&&price<=p.liqPrice)||(p.dir==='short'&&price>=p.liqPrice));
+  // 강제청산 체크 — 각 포지션 심볼의 실제 가격 사용
+  const toLiq = futPositions.filter(p => {
+    const price = PRICES[p.sym] || (S.futures.sym === p.sym ? S.futures.price : 0);
+    if (!price) return false;
+    return (p.dir==='long' && price<=p.liqPrice) || (p.dir==='short' && price>=p.liqPrice);
+  });
   toLiq.forEach(p => {
+    const price = PRICES[p.sym] || S.futures.price;
     futLimitOrders = futLimitOrders.filter(o => o.posId !== p.id);
     const idx = futPositions.findIndex(x => x.id === p.id);
     futPositions.splice(idx, 1);
