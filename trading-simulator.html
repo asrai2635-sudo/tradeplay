@@ -415,7 +415,7 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 
 /* TICKER BAR */
 .ticker-bar { height: 26px; background: #0a0c10; border-top: 1px solid var(--border); overflow: hidden; position: fixed; bottom: 0; left: 0; right: 0; z-index: 90; }
-.ticker-track { display: flex; align-items: center; white-space: nowrap; height: 26px; position: absolute; left: 0; top: 0; }
+.ticker-track { display: flex; align-items: center; white-space: nowrap; height: 26px; position: absolute; left: 0; top: 0; will-change: transform; }
 .ticker-item { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; font-size: 11px; height: 26px; cursor: pointer; flex-shrink: 0; transition: background 0.1s; }
 .ticker-item:hover { background: rgba(255,255,255,0.04); }
 .ticker-sym { color: var(--text3); font-weight: 700; font-size: 10px; letter-spacing: 0.3px; }
@@ -4354,16 +4354,27 @@ function handlePageMsg(page, data) {
 
   else if (topic.startsWith('publicTrade.')) {
     const d = data.data; if (!d) return;
-    const tradesEl = $(page === 'spot' ? 's-trades' : 'f-trades');
-    if (!tradesEl) return;
-    d.forEach(t => {
-      const isBuy = t.S === 'Buy';
-      const row = document.createElement('div');
-      row.className = 'trade-row';
-      row.innerHTML = `<span class="trade-p ${isBuy?'up':'dn'}">${fmt(parseFloat(t.p))}</span><span class="trade-q">${parseFloat(t.v).toFixed(4)}</span><span class="trade-t">${fmtTime(t.T)}</span>`;
-      tradesEl.insertBefore(row, tradesEl.firstChild);
-      while (tradesEl.children.length > 50) tradesEl.removeChild(tradesEl.lastChild);
-    });
+    d.forEach(t => _tradeBuf[page].push(t));
+    if (!_tradeRaf[page]) {
+      _tradeRaf[page] = true;
+      requestAnimationFrame(() => {
+        _tradeRaf[page] = false;
+        const buf = _tradeBuf[page].splice(0);
+        if (!buf.length) return;
+        const tradesEl = $(page === 'spot' ? 's-trades' : 'f-trades');
+        if (!tradesEl) return;
+        const frag = document.createDocumentFragment();
+        for (let i = buf.length - 1; i >= 0; i--) {
+          const t = buf[i], isBuy = t.S === 'Buy';
+          const row = document.createElement('div');
+          row.className = 'trade-row';
+          row.innerHTML = `<span class="trade-p ${isBuy?'up':'dn'}">${fmt(parseFloat(t.p))}</span><span class="trade-q">${parseFloat(t.v).toFixed(4)}</span><span class="trade-t">${fmtTime(t.T)}</span>`;
+          frag.appendChild(row);
+        }
+        tradesEl.insertBefore(frag, tradesEl.firstChild);
+        while (tradesEl.children.length > 50) tradesEl.removeChild(tradesEl.lastChild);
+      });
+    }
   }
 
   else if (topic.startsWith('kline.')) {
@@ -4386,6 +4397,8 @@ function handlePageMsg(page, data) {
 // ORDER BOOK RENDER
 // ══════════════════════════════════════════════════════
 const _obPending = { spot: false, futures: false };
+const _tradeBuf = { spot: [], futures: [] };
+const _tradeRaf = { spot: false, futures: false };
 const obGrouping = { spot: 1, futures: 1 };
 const _obPriceTier = { spot: -999, futures: -999 };
 
