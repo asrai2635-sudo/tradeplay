@@ -2742,8 +2742,8 @@ function initCharts(page) {
   wrap.appendChild(plOv);
 
   // 차트 스크롤/줌 시 오버레이 위치 재계산
-  chart.timeScale().subscribeVisibleLogicalRangeChange(() => updatePriceLineOverlay(page));
-  chart.priceScale('right').subscribeVisiblePriceRangeChange(() => updatePriceLineOverlay(page));
+  try { chart.timeScale().subscribeVisibleLogicalRangeChange(() => updatePriceLineOverlay(page)); } catch(e) {}
+  try { chart.priceScale('right').subscribeVisiblePriceRangeChange(() => updatePriceLineOverlay(page)); } catch(e) {}
 
   // 크기 자동 반응
   const ro = new ResizeObserver(() => {
