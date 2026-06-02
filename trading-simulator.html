@@ -2751,7 +2751,7 @@ function initCharts(page) {
       chart.resize(wrap.clientWidth, wrap.clientHeight);
       const dcc = document.getElementById(pfx2+'-draw-canvas');
       if (dcc) { dcc.width=wrap.clientWidth; dcc.height=wrap.clientHeight; renderDrawings(page); }
-      updatePriceLineOverlay(page);
+      try { updatePriceLineOverlay(page); } catch(e) {}
     }
   });
   ro.observe(wrap);
@@ -4897,10 +4897,11 @@ function updatePriceLines(page) {
             title: `${isSL ? '🛑 SL' : '✅ TP'} $${fmt(o.price)}` });
     });
   }
-  updatePriceLineOverlay(page);
+  try { updatePriceLineOverlay(page); } catch(e) {}
 }
 
 function updatePriceLineOverlay(page) {
+  try {
   const pfx = page === 'spot' ? 's' : 'f';
   const overlay = document.getElementById(pfx + '-pl-overlay');
   if (!overlay || !S[page].candleSeries) { if (overlay) overlay.innerHTML = ''; return; }
@@ -4909,8 +4910,8 @@ function updatePriceLineOverlay(page) {
   const sym = S[page].sym;
 
   function addPill(price, onCancel, onMarket) {
-    const y = series.priceToCoordinate(price);
-    if (y === null) return;
+    let y; try { y = series.priceToCoordinate(price); } catch(e) { return; }
+    if (y === null || y === undefined) return;
     const pill = document.createElement('div');
     pill.className = 'pl-pill';
     pill.style.top = Math.round(y - 9) + 'px';
@@ -4956,6 +4957,7 @@ function updatePriceLineOverlay(page) {
       }
     });
   }
+  } catch(e) {}
 }
 
 // ══════════════════════════════════════════════════════
