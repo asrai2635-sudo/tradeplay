@@ -5317,24 +5317,24 @@ function renderFutPositions() {
     const pct = price ? ((price - h.avgPrice) / h.avgPrice * 100) : null;
     const pnlColor = pnl===null ? 'var(--text2)' : pnl>=0 ? 'var(--green)' : 'var(--red)';
     rows.push(`<div class="bt-row">
-      <span style="flex:2 1 130px;cursor:pointer;min-width:0" data-goto-page="spot" data-goto-sym="${sym}USDT">
-        <div style="font-weight:600;font-size:13px;color:var(--text)">${sym}/USDT</div>
+      <span style="flex:2 1 130px;cursor:pointer;min-width:0;padding-left:18px" data-goto-page="spot" data-goto-sym="${sym}USDT">
+        <div style="font-weight:600;font-size:15px;color:var(--text);display:flex;align-items:center;gap:5px">${sym}<span style="font-size:11px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(245,158,11,0.18);color:#f59e0b;border:1px solid rgba(245,158,11,0.35)">현물</span></div>
         <div style="font-size:10px;color:var(--text3)">Spot · Cash</div>
       </span>
-      <span style="flex:1 1 85px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0">
+      <span style="flex:1 1 85px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0">
         <div style="color:var(--green);font-size:12px">+${h.qty.toFixed(4)}</div>
         <div style="font-size:10px;color:var(--text3)">${sym}</div>
       </span>
-      <span style="flex:1 1 90px;display:flex;justify-content:flex-end;align-items:center;font-size:12px;color:var(--text);min-width:0" data-lv="s${sym}">${price?(h.qty*price).toFixed(2):'—'}</span>
-      <span style="flex:1 1 95px;display:flex;justify-content:flex-end;align-items:center;font-size:12px;color:var(--text);min-width:0">$${fmt(h.avgPrice)}</span>
-      <span style="flex:1 1 95px;display:flex;justify-content:flex-end;align-items:center;font-size:12px;color:var(--text);min-width:0" data-lp="s${sym}">${price?'$'+fmt(price):'—'}</span>
-      <span style="flex:1 1 90px;display:flex;justify-content:flex-end;align-items:center;color:#f97316;font-size:12px;min-width:0">—</span>
-      <span style="flex:1.5 1 155px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0" data-ln="s${sym}">
+      <span style="flex:1 1 90px;display:flex;justify-content:center;align-items:center;font-size:12px;color:var(--text);min-width:0" data-lv="s${sym}">${price?(h.qty*price).toFixed(2):'—'}</span>
+      <span style="flex:1 1 95px;display:flex;justify-content:center;align-items:center;font-size:12px;color:var(--text);min-width:0">$${fmt(h.avgPrice)}</span>
+      <span style="flex:1 1 95px;display:flex;justify-content:center;align-items:center;font-size:12px;color:var(--text);min-width:0" data-lp="s${sym}">${price?'$'+fmt(price):'—'}</span>
+      <span style="flex:1 1 90px;display:flex;justify-content:center;align-items:center;color:#f97316;font-size:12px;min-width:0">—</span>
+      <span style="flex:1.5 1 155px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0" data-ln="s${sym}">
         <div style="font-size:12px;color:${pnlColor}">${pnl!==null?(pnl>=0?'+$':'-$')+fmt(Math.abs(pnl)):'—'}</div>
         <div style="font-size:10px;color:${pnlColor}">${pct!==null?(pct>=0?'+':'')+pct.toFixed(2)+'%':''}</div>
       </span>
       <span style="flex:1 1 100px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);min-width:0">—</span>
-      <span style="flex:1.2 1 130px;display:flex;gap:4px;justify-content:flex-end;align-items:center;min-width:0">
+      <span style="flex:1.2 1 130px;display:flex;gap:4px;justify-content:center;align-items:center;min-width:0">
         <button class="pos-mkt-btn" onclick="sellAllHolding('${sym}')">Market</button>
         <button class="pos-lmt-btn" onclick="openSpotLimitSell('${sym}')">Limit</button>
       </span>
@@ -5355,7 +5355,7 @@ function renderFutPositions() {
     const lo = los.find(o => o.type !== 'tp' && o.type !== 'sl');
     rows.push(`<div class="bt-row">
       <span style="flex:2 1 130px;cursor:pointer;min-width:0;padding-left:18px" data-goto-page="futures" data-goto-sym="${p.sym}">
-        <div style="font-weight:600;font-size:15px;color:var(--text);display:flex;align-items:center;gap:5px">${p.sym.replace('USDT','')}<span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}" style="font-size:11px">${p.dir==='long'?'Long':'Short'}</span></div>
+        <div style="font-weight:600;font-size:15px;color:var(--text);display:flex;align-items:center;gap:5px">${p.sym.replace('USDT','')}<span class="pos-badge ${p.dir==='long'?'badge-long':'badge-short'}" style="font-size:11px">${p.dir==='long'?'Long':'Short'}</span><span style="font-size:11px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(99,102,241,0.18);color:#818cf8;border:1px solid rgba(99,102,241,0.35)">선물</span></div>
         <div style="font-size:10px;color:var(--text3)">Perp · Isolated ${p.leverage}x</div>
       </span>
       <span style="flex:1 1 85px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0">
