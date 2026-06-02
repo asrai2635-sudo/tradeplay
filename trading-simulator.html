@@ -2736,12 +2736,6 @@ function initCharts(page) {
   dc.className = 'draw-canvas';
   wrap.appendChild(dc);
 
-  // 가격선 액션 오버레이
-  const plOv = document.createElement('div');
-  plOv.id = pfx2 + '-pl-overlay';
-  plOv.className = 'pl-overlay';
-  wrap.appendChild(plOv);
-
   // 스크롤/줌 구독 제거 — 주문 변경 시에만 위치 재계산
 
   // 크기 자동 반응
@@ -4896,73 +4890,9 @@ function updatePriceLines(page) {
             title: `${isSL ? '🛑 SL' : '✅ TP'} $${fmt(o.price)}` });
     });
   }
-  try { updatePriceLineOverlay(page); } catch(e) {}
 }
 
-// 주문 데이터 변경 시 호출 — 스크롤 구독 없음
-function updatePriceLineOverlay(page) {
-  try {
-  const pfx = page === 'spot' ? 's' : 'f';
-  const overlay = document.getElementById(pfx + '-pl-overlay');
-  if (!overlay || !S[page].candleSeries) { if (overlay) overlay.innerHTML = ''; return; }
-  overlay.innerHTML = '';
-  const series = S[page].candleSeries;
-  const sym = S[page].sym;
-
-  function addPill(price, label, onCancel, onMarket) {
-    let y; try { y = series.priceToCoordinate(price); } catch(e) { return; }
-    if (y === null || y === undefined) return;
-    const pill = document.createElement('div');
-    pill.className = 'pl-pill';
-    pill.style.top = Math.round(y - 9) + 'px';
-    if (label) {
-      const lbl = document.createElement('span');
-      lbl.className = 'pl-label';
-      lbl.textContent = label;
-      pill.appendChild(lbl);
-    }
-    if (onMarket) {
-      const mb = document.createElement('button');
-      mb.className = 'pl-btn pl-sell-btn';
-      mb.textContent = '시장가';
-      mb.onclick = onMarket;
-      pill.appendChild(mb);
-    }
-    if (onCancel) {
-      const cb = document.createElement('button');
-      cb.className = 'pl-btn pl-cancel-btn';
-      cb.textContent = '×';
-      cb.onclick = onCancel;
-      pill.appendChild(cb);
-    }
-    overlay.appendChild(pill);
-  }
-
-  if (page === 'spot') {
-    const key = sym.replace('USDT', '');
-    const h = holdings[key];
-    if (h && h.qty > 0.000001) {
-      addPill(h.avgPrice, `평단 $${fmt(h.avgPrice)}`, null, () => sellAllHolding(key));
-    }
-    spotLimitOrders.filter(o => o.sym === sym).forEach(o => {
-      addPill(o.price, `📌 ${o.dir==='buy'?'매수':'매도'} $${fmt(o.price)}`, () => cancelSpotOrder(o.id));
-    });
-  } else {
-    futEntryOrders.filter(o => o.sym === sym).forEach(o => {
-      addPill(o.price, `📌 ${o.dir==='long'?'▲ LONG':'▼ SHORT'} $${fmt(o.price)}`, () => cancelFutEntryOrder(o.id));
-    });
-    futLimitOrders.filter(o => o.sym === sym).forEach(o => {
-      if (o.type === 'tp') {
-        addPill(o.price, `✅ TP $${fmt(o.price)}`, () => cancelTpSl(o.posId, 'tp'));
-      } else if (o.type === 'sl') {
-        addPill(o.price, `🛑 SL $${fmt(o.price)}`, () => cancelTpSl(o.posId, 'sl'));
-      } else {
-        addPill(o.price, `📌 청산 $${fmt(o.price)}`, () => cancelLimitClose(o.posId));
-      }
-    });
-  }
-  } catch(e) {}
-}
+function updatePriceLineOverlay(page) {}
 
 // ══════════════════════════════════════════════════════
 // SELECT SYMBOL
