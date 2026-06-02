@@ -147,6 +147,7 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 /* PRICE LINE OVERLAY BUTTONS */
 .pl-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 4; overflow: hidden; }
 .pl-pill { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 3px; pointer-events: auto; }
+.pl-label { height: 20px; padding: 0 8px; border-radius: 3px; font-size: 12px; font-weight: 600; color: #d1d4dc; background: #0b0e11; border: 1px solid rgba(255,255,255,0.18); display: flex; align-items: center; white-space: nowrap; }
 .pl-btn { height: 20px; padding: 0 7px; border-radius: 3px; border: none; cursor: pointer; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; opacity: 0.9; transition: opacity 0.12s; line-height: 1; font-family: inherit; white-space: nowrap; }
 .pl-btn:hover { opacity: 1; }
 .pl-cancel-btn { background: #0b0e11; color: #f6465d; min-width: 20px; padding: 0 5px; border: 1px solid rgba(246,70,93,0.5); }
@@ -4909,12 +4910,18 @@ function updatePriceLineOverlay(page) {
   const series = S[page].candleSeries;
   const sym = S[page].sym;
 
-  function addPill(price, onCancel, onMarket) {
+  function addPill(price, label, onCancel, onMarket) {
     let y; try { y = series.priceToCoordinate(price); } catch(e) { return; }
     if (y === null || y === undefined) return;
     const pill = document.createElement('div');
     pill.className = 'pl-pill';
     pill.style.top = Math.round(y - 9) + 'px';
+    if (label) {
+      const lbl = document.createElement('span');
+      lbl.className = 'pl-label';
+      lbl.textContent = label;
+      pill.appendChild(lbl);
+    }
     if (onMarket) {
       const mb = document.createElement('button');
       mb.className = 'pl-btn pl-sell-btn';
@@ -4938,22 +4945,22 @@ function updatePriceLineOverlay(page) {
     const key = sym.replace('USDT', '');
     const h = holdings[key];
     if (h && h.qty > 0.000001) {
-      addPill(h.avgPrice, null, () => sellAllHolding(key));
+      addPill(h.avgPrice, `평단 $${fmt(h.avgPrice)}`, null, () => sellAllHolding(key));
     }
     spotLimitOrders.filter(o => o.sym === sym).forEach(o => {
-      addPill(o.price, () => cancelSpotOrder(o.id));
+      addPill(o.price, `📌 ${o.dir==='buy'?'매수':'매도'} $${fmt(o.price)}`, () => cancelSpotOrder(o.id));
     });
   } else {
     futEntryOrders.filter(o => o.sym === sym).forEach(o => {
-      addPill(o.price, () => cancelFutEntryOrder(o.id));
+      addPill(o.price, `📌 ${o.dir==='long'?'▲ LONG':'▼ SHORT'} $${fmt(o.price)}`, () => cancelFutEntryOrder(o.id));
     });
     futLimitOrders.filter(o => o.sym === sym).forEach(o => {
       if (o.type === 'tp') {
-        addPill(o.price, () => cancelTpSl(o.posId, 'tp'));
+        addPill(o.price, `✅ TP $${fmt(o.price)}`, () => cancelTpSl(o.posId, 'tp'));
       } else if (o.type === 'sl') {
-        addPill(o.price, () => cancelTpSl(o.posId, 'sl'));
+        addPill(o.price, `🛑 SL $${fmt(o.price)}`, () => cancelTpSl(o.posId, 'sl'));
       } else {
-        addPill(o.price, () => cancelLimitClose(o.posId));
+        addPill(o.price, `📌 청산 $${fmt(o.price)}`, () => cancelLimitClose(o.posId));
       }
     });
   }
