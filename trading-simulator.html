@@ -2085,7 +2085,6 @@ const $ = id => document.getElementById(id);
 function fmt(n, d=2) { return Number(n).toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d}); }
 function fmtK(n) { n=Number(n); if(n>1e9) return (n/1e9).toFixed(2)+'B'; if(n>1e6) return (n/1e6).toFixed(2)+'M'; if(n>1e3) return (n/1e3).toFixed(1)+'K'; return n.toFixed(0); }
 function fmtTime(ts) { const d=new Date(ts); return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); }
-function priceDec(sym) { const p=S[sym]?.price||S.spot.price||S.futures.price; return p>10000?2:p>100?3:p>1?4:6; }
 
 function toast(msg, color='var(--blue)') {
   const t=$('toast'); t.textContent=msg; t.style.borderLeftColor=color;
@@ -5247,6 +5246,8 @@ function checkLiquidations() {
     futLimitOrders = futLimitOrders.filter(o => o.posId !== p.id);
     const idx = futPositions.findIndex(x => x.id === p.id);
     futPositions.splice(idx, 1);
+    wallet -= p.margin;
+    realizedPnl -= p.margin;
     futHistory.unshift({...p, closePrice:price, pnl:-p.margin, closedAt:Date.now()});
     liqFlash(); toast(`💀 LIQUIDATED — ${p.sym.replace('USDT','')} @ $${fmt(price)}`, 'var(--red)');
   });
@@ -5429,7 +5430,7 @@ function updateLcpPnl() {
   let pnl = p.dir === 'long'
     ? (limitPrice - p.entryPrice) / p.entryPrice * margin * p.leverage
     : (p.entryPrice - limitPrice) / p.entryPrice * margin * p.leverage;
-  pnl -= limitPrice * qty * 0.0001; // maker fee 0.01%
+  pnl -= limitPrice * qty * 0.0006; // taker fee 0.06%
   el.textContent = (pnl>=0?'+$':'-$') + fmt(Math.abs(pnl));
   el.style.color = pnl >= 0 ? 'var(--green)' : 'var(--red)';
 }
@@ -5578,9 +5579,6 @@ function renderFutHistory() {
       <span class="btc-pnl" style="color:${p.pnl>=0?'var(--green)':'var(--red)'}">${p.pnl>=0?'+$':'-$'}${fmt(Math.abs(p.pnl))}</span>
       <span class="btc-time">${new Date(p.closedAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</span>
     </div>`).join('');
-}
-function setFutTab(tab, btn) {
-  setBottomTab('futures', tab, btn);
 }
 function setBottomTab(page, tab, btn) {
   btn.closest('.bp-tabs').querySelectorAll('.bp-tab').forEach(b=>b.classList.remove('active'));
@@ -6047,7 +6045,7 @@ function renderJournal() {
     const dirClass = (t.dir === 'buy' || t.dir === 'long') ? 'jbuy' : 'jsell';
     const ts = t.closedAt || t.time || 0;
     const timeStr = new Date(ts).toLocaleString('ko-KR', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-    const note = journalNotes[key] || '';
+    const note = (journalNotes[key] || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     return `<div class="journal-trade">
       <div class="journal-trade-top">
         <span class="journal-sym">${t.sym||''}</span>
@@ -6365,7 +6363,7 @@ function _initDrawTooltips() {
 
 async function init() {
   bindTfBtns();
-  loadState(); // 게임 데이터 로드 (startOverlay 처리는 onAuthStateChanged가 담당)
+  const hasState = loadState(); // 게임 데이터 로드 (startOverlay 처리는 onAuthStateChanged가 담당)
   // 전체 심볼 로드 (await: selectSym 전에 PRICES[] 채워야 함)
   await loadAllSymbols();
   // 브라우저 레이아웃 계산 완료 후 차트 초기화 (canvas 크기 0x0 방지)
@@ -6482,7 +6480,6 @@ init();
   </div>
   <div class="alert-list" id="alert-list"></div>
 </div>
-<div id="toast" class="toast"></div>
 
 <!-- Indicator param edit popup -->
 <div id="ind-edit-popup" class="ind-edit-popup">
