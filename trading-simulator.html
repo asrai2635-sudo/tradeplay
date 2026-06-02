@@ -4401,6 +4401,9 @@ const _tradeBuf = { spot: [], futures: [] };
 const _tradeRaf = { spot: false, futures: false };
 const obGrouping = { spot: 1, futures: 1 };
 const _obPriceTier = { spot: -999, futures: -999 };
+const _obRowCount = { spot: 20, futures: 20 };
+const _obRowLastMeasure = { spot: 0, futures: 0 };
+let _obIsMobile = window.innerWidth <= 768;
 
 function _priceToTier(p) {
   if (p > 10000) return 7;
@@ -4593,10 +4596,16 @@ function _doRenderOB(page) {
 
   if (!price) return;
   const asksEl = $(pfx+'-asks');
-  const _rowH = window.innerWidth <= 768 ? 18 : 21;
-  const ROWS = asksEl && asksEl.offsetHeight > 0
-    ? Math.max(8, Math.min(30, Math.floor(asksEl.offsetHeight / _rowH)))
-    : 20;
+  const _now = Date.now();
+  if (_now - _obRowLastMeasure[page] > 1000) {
+    _obRowLastMeasure[page] = _now;
+    _obIsMobile = window.innerWidth <= 768;
+    const _rowH = _obIsMobile ? 18 : 21;
+    if (asksEl && asksEl.offsetHeight > 0) {
+      _obRowCount[page] = Math.max(8, Math.min(30, Math.floor(asksEl.offsetHeight / _rowH)));
+    }
+  }
+  const ROWS = _obRowCount[page];
   // +1e-9 epsilon: 현재가가 group 경계와 정확히 겹칠 때 ask가 bid와 같아지는 것 방지
   const firstAsk = parseFloat((Math.ceil((price + 1e-9) / group) * group).toFixed(8));
   const asks = [];
