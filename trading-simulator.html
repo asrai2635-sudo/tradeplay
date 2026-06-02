@@ -146,11 +146,11 @@ body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira C
 
 /* PRICE LINE OVERLAY BUTTONS */
 .pl-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 4; overflow: hidden; }
-.pl-pill { position: absolute; right: 72px; display: flex; align-items: center; gap: 3px; pointer-events: auto; }
-.pl-btn { height: 18px; padding: 0 6px; border-radius: 3px; border: none; cursor: pointer; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; opacity: 0.7; transition: opacity 0.12s; line-height: 1; font-family: inherit; white-space: nowrap; }
+.pl-pill { position: absolute; left: 8px; display: flex; align-items: center; gap: 3px; pointer-events: auto; }
+.pl-btn { height: 20px; padding: 0 7px; border-radius: 3px; border: none; cursor: pointer; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; opacity: 0.9; transition: opacity 0.12s; line-height: 1; font-family: inherit; white-space: nowrap; }
 .pl-btn:hover { opacity: 1; }
-.pl-cancel-btn { background: rgba(246,70,93,0.22); color: #f6465d; min-width: 18px; font-size: 13px; padding: 0 4px; }
-.pl-sell-btn { background: rgba(14,203,129,0.18); color: #0ecb81; font-size: 10px; }
+.pl-cancel-btn { background: #0b0e11; color: #f6465d; min-width: 20px; padding: 0 5px; border: 1px solid rgba(246,70,93,0.5); }
+.pl-sell-btn { background: #0b0e11; color: #0ecb81; font-size: 10px; border: 1px solid rgba(14,203,129,0.4); }
 
 /* DRAWING TOOLBAR — TradingView style */
 .draw-toolbar { width: 46px; background: #131722; border-right: 1px solid #2a2e39; display: flex; flex-direction: column; align-items: center; padding: 8px 0 6px; gap: 2px; flex-shrink: 0; overflow-y: auto; scrollbar-width: none; }
