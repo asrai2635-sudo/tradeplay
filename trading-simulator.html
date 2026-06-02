@@ -4901,7 +4901,12 @@ function updatePriceLines(page) {
   try { updatePriceLineOverlay(page); } catch(e) {}
 }
 
+const _plRaf = {};
 function updatePriceLineOverlay(page) {
+  if (_plRaf[page]) cancelAnimationFrame(_plRaf[page]);
+  _plRaf[page] = requestAnimationFrame(() => _doUpdatePriceLineOverlay(page));
+}
+function _doUpdatePriceLineOverlay(page) {
   try {
   const pfx = page === 'spot' ? 's' : 'f';
   const overlay = document.getElementById(pfx + '-pl-overlay');
