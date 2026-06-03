@@ -3487,8 +3487,12 @@ function _dtHitOne(page,d,mx,my,T) {
     case 'channel': {
       const c1=_dtC(page,d.p1.time,d.p1.price),c2=_dtC(page,d.p2.time,d.p2.price);
       if(!c1||!c2) return false;
-      if(_ptSegDist(mx,my,c1.x,c1.y,c2.x,c2.y)<T) return true;
-      if(d.p3){ const c3=_dtC(page,d.p3.time,d.p3.price); if(c3){ const dx=c2.x-c1.x,dy=c2.y-c1.y,t3=Math.abs(dx)<0.001?0:(c3.x-c1.x)/dx,offY=c3.y-(c1.y+t3*dy); if(_ptSegDist(mx,my,c1.x,c1.y+offY,c2.x,c2.y+offY)<T*2) return true; } }
+      const W=document.getElementById((page==='spot'?'s':'f')+'-draw-canvas')?.width||1000;
+      const dx=c2.x-c1.x,dy=c2.y-c1.y;
+      const tR=Math.abs(dx)<0.001?0:(dx>=0?(W-c1.x)/dx:(-c1.x)/dx);
+      const ex=c1.x+tR*dx,ey=c1.y+tR*dy;
+      if(_ptSegDist(mx,my,c1.x,c1.y,ex,ey)<T) return true;
+      if(d.p3){ const c3=_dtC(page,d.p3.time,d.p3.price); if(c3){ const t3=Math.abs(dx)<0.001?0:(c3.x-c1.x)/dx,offY=c3.y-(c1.y+t3*dy); if(_ptSegDist(mx,my,c1.x,c1.y+offY,ex,ey+offY)<T) return true; } }
       return false;
     }
     case 'ruler': {
