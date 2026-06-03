@@ -3555,7 +3555,8 @@ function setMaData(page) {
     const series = S[page][key+'Series'];
     if (!series) continue;
     const cfg = ind[key];
-    series.setData((cfg.type === 'ema' ? calcEMA : calcSMA)(candles, cfg.period));
+    const maFn = cfg.type === 'ema' ? calcEMA : cfg.type === 'wma' ? calcWMA : calcSMA;
+    series.setData(maFn(candles, cfg.period));
     series.applyOptions({ color: cfg.color, lineWidth: cfg.width });
   }
 }
