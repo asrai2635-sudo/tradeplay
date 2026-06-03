@@ -779,7 +779,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   .logo { font-size: 15px; }
   .main-tab { padding: 0 12px; font-size: 13px; height: 44px; }
   #unrealBadge, #pnlBadge { display: none; }
-  .rank-btn[onclick="openJournal()"], .rank-btn[onclick="openChallenge()"] { display: none; }
+  .rank-btn.btn-journal, .rank-btn.btn-challenge { display: none; }
   #balBadge .wallet-label { display: none; }
   #balBadge { padding: 4px 9px; border-radius: 6px; }
   .wallet-val { font-size: 12px; font-weight: 700; }
@@ -1111,8 +1111,8 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
     <div class="unreal-badge" id="unrealBadge"><span style="color:var(--text2);margin-right:5px">미실현</span><span id="topUnreal" style="color:var(--text2)">$0.00</span></div>
     <div class="wallet-badge" id="pnlBadge"><span class="wallet-label">실현손익</span><span class="wallet-val" id="topPnl" style="color:var(--text2)">$0.00</span></div>
     <span id="chalBadge" class="chal-badge" onclick="openChallenge()" style="display:none">🎯 <span id="chalBadgeText">챌린지</span></span>
-    <button class="rank-btn" onclick="openJournal()">📔 일지</button>
-    <button class="rank-btn" onclick="openChallenge()">🎯 챌린지</button>
+    <button class="rank-btn btn-journal" onclick="openJournal()">📔 일지</button>
+    <button class="rank-btn btn-challenge" onclick="openChallenge()">🎯 챌린지</button>
     <button class="rank-btn" onclick="openStats()">📊 자산</button>
     <button class="rank-btn" onclick="openRanking()">🏆 랭킹</button>
     <div class="profile-chip" id="profileChip" style="display:none">
@@ -2123,7 +2123,8 @@ let _uploadTimer = null;
 function _uploadRanking() {
   if (!_uid) return;
   const nick = localStorage.getItem('tp_nickname');
-  if (!nick) return;                // 게임 시작 전
+  if (!nick) return;
+  if (nick.length > 20 || !/^[\w\s가-힣\-_.]+$/.test(nick)) return;
   clearTimeout(_uploadTimer);
   _uploadTimer = setTimeout(() => {
     const equity = calcTotalEquity();
@@ -2364,8 +2365,6 @@ function showAdModal() {
   $('adOverlay').style.display = 'flex';
 }
 let _adBusy = false;
-// 보상형 광고 슬롯 ID — AdSense 대시보드에서 "보상형" 유형으로 생성 후 교체
-const REWARDED_AD_SLOT = 'REWARDED_SLOT_ID';
 
 function _grantAdReward(amount) {
   _adBusy = false;
@@ -2395,29 +2394,7 @@ function watchAd(amount, btnId) {
   if (_adBusy) return;
   _adBusy = true;
   $('adBtn1').disabled = true;
-
-  // AdSense 보상형 광고 시도 — 슬롯 ID가 실제로 설정된 경우에만 작동
-  if (typeof adsbygoogle !== 'undefined' && REWARDED_AD_SLOT !== 'REWARDED_SLOT_ID') {
-    (adsbygoogle = window.adsbygoogle || []).push({
-      googletag: {
-        cmd: [{
-          type: 'REWARDED',
-          slotId: REWARDED_AD_SLOT,
-          onReward: () => _grantAdReward(amount),
-          onClose: () => {
-            // 광고를 닫기만 하고 끝까지 안 봤을 때
-            _adBusy = false;
-            $('adBtn1').disabled = false;
-            $('adLabel1').textContent = '광고 보기 (15초)';
-          },
-          onError: () => _runTimerFallback(amount, 15000)
-        }]
-      }
-    });
-  } else {
-    // 보상형 슬롯 미설정 시 타이머 방식으로 폴백
-    _runTimerFallback(amount, 15000);
-  }
+  _runTimerFallback(amount, 15000);
 }
 
 // ══════════════════════════════════════════════════════
@@ -6837,9 +6814,11 @@ async function init() {
   let _tick = 0;
   setInterval(() => {
     _tick++;
-    if (_tick % 2 === 0) { updateAiPlayers(); }
-    if (_tick % 20 === 0 && $('rankOverlay')?.style.display !== 'none') renderRanking();
-    if (_tick % 7 === 0) refreshAllPrices();
+    try {
+      if (_tick % 2 === 0) updateAiPlayers();
+      if (_tick % 20 === 0 && $('rankOverlay')?.style.display !== 'none') renderRanking();
+      if (_tick % 7 === 0) refreshAllPrices();
+    } catch(e) {}
   }, 1500);
 }
 init();
@@ -6869,6 +6848,7 @@ init();
       <select id="ispType">
         <option value="sma">SMA (단순이동평균)</option>
         <option value="ema">EMA (지수이동평균)</option>
+        <option value="wma">WMA (가중이동평균)</option>
       </select>
     </div>
     <div class="ind-panel-row">
