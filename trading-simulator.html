@@ -2559,7 +2559,7 @@ function updateTickerPrices() {
   track.querySelectorAll('.ticker-item[data-sym]').forEach(el => {
     const t = dataMap.get(el.dataset.sym);
     if (!t) return;
-    el.querySelector('.ticker-price').textContent = '$' + fmtSP(t.price);
+    el.querySelector('.ticker-price').textContent = fmtSP(t.price);
     const chg = t.chgPct || 0;
     const chgEl = el.querySelector('.ticker-chg');
     chgEl.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
@@ -2739,15 +2739,16 @@ function initCharts(page) {
   // 스크롤/줌 구독 제거 — 주문 변경 시에만 위치 재계산
 
   // 크기 자동 반응
+  if (S[page].ro) { S[page].ro.disconnect(); }
   const ro = new ResizeObserver(() => {
     if (S[page].lchart) {
       chart.resize(wrap.clientWidth, wrap.clientHeight);
       const dcc = document.getElementById(pfx2+'-draw-canvas');
       if (dcc) { dcc.width=wrap.clientWidth; dcc.height=wrap.clientHeight; renderDrawings(page); }
-      try { updatePriceLineOverlay(page); } catch(e) {}
     }
   });
   ro.observe(wrap);
+  S[page].ro = ro;
 
   S[page].lchart = chart;
   S[page].candleSeries = candleSeries;
@@ -2790,6 +2791,29 @@ const DT = {
 
 // 드래그 상태
 const _dtDrag = { active:false, page:null, idx:-1, startPt:null, origPts:null };
+let _dtTextPending = null;
+function _dtTextConfirm() {
+  const pop = document.getElementById('dtTextPopup');
+  const txt = document.getElementById('dtTextInput').value.trim();
+  pop.style.display = 'none';
+  if (!_dtTextPending) return;
+  const { page, pt } = _dtTextPending;
+  _dtTextPending = null;
+  if (txt) {
+    DT[page].drawings.push({ type:'text', time:pt.time, price:pt.price, text:txt, color:'#f59e0b' });
+    _dtFinishDraw(page);
+  }
+}
+function _dtTextCancel() {
+  document.getElementById('dtTextPopup').style.display = 'none';
+  _dtTextPending = null;
+}
+document.addEventListener('keydown', e => {
+  const pop = document.getElementById('dtTextPopup');
+  if (!pop || pop.style.display === 'none') return;
+  if (e.key === 'Enter') { e.preventDefault(); _dtTextConfirm(); }
+  if (e.key === 'Escape') { e.preventDefault(); _dtTextCancel(); }
+});
 
 const LINE_TOOLS = new Set(['trendline','ray','extline','hline','hray','vline','channel']);
 
@@ -2853,6 +2877,10 @@ function initDrawCanvas(page) {
   canvas.width  = wrap.clientWidth;
   canvas.height = wrap.clientHeight;
 
+  if (S[page]._drawAC) S[page]._drawAC.abort();
+  const ac = new AbortController();
+  S[page]._drawAC = ac;
+
   canvas.addEventListener('click', e => {
     const dt = DT[page]; if (dt.tool==='cursor') return;
     const r = canvas.getBoundingClientRect();
@@ -2873,11 +2901,15 @@ function initDrawCanvas(page) {
       _dtFinishDraw(page); return;
     }
     if (dt.tool==='text') {
-      const txt = prompt('텍스트 입력:');
-      if (txt && txt.trim()) {
-        dt.drawings.push({ type:'text', time:pt.time, price:pt.price, text:txt.trim(), color:'#f59e0b' });
-        _dtFinishDraw(page);
-      }
+      _dtTextPending = { page, pt };
+      const pop = document.getElementById('dtTextPopup');
+      const inp = document.getElementById('dtTextInput');
+      const r = canvas.getBoundingClientRect();
+      pop.style.left = Math.min(e.clientX, window.innerWidth - 260) + 'px';
+      pop.style.top = Math.max(e.clientY - 80, 8) + 'px';
+      pop.style.display = 'block';
+      inp.value = '';
+      setTimeout(() => inp.focus(), 10);
       return;
     }
 
@@ -2942,12 +2974,12 @@ function initDrawCanvas(page) {
     canvas.style.pointerEvents = hit >= 0 ? 'auto' : 'none';
     if (dt.hoverIdx !== hit) { dt.hoverIdx = hit; renderDrawings(page); }
     wrap.style.cursor = hit >= 0 ? 'pointer' : '';
-  }, false);
+  }, { capture: false, signal: ac.signal });
 
   wrap.addEventListener('mouseleave', () => {
     const dt = DT[page];
     if (dt.tool === 'cursor') { canvas.style.pointerEvents = 'none'; wrap.style.cursor = ''; }
-  }, false);
+  }, { capture: false, signal: ac.signal });
 
   wrap.addEventListener('mousedown', e => {
     const dt = DT[page];
@@ -2969,14 +3001,14 @@ function initDrawCanvas(page) {
     } else {
       if (dt.selectedIdx >= 0) { dt.selectedIdx = -1; renderDrawings(page); }
     }
-  }, false);
+  }, { capture: false, signal: ac.signal });
 
   document.addEventListener('mouseup', () => {
     if (_dtDrag.active && _dtDrag.page === page) {
       _dtDrag.active=false; _dtDrag.page=null; _dtDrag.idx=-1;
       _dtDrag.startPt=null; _dtDrag.origPts=null;
     }
-  });
+  }, { signal: ac.signal });
 }
 
 function _dtScreenToChart(page, x, y) {
@@ -3479,7 +3511,7 @@ function _dtHitOne(page,d,mx,my,T) {
       const c1=_dtC(page,d.p1.time,d.p1.price),c2=_dtC(page,d.p2.time,d.p2.price);
       if(!c1||!c2) return false;
       if(_ptSegDist(mx,my,c1.x,c1.y,c2.x,c2.y)<T) return true;
-      if(d.p3){ const c3=_dtC(page,d.p3.time,d.p3.price); if(c3&&_ptSegDist(mx,my,c1.x,c3.y+(c1.y-c3.y),c2.x,c2.y+(c3.y-c3.y))<T*2) return true; }
+      if(d.p3){ const c3=_dtC(page,d.p3.time,d.p3.price); if(c3){ const dx=c2.x-c1.x,dy=c2.y-c1.y,t3=Math.abs(dx)<0.001?0:(c3.x-c1.x)/dx,offY=c3.y-(c1.y+t3*dy); if(_ptSegDist(mx,my,c1.x,c1.y+offY,c2.x,c2.y+offY)<T*2) return true; } }
       return false;
     }
     case 'ruler': {
@@ -3515,11 +3547,14 @@ function _dtApplyDrag(page, dPrice, dTime) {
 }
 
 function calcSMA(candles, period) {
-  return candles.map((c, i) => {
-    if (i < period - 1) return null;
-    const avg = candles.slice(i - period + 1, i + 1).reduce((s, x) => s + x.close, 0) / period;
-    return { time: Math.floor(c.time / 1000), value: avg };
-  }).filter(Boolean);
+  const result = [];
+  let sum = 0;
+  for (let i = 0; i < candles.length; i++) {
+    sum += candles[i].close;
+    if (i >= period) sum -= candles[i - period].close;
+    if (i >= period - 1) result.push({ time: Math.floor(candles[i].time / 1000), value: sum / period });
+  }
+  return result;
 }
 function calcEMA(candles, period) {
   const k = 2 / (period + 1);
@@ -3948,10 +3983,11 @@ function _createIndSeries(page, entry) {
     });
     entry.subPanel={el:panelEl,chart:subChart,wrap:subWrap};
     // Sync timescale with main
-    chart.timeScale().subscribeVisibleTimeRangeChange(tr=>{
+    entry._syncHandler = tr => {
       if(!entry.subPanel) return;
       try{entry.subPanel.chart.timeScale().setVisibleRange(tr);}catch(e){}
-    });
+    };
+    chart.timeScale().subscribeVisibleTimeRangeChange(entry._syncHandler);
     const lsv={lastValueVisible:true,priceLineVisible:false};
     switch(entry.id){
       case 'rsi': entry.series={main:subChart.addLineSeries({...lsv,color:p.color||'#F06292',lineWidth:p.width||1})}; break;
@@ -3968,7 +4004,9 @@ function _createIndSeries(page, entry) {
       case 'momentum': entry.series={main:subChart.addLineSeries({...lsv,color:p.color||'#9C27B0',lineWidth:p.width||1})}; break;
       case 'ao': entry.series={main:subChart.addHistogramSeries({lastValueVisible:false,priceLineVisible:false})}; break;
     }
-    new ResizeObserver(()=>{if(entry.subPanel?.chart) subChart.resize(subWrap.clientWidth,subWrap.clientHeight);}).observe(subWrap);
+    if(entry._subRo) entry._subRo.disconnect();
+    entry._subRo = new ResizeObserver(()=>{if(entry.subPanel?.chart) subChart.resize(subWrap.clientWidth,subWrap.clientHeight);});
+    entry._subRo.observe(subWrap);
   }
 }
 function _updateIndData(page, entry) {
@@ -4016,6 +4054,8 @@ function _updateIndData(page, entry) {
 function _destroyIndSeries(page, entry) {
   const chart=S[page].lchart;
   try{
+    if(entry._syncHandler&&chart){try{chart.timeScale().unsubscribeVisibleTimeRangeChange(entry._syncHandler);}catch(e){} entry._syncHandler=null;}
+    if(entry._subRo){entry._subRo.disconnect();entry._subRo=null;}
     if(entry.subPanel){entry.subPanel.chart.remove();entry.subPanel.el.remove();entry.subPanel=null;}
     else if(chart&&entry.series){Object.values(entry.series).forEach(s=>{try{chart.removeSeries(s);}catch(e){}});}
   }catch(e){}
@@ -4922,8 +4962,6 @@ function updatePriceLines(page) {
   }
 }
 
-function updatePriceLineOverlay(page) {}
-
 // ══════════════════════════════════════════════════════
 // SELECT SYMBOL
 // ══════════════════════════════════════════════════════
@@ -5160,7 +5198,8 @@ function updateFutInfo() {
   const posVal=margin*lev;
   const ep=S.futures.ot==='limit'?(parseFloat($('fLimitPrice').value)||price):price;
   const dir=S.futures.dir;
-  const liqP=dir==='long'?ep*(1-1/lev+0.005):ep*(1+1/lev-0.005);
+  const qty2=posVal/ep;
+  const liqP=calcLiqPrice(dir,ep,qty2,lev,wallet);
   $('fPosVal').textContent='$'+fmt(posVal);
   $('fLiqPrice').textContent='$'+fmt(liqP);
   $('fFee').textContent='$'+fmt(posVal*0.0006);
@@ -5309,6 +5348,15 @@ function renderSpotHistory() {
 // ══════════════════════════════════════════════════════
 // FUTURES EXECUTION
 // ══════════════════════════════════════════════════════
+function calcLiqPrice(dir, ep, qty, lev, walletBefore) {
+  const MMR = 0.005;
+  if (_marginMode === 'cross') {
+    const fee = ep * qty * 0.0006;
+    if (dir === 'long') return Math.max(0, ep * (1 + MMR) - (walletBefore - fee) / qty);
+    return ep * (1 - MMR) + (walletBefore - fee) / qty;
+  }
+  return dir === 'long' ? ep * (1 - 1/lev + MMR) : ep * (1 + 1/lev - MMR);
+}
 function execFutures() {
   const price=S.futures.price; if(!price){toast('가격 로딩 중','var(--yellow)');return;}
   const dir=S.futures.dir;
@@ -5322,14 +5370,15 @@ function execFutures() {
   const fee=posVal*0.0006;
   if(margin+fee>wallet){toast('잔고 부족','var(--red)');return;}
   const qty=posVal/ep;
-  const liqP=dir==='long'?ep*(1-1/lev+0.005):ep*(1+1/lev-0.005);
+  const walletBefore=wallet;
+  const liqP=calcLiqPrice(dir,ep,qty,lev,walletBefore);
   wallet-=(margin+fee);
 
   if(isLimit){
     const tpRaw=parseFloat($('fTpPrice').value)||0;
     const slRaw=parseFloat($('fSlPrice').value)||0;
     futEntryOrders.push({id:Date.now(),sym:S.futures.sym,dir,price:ep,qty,margin,leverage:lev,fee,liqPrice:liqP,time:Date.now(),tp:tpRaw||null,sl:slRaw||null});
-    const tpslNote=(tpRaw||slRaw)?` | ${tpRaw?'TP $'+fmt(tpRaw):''}${(tpRaw&&slRaw)?' ':' '}${slRaw?'SL $'+fmt(slRaw):''}`:'' ;
+    const tpslNote=(tpRaw||slRaw)?` | ${tpRaw?'TP $'+fmt(tpRaw):''}${(tpRaw&&slRaw)?' ':''}${slRaw?'SL $'+fmt(slRaw):''}`:'' ;
     toast(`📌 ${dir==='long'?'▲ LONG':'▼ SHORT'} 예약 @ $${fmt(ep)} (${lev}x)${tpslNote}`,dir==='long'?'var(--green)':'var(--red)');
     saveState();updateTopBar();updatePriceLines('futures');renderFutOrders();
   } else {
@@ -5344,7 +5393,7 @@ function execFutures() {
       existing.margin=newTotalMargin;
       existing.entryPrice=avgEntry;
       existing.leverage=avgLev;
-      existing.liqPrice=dir==='long'?avgEntry*(1-1/avgLev+0.005):avgEntry*(1+1/avgLev-0.005);
+      existing.liqPrice=calcLiqPrice(dir,avgEntry,newTotalQty,avgLev,walletBefore);
       toast(`물타기 ${dir==='long'?'▲ LONG':'▼ SHORT'} ${S.futures.sym.replace('USDT','')} 평균 $${fmt(avgEntry)} (${avgLev}x)`,dir==='long'?'var(--green)':'var(--red)');
     } else {
       const pos={id:Date.now(),sym:S.futures.sym,dir,entryPrice:ep,qty,leverage:lev,margin,liqPrice:liqP,fee};
@@ -5354,7 +5403,7 @@ function execFutures() {
       const slRaw=parseFloat($('fSlPrice').value)||0;
       if(tpRaw>0) futLimitOrders.push({posId:pos.id,type:'tp',price:tpRaw,fraction:1});
       if(slRaw>0) futLimitOrders.push({posId:pos.id,type:'sl',price:slRaw,fraction:1});
-      const tpslNote = (tpRaw||slRaw) ? ` | ${tpRaw?'TP $'+fmt(tpRaw):''}${(tpRaw&&slRaw)?' ':' '}${slRaw?'SL $'+fmt(slRaw):''}` : '';
+      const tpslNote = (tpRaw||slRaw) ? ` | ${tpRaw?'TP $'+fmt(tpRaw):''}${(tpRaw&&slRaw)?' ':''}${slRaw?'SL $'+fmt(slRaw):''}` : '';
       toast(`${dir==='long'?'▲ LONG':'▼ SHORT'} ${S.futures.sym.replace('USDT','')} @ $${fmt(ep)} (${lev}x)${tpslNote}`,dir==='long'?'var(--green)':'var(--red)');
     }
     updateTopBar();renderFutPositions();saveState();updatePriceLines('futures');
@@ -5876,7 +5925,7 @@ function checkFutEntryOrders() {
       existing.margin=newTotalMargin;
       existing.entryPrice=avgEntry;
       existing.leverage=avgLev;
-      existing.liqPrice=o.dir==='long'?avgEntry*(1-1/avgLev+0.005):avgEntry*(1+1/avgLev-0.005);
+      existing.liqPrice=calcLiqPrice(o.dir,avgEntry,newTotalQty,avgLev,wallet+o.margin+o.fee);
       toast(`✅ 물타기 체결 ${o.sym.replace('USDT','')} @ $${fmt(o.price)} (${avgLev}x)`,o.dir==='long'?'var(--green)':'var(--red)');
     } else {
       const pos={id:Date.now(),sym:o.sym,dir:o.dir,entryPrice:o.price,qty:o.qty,leverage:o.leverage,margin:o.margin,liqPrice:o.liqPrice,fee:o.fee};
@@ -6686,7 +6735,7 @@ function openIndSettings(e, page, key) {
   $('ispType').value = cfg.type;
   $('ispPeriod').value = cfg.period;
   $('ispColor').value = cfg.color;
-  setIspW(cfg.width, true);
+  setIspW(cfg.width);
 
   const panel = $('indPanel');
   panel.style.display = 'block';
@@ -6700,10 +6749,9 @@ function openIndSettings(e, page, key) {
   panel.style.left = left + 'px';
 }
 function closeIndPanel() { $('indPanel').style.display = 'none'; _ispPage = _ispKey = null; }
-function setIspW(w, silent) {
+function setIspW(w) {
   [1,2,3].forEach(n => $('ispW'+n)?.classList.toggle('on', n===w));
-  if (!silent) $('indPanel')._w = w;
-  else $('indPanel')._w = w;
+  $('indPanel')._w = w;
 }
 function applyIndPanel() {
   if (!_ispPage || !_ispKey) return;
@@ -6881,8 +6929,18 @@ init();
   </div>
 </div>
 
+<!-- 드로잉 텍스트 입력 팝업 -->
+<div id="dtTextPopup" style="display:none;position:fixed;z-index:10000;background:#1c2230;border:1px solid #3b82f6;border-radius:7px;padding:10px 12px;box-shadow:0 4px 20px rgba(0,0,0,0.7);min-width:220px">
+  <div style="font-size:11px;color:#8896ae;margin-bottom:6px">텍스트 입력</div>
+  <input id="dtTextInput" type="text" maxlength="80" style="width:100%;background:#0b0e11;border:1px solid #2a3347;border-radius:4px;color:#e2e8f0;font-family:inherit;font-size:13px;padding:5px 8px;outline:none" placeholder="텍스트를 입력하세요">
+  <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
+    <button onclick="_dtTextCancel()" style="background:transparent;border:1px solid #2a3347;color:#8896ae;border-radius:4px;padding:4px 12px;cursor:pointer;font-size:12px;font-family:inherit">취소</button>
+    <button onclick="_dtTextConfirm()" style="background:#3b82f6;border:none;color:#fff;border-radius:4px;padding:4px 12px;cursor:pointer;font-size:12px;font-family:inherit">확인</button>
+  </div>
+</div>
+
 <!-- 쿠키 동의 배너 -->
-<div id="cookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#131720;border-top:1px solid #2a3347;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:9999;gap:16px;flex-wrap:wrap">
+<div id="cookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#131720;border-top:1px solid #2a3347;padding:12px 24px;align-items:center;justify-content:space-between;z-index:9999;gap:16px;flex-wrap:wrap">
   <span style="font-size:12px;color:#8896ae">이 사이트는 서비스 개선 및 광고 게재를 위해 쿠키를 사용합니다. 계속 이용하시면 쿠키 사용에 동의하는 것으로 간주됩니다. <a href="privacy.html" target="_blank" style="color:#3b82f6">개인정보처리방침</a></span>
   <button onclick="acceptCookie()" style="background:#3b82f6;border:none;color:#fff;padding:6px 18px;border-radius:5px;cursor:pointer;font-size:12px;white-space:nowrap;font-family:inherit">확인</button>
 </div>
