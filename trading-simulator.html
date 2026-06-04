@@ -1086,6 +1086,83 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   /* 호가창 비율 표시 compact */
   .ob-ratio { padding: 3px 6px; font-size: 9px; }
   .ob-ratio-b, .ob-ratio-s { min-width: 28px; }
+
+  /* ── 헤더 버튼 한줄 유지 ── */
+  .rank-btn { white-space: nowrap; }
+  .nav-right { gap: 6px; }
+  #profileName { display: none; }
+  .profile-chip { padding: 3px 7px; gap: 4px; flex-shrink: 1; }
+
+  /* ── 호가창 물량 표시 수정: ob-header 폭 최소화 ── */
+  .page[data-mob-tab="order"] .orderbook { min-width: 0; }
+  .page[data-mob-tab="order"] #s-spread,
+  .page[data-mob-tab="order"] #f-spread { display: none; }
+  .page[data-mob-tab="order"] .ob-mode-btns { display: none; }
+
+  /* ── 포지션 탭: 카드 레이아웃 ── */
+  .page[data-mob-tab="pos"] .bt-header { display: none !important; }
+  .page[data-mob-tab="pos"] .bt-scroll { overflow-x: hidden !important; }
+  .page[data-mob-tab="pos"] .bt-row {
+    display: flex !important; flex-wrap: wrap !important;
+    padding: 10px 12px 8px !important; min-width: 0 !important;
+    border-bottom: 1px solid #1a1f2e !important;
+  }
+  .page[data-mob-tab="pos"] .bt-row > span { min-width: 0 !important; box-sizing: border-box !important; }
+  /* 심볼 60% 좌측 */
+  .page[data-mob-tab="pos"] .bt-row > span:nth-child(1) {
+    flex: 0 0 60% !important; order: 1 !important;
+    padding-left: 0 !important; align-items: flex-start !important; justify-content: flex-start !important;
+  }
+  /* 손익 40% 우측 */
+  .page[data-mob-tab="pos"] .bt-row > span:nth-child(7) {
+    flex: 0 0 40% !important; order: 2 !important;
+    flex-direction: column !important; align-items: flex-end !important; justify-content: flex-start !important;
+  }
+  /* 진입가 50% 좌측 */
+  .page[data-mob-tab="pos"] .bt-row > span:nth-child(4) {
+    flex: 0 0 50% !important; order: 3 !important;
+    justify-content: flex-start !important; align-items: center !important;
+    font-size: 11px !important; margin-top: 5px !important;
+  }
+  .page[data-mob-tab="pos"] .bt-row > span:nth-child(4)::before {
+    content: "진입  "; font-size: 9px; color: #6b7280; flex-shrink: 0;
+  }
+  /* 마크가 50% 우측 */
+  .page[data-mob-tab="pos"] .bt-row > span:nth-child(5) {
+    flex: 0 0 50% !important; order: 4 !important;
+    justify-content: flex-start !important; align-items: center !important;
+    font-size: 11px !important; margin-top: 5px !important;
+  }
+  .page[data-mob-tab="pos"] .bt-row > span:nth-child(5)::before {
+    content: "마크  "; font-size: 9px; color: #6b7280; flex-shrink: 0;
+  }
+  /* 수량 50% 좌측 */
+  .page[data-mob-tab="pos"] .bt-row > span:nth-child(2) {
+    flex: 0 0 50% !important; order: 5 !important;
+    flex-direction: row !important; align-items: center !important;
+    justify-content: flex-start !important; gap: 4px !important; margin-top: 3px !important;
+  }
+  /* 청산가 50% 우측 */
+  .page[data-mob-tab="pos"] .bt-row > span:nth-child(6) {
+    flex: 0 0 50% !important; order: 6 !important;
+    justify-content: flex-start !important; align-items: center !important;
+    font-size: 11px !important; margin-top: 3px !important;
+  }
+  .page[data-mob-tab="pos"] .bt-row > span:nth-child(6)::before {
+    content: "청산  "; font-size: 9px; color: #f97316; flex-shrink: 0;
+  }
+  /* 가치(USDT) 숨김 */
+  .page[data-mob-tab="pos"] .bt-row > span:nth-child(3) { display: none !important; }
+  /* TP/SL 50% 좌측 */
+  .page[data-mob-tab="pos"] .bt-row > span:nth-child(8) {
+    flex: 0 0 50% !important; order: 7 !important;
+    justify-content: flex-start !important; margin-top: 6px !important;
+  }
+  /* 청산 버튼 50% 우측 */
+  .page[data-mob-tab="pos"] .bt-row > span:nth-child(9) {
+    flex: 0 0 50% !important; order: 8 !important;
+    justify-content: flex-end !important; gap: 4px !important; margin-top: 6px !important;
+  }
 }
 
 /* 소형 폰 (390px 이하) */
@@ -6406,13 +6483,28 @@ function generateShareCard() {
   ctx.textAlign = 'left';
 
   canvas.toBlob(blob => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'tradeplay-result.png';
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const fileName = 'tradeplay-result.png';
+    const file = new File([blob], fileName, { type: 'image/png' });
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ title: 'TradePlay 투자 결과', files: [file] })
+        .catch(err => {
+          if (err.name !== 'AbortError') {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = fileName;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+          }
+        });
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
   }, 'image/png');
-  toast('결과 카드 저장됨 📸', 'var(--green)');
+  toast('결과 카드 생성됨 📸', 'var(--green)');
 }
 
 // ══════════════════════════════════════════════════════
