@@ -1102,9 +1102,11 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   /* ── 포지션 탭: 가로 스크롤 ── */
   .page[data-mob-tab="pos"] .bt-wrap   { overflow: hidden; }
   .page[data-mob-tab="pos"] .bt-scroll { overflow-x: auto !important; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  .page[data-mob-tab="pos"] .bt-header { min-width: max-content !important; white-space: nowrap; font-size: 9px; padding: 4px 8px; }
-  .page[data-mob-tab="pos"] .bt-body   { min-width: max-content !important; }
-  .page[data-mob-tab="pos"] .bt-row    { min-width: max-content !important; font-size: 10px; padding: 5px 8px; }
+  .page[data-mob-tab="pos"] .bt-header { white-space: nowrap; font-size: 9px; padding: 4px 8px; display: flex; }
+  .page[data-mob-tab="pos"] .bt-header > span { flex-shrink: 0 !important; }
+  .page[data-mob-tab="pos"] .bt-body   { display: block !important; }
+  .page[data-mob-tab="pos"] .bt-row    { display: flex !important; font-size: 10px; padding: 5px 8px; flex-wrap: nowrap !important; }
+  .page[data-mob-tab="pos"] .bt-row > span { flex-shrink: 0 !important; }
 }
 
 /* 소형 폰 (390px 이하) */
