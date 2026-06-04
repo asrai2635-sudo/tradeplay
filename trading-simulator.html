@@ -1099,70 +1099,12 @@ input[type=range] { flex: 1; accent-color: var(--blue); }
   .page[data-mob-tab="order"] #f-spread { display: none; }
   .page[data-mob-tab="order"] .ob-mode-btns { display: none; }
 
-  /* ── 포지션 탭: 카드 레이아웃 ── */
-  .page[data-mob-tab="pos"] .bt-header { display: none !important; }
-  .page[data-mob-tab="pos"] .bt-scroll { overflow-x: hidden !important; }
-  .page[data-mob-tab="pos"] .bt-row {
-    display: flex !important; flex-wrap: wrap !important;
-    padding: 10px 12px 8px !important; min-width: 0 !important;
-    border-bottom: 1px solid #1a1f2e !important;
-  }
-  .page[data-mob-tab="pos"] .bt-row > span { min-width: 0 !important; box-sizing: border-box !important; }
-  /* 심볼 60% 좌측 */
-  .page[data-mob-tab="pos"] .bt-row > span:nth-child(1) {
-    flex: 0 0 60% !important; order: 1 !important;
-    padding-left: 0 !important; align-items: flex-start !important; justify-content: flex-start !important;
-  }
-  /* 손익 40% 우측 */
-  .page[data-mob-tab="pos"] .bt-row > span:nth-child(7) {
-    flex: 0 0 40% !important; order: 2 !important;
-    flex-direction: column !important; align-items: flex-end !important; justify-content: flex-start !important;
-  }
-  /* 진입가 50% 좌측 */
-  .page[data-mob-tab="pos"] .bt-row > span:nth-child(4) {
-    flex: 0 0 50% !important; order: 3 !important;
-    justify-content: flex-start !important; align-items: center !important;
-    font-size: 11px !important; margin-top: 5px !important;
-  }
-  .page[data-mob-tab="pos"] .bt-row > span:nth-child(4)::before {
-    content: "진입  "; font-size: 9px; color: #6b7280; flex-shrink: 0;
-  }
-  /* 마크가 50% 우측 */
-  .page[data-mob-tab="pos"] .bt-row > span:nth-child(5) {
-    flex: 0 0 50% !important; order: 4 !important;
-    justify-content: flex-start !important; align-items: center !important;
-    font-size: 11px !important; margin-top: 5px !important;
-  }
-  .page[data-mob-tab="pos"] .bt-row > span:nth-child(5)::before {
-    content: "마크  "; font-size: 9px; color: #6b7280; flex-shrink: 0;
-  }
-  /* 수량 50% 좌측 */
-  .page[data-mob-tab="pos"] .bt-row > span:nth-child(2) {
-    flex: 0 0 50% !important; order: 5 !important;
-    flex-direction: row !important; align-items: center !important;
-    justify-content: flex-start !important; gap: 4px !important; margin-top: 3px !important;
-  }
-  /* 청산가 50% 우측 */
-  .page[data-mob-tab="pos"] .bt-row > span:nth-child(6) {
-    flex: 0 0 50% !important; order: 6 !important;
-    justify-content: flex-start !important; align-items: center !important;
-    font-size: 11px !important; margin-top: 3px !important;
-  }
-  .page[data-mob-tab="pos"] .bt-row > span:nth-child(6)::before {
-    content: "청산  "; font-size: 9px; color: #f97316; flex-shrink: 0;
-  }
-  /* 가치(USDT) 숨김 */
-  .page[data-mob-tab="pos"] .bt-row > span:nth-child(3) { display: none !important; }
-  /* TP/SL 50% 좌측 */
-  .page[data-mob-tab="pos"] .bt-row > span:nth-child(8) {
-    flex: 0 0 50% !important; order: 7 !important;
-    justify-content: flex-start !important; margin-top: 6px !important;
-  }
-  /* 청산 버튼 50% 우측 */
-  .page[data-mob-tab="pos"] .bt-row > span:nth-child(9) {
-    flex: 0 0 50% !important; order: 8 !important;
-    justify-content: flex-end !important; gap: 4px !important; margin-top: 6px !important;
-  }
+  /* ── 포지션 탭: 가로 스크롤 ── */
+  .page[data-mob-tab="pos"] .bt-wrap   { overflow: hidden; }
+  .page[data-mob-tab="pos"] .bt-scroll { overflow-x: auto !important; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .page[data-mob-tab="pos"] .bt-header { min-width: max-content !important; white-space: nowrap; font-size: 9px; padding: 4px 8px; }
+  .page[data-mob-tab="pos"] .bt-body   { min-width: max-content !important; }
+  .page[data-mob-tab="pos"] .bt-row    { min-width: max-content !important; font-size: 10px; padding: 5px 8px; }
 }
 
 /* 소형 폰 (390px 이하) */
